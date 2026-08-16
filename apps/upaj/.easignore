@@ -1,0 +1,9 @@
+# Tell EAS to ignore everything outside this project directory
+# This prevents home-directory system files from being uploaded
+
+node_modules/
+.expo/
+dist/
+*.log
+android/
+ios/

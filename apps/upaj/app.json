@@ -1,0 +1,82 @@
+{
+  "expo": {
+    "name": "KisanShakti Upaj",
+    "slug": "upaj",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "upaj",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.kisanshakti.upaj",
+      "infoPlist": {
+        "NSCameraUsageDescription": "KisanShakti uses your camera to detect crop diseases using AI",
+        "NSMicrophoneUsageDescription": "Required by the camera API",
+        "NSBluetoothAlwaysUsageDescription": "KisanShakti connects to the ESP32 soil sensor via Bluetooth",
+        "NSLocationWhenInUseUsageDescription": "Used to find nearby buyers in the market"
+      },
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.kisanshakti.upaj",
+      "adaptiveIcon": {
+        "backgroundColor": "#1B4332",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1B4332",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow KisanShakti to access your camera for crop disease detection"
+        }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": [
+            "peripheral",
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "Allow KisanShakti to connect to the ESP32 soil sensor"
+        }
+      ],
+      "react-native-fast-tflite"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "da33f55c-71c6-4bfe-988b-8fee98063b16"
+      }
+    },
+    "owner": "bhanu_kiran"
+  }
+}

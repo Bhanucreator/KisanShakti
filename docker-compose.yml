@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: kisanshakti_db
+    environment:
+      POSTGRES_DB: kisanshakti
+      POSTGRES_USER: kisanshakti_user
+      POSTGRES_PASSWORD: kisanshakti_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kisanshakti_user -d kisanshakti"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kisanshakti_api
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://kisanshakti_user:kisanshakti_pass@db:5432/kisanshakti
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "alembic upgrade head &&
+             python seed_mock_data.py &&
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+volumes:
+  postgres_data:
