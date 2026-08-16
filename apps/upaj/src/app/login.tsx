@@ -189,7 +189,7 @@ export default function LoginScreen() {
       const data = await res.json();
       if (!res.ok) { setOtpError(data?.detail ?? 'Invalid OTP'); return; }
 
-      // Save to local SQLite via useAuth
+      // Save token to local SQLite (preserves existing profile on same phone)
       await auth.signIn({
         token:     data.access_token,
         server_id: String(data.user_id),
@@ -197,17 +197,57 @@ export default function LoginScreen() {
         name:      farmerName || '',
       });
 
-      // If already onboarded on server (returning user), skip to app
+      // Check local SQLite for an already-completed profile on this device
+      const local = await getFarmerProfile();
+      const hasLocalProfile =
+        local?.name?.trim() &&
+        local?.location_name?.trim() &&
+        (local?.total_land_ha ?? 0) > 0;
+
+      if (hasLocalProfile) {
+        await auth.updateProfile({ onboarded: true });
+        router.replace('/(tabs)');
+        return;
+      }
+
+      // No local profile → try to fetch from backend before asking again
       if (!data.is_new_user) {
-        const existing = await getFarmerProfile();
-        if (existing?.name && existing.location_name && existing.total_land_ha > 0) {
-          await auth.updateProfile({ onboarded: true });
-          router.replace('/(tabs)');
-          return;
+        try {
+          const meRes = await fetch(`${API_BASE}/api/v1/farmers/me`, {
+            headers: { Authorization: `Bearer ${data.access_token}` },
+          });
+          if (meRes.ok) {
+            const me = await meRes.json();
+            if (me.full_name && me.location_name && (me.total_land_ha ?? 0) > 0) {
+              // Server has a complete profile — hydrate local DB and skip onboarding
+              await auth.updateProfile({
+                name:          me.full_name,
+                location_name: me.location_name,
+                latitude:      me.latitude ?? undefined,
+                longitude:     me.longitude ?? undefined,
+                total_land_ha: me.total_land_ha,
+                onboarded:     true,
+              });
+              if (Array.isArray(me.crops) && me.crops.length > 0) {
+                const profile = await getFarmerProfile();
+                if (profile) {
+                  await replaceFarmerCrops(profile.id, me.crops.map((c: any) => ({
+                    crop_name: c.crop_name,
+                    crop_name_kn: c.crop_name_kn,
+                    land_ha: c.land_ha,
+                  })));
+                }
+              }
+              router.replace('/(tabs)');
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('[login] server hydrate failed:', e);
         }
       }
 
-      // Continue onboarding
+      // No profile anywhere → run onboarding wizard
       goToStep('name');
     } catch {
       setOtpError('Network error. Please try again.');

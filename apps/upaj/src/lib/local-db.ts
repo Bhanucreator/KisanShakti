@@ -165,15 +165,20 @@ export async function upsertFarmerProfile(input: {
     [input.phone]
   );
 
+  // Coalesce: keep existing value when input omits the field OR passes empty string
+  const keep = <T,>(v: T | undefined | null, fallback: T): T =>
+    (v === undefined || v === null || (typeof v === 'string' && v.trim() === ''))
+      ? fallback : v;
+
   if (existing) {
     const merged = {
-      server_id:     input.server_id ?? existing.server_id,
-      name:          input.name ?? existing.name,
-      location_name: input.location_name ?? existing.location_name,
+      server_id:     keep(input.server_id, existing.server_id),
+      name:          keep(input.name, existing.name),
+      location_name: keep(input.location_name, existing.location_name),
       latitude:      input.latitude ?? existing.latitude,
       longitude:     input.longitude ?? existing.longitude,
       total_land_ha: input.total_land_ha ?? existing.total_land_ha,
-      auth_token:    input.auth_token ?? existing.auth_token,
+      auth_token:    keep(input.auth_token, existing.auth_token),
       onboarded:     input.onboarded === undefined ? existing.onboarded : (input.onboarded ? 1 : 0),
     };
     await db.runAsync(

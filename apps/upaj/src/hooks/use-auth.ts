@@ -104,12 +104,20 @@ export function useAuth(): UseAuth {
   const signIn = useCallback(async (input: {
     token: string; server_id: string; phone: string; name?: string;
   }) => {
+    // Preserve existing local data if this phone is already registered on
+    // this device — only inject token + server_id. Existing name, location,
+    // land, crops, onboarded flag stay untouched.
+    const existing = await getFarmerProfile();
+    const isSamePhone = existing?.phone === input.phone;
+
     await upsertFarmerProfile({
       phone:      input.phone,
-      name:       input.name ?? '',
       server_id:  input.server_id,
       auth_token: input.token,
-      onboarded:  false,
+      // Only set name / onboarded if this is a fresh device or new phone
+      ...(isSamePhone
+        ? {}
+        : { name: input.name ?? '', onboarded: false }),
     });
     await reload();
   }, [reload]);
