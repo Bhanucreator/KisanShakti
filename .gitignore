@@ -5,6 +5,14 @@ backend/.venv/
 **/*.py[cod]
 **/*.pyo
 
+# Local SQLite dev databases
+backend/*.db
+backend/*.sqlite
+
+# Claude runtime state
+.claude/scheduled_tasks.lock
+.claude/scheduled_tasks/
+
 # Node dependencies
 **/node_modules/
 

@@ -1,446 +1,419 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet,
-  TouchableOpacity, Dimensions, Animated, Easing,
+  View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions,
+  Animated, Easing, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, FontAwesome5, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { COLORS, SPACING, RADII, SHADOWS, FONT_SIZES } from '../../constants/theme';
+import { router } from 'expo-router';
+import { useAuth } from '../../hooks/use-auth';
 
-const { width } = Dimensions.get('window');
+const { width: SCREEN_W } = Dimensions.get('window');
 
-type MarketItem = {
-  crop: string;
-  price: string;
-  change: string;
-  type: 'up' | 'down' | 'neutral';
+// ── Palette (matches Frontend Guidelines) ───────────────────────────────────
+const C = {
+  primaryDark: '#1B4332',
+  primary: '#2D6A4F',
+  primaryLight: '#40916C',
+  primaryBright: '#52B788',
+  primaryPale: '#D8F3DC',
+  primaryTint: '#F0FDF4',
+  amber: '#D97706',
+  amberBg: '#FEF3C7',
+  red: '#DC2626',
+  redBg: '#FEE2E2',
+  blue: '#2563EB',
+  blueBg: '#DBEAFE',
+  bg: '#F8F9FA',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  textDark: '#111827',
+  textBody: '#374151',
+  textMuted: '#6B7A99',
+  textLight: '#9CA3AF',
+  shadow: 'rgba(0,0,0,0.06)',
 };
 
+type MarketItem = { crop: string; kn: string; price: number; change: number; };
 const MARKET_PRICES: MarketItem[] = [
-  { crop: 'Tomato', price: '₹18/kg', change: '5%', type: 'up' },
-  { crop: 'Onion', price: '₹22/kg', change: '3%', type: 'down' },
-  { crop: 'Ragi', price: '₹35/kg', change: '0%', type: 'neutral' },
+  { crop: 'Tomato',   kn: 'ಟೊಮ್ಯಾಟೊ',  price: 18, change: 5 },
+  { crop: 'Onion',    kn: 'ಈರುಳ್ಳಿ',    price: 22, change: -3 },
+  { crop: 'Ragi',     kn: 'ರಾಗಿ',       price: 35, change: 0 },
+  { crop: 'Potato',   kn: 'ಆಲೂಗಡ್ಡೆ',   price: 15, change: 2 },
 ];
 
-// ── Animated Falling Rain Drops Component ──────────────────────────────────
-function AnimatedRainDrops() {
-  const drops = Array.from({ length: 8 }).map((_, i) => ({
-    id: i,
-    anim: useRef(new Animated.Value(-20)).current,
-    left: `${12 + i * 11}%`,
-    duration: 700 + (i % 3) * 200,
-    delay: i * 150,
-  }));
-
-  useEffect(() => {
-    drops.forEach((drop) => {
-      const animate = () => {
-        drop.anim.setValue(-20);
-        Animated.sequence([
-          Animated.delay(drop.delay),
-          Animated.timing(drop.anim, {
-            toValue: 120,
-            duration: drop.duration,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-        ]).start(() => animate());
-      };
-      animate();
-    });
-  }, []);
-
-  return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {drops.map((drop) => (
-        <Animated.View
-          key={drop.id}
-          style={[
-            rainStyles.dropLine,
-            {
-              left: drop.left as any,
-              transform: [{ translateY: drop.anim }, { rotate: '15deg' }],
-            },
-          ]}
-        />
-      ))}
-    </View>
-  );
-}
-
-const rainStyles = StyleSheet.create({
-  dropLine: {
-    position: 'absolute',
-    width: 2.5,
-    height: 16,
-    borderRadius: 1.5,
-    backgroundColor: 'rgba(37, 99, 235, 0.75)',
-  },
-});
-
-// ── Animated Rotating & Pulsing Sun Component ──────────────────────────────
+// ── Animated sun ────────────────────────────────────────────────────────────
 function AnimatedSun() {
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim  = useRef(new Animated.Value(1)).current;
-
+  const rotate = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    // Rotation loop
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 10000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
-
-    // Pulse loop
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleAnim, { toValue: 1.15, duration: 2000, useNativeDriver: true }),
-        Animated.timing(scaleAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
-      ])
-    ).start();
+    Animated.loop(Animated.timing(rotate, { toValue: 1, duration: 14000, easing: Easing.linear, useNativeDriver: true })).start();
+    Animated.loop(Animated.sequence([
+      Animated.timing(pulse, { toValue: 1.2, duration: 2200, useNativeDriver: true }),
+      Animated.timing(pulse, { toValue: 1, duration: 2200, useNativeDriver: true }),
+    ])).start();
   }, []);
-
-  const spin = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
+  const spin = rotate.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   return (
-    <View style={sunStyles.container} pointerEvents="none">
-      {/* Outer Halo Glow */}
-      <Animated.View style={[sunStyles.halo, { transform: [{ scale: scaleAnim }] }]} />
-
-      {/* Rotating Sun Rays */}
-      <Animated.View style={[sunStyles.raysContainer, { transform: [{ rotate: spin }] }]}>
-        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-          <View
-            key={angle}
-            style={[
-              sunStyles.ray,
-              { transform: [{ rotate: `${angle}deg` }, { translateY: -26 }] },
-            ]}
-          />
+    <View style={su.wrap} pointerEvents="none">
+      <Animated.View style={[su.glow, { transform: [{ scale: pulse }] }]} />
+      <Animated.View style={[su.rays, { transform: [{ rotate: spin }] }]}>
+        {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
+          <View key={a} style={[su.ray, { transform: [{ rotate: `${a}deg` }, { translateY: -34 }] }]} />
         ))}
       </Animated.View>
-
-      {/* Sun Core Circle */}
-      <View style={sunStyles.sunCore} />
+      <View style={su.core} />
     </View>
   );
 }
-
-const sunStyles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    right: 16,
-    top: 16,
-    width: 70,
-    height: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  halo: {
-    position: 'absolute',
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: 'rgba(251, 191, 36, 0.35)',
-  },
-  raysContainer: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ray: {
-    position: 'absolute',
-    width: 3,
-    height: 10,
-    borderRadius: 1.5,
-    backgroundColor: '#F59E0B',
-  },
-  sunCore: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#F59E0B',
-    borderWidth: 2,
-    borderColor: '#FBBF24',
-  },
+const su = StyleSheet.create({
+  wrap: { position: 'absolute', right: 20, top: 20, width: 82, height: 82, alignItems: 'center', justifyContent: 'center' },
+  glow: { position: 'absolute', width: 78, height: 78, borderRadius: 39, backgroundColor: 'rgba(251,191,36,0.35)' },
+  rays: { position: 'absolute', width: 68, height: 68, alignItems: 'center', justifyContent: 'center' },
+  ray: { position: 'absolute', width: 3, height: 12, borderRadius: 1.5, backgroundColor: '#FBBF24' },
+  core: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F59E0B', borderWidth: 2.5, borderColor: '#FBBF24' },
 });
 
+// ── Home Screen ─────────────────────────────────────────────────────────────
 export default function HomeScreen() {
-  const [farmer] = useState({ name: 'Raju', land_ha: 2.5, crops: 'Tomato, Ragi', livestock: '2 Cows, 1 Goat' });
-  const [weatherMode, setWeatherMode] = useState<'sunny' | 'raining'>('sunny');
+  const auth = useAuth();
+  const displayName = (auth.farmerName ?? 'Farmer').split(' ')[0];
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-
-        {/* ── Top Header ── */}
-        <View style={styles.header}>
-          <View>
-            <View style={styles.nameRow}>
-              <Text style={styles.greeting}>Namaskara, {farmer.name}</Text>
-              <Text style={styles.leafEmoji}>🌿</Text>
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
+      <SafeAreaView style={h.safe} edges={['top']}>
+        <ScrollView contentContainerStyle={h.scroll} showsVerticalScrollIndicator={false}>
+          {/* ── Top Bar ── */}
+          <View style={h.topBar}>
+            <View style={h.avatar}>
+              <Text style={h.avatarText}>{displayName.charAt(0).toUpperCase()}</Text>
             </View>
-            <Text style={styles.locationText}>Kolar, Karnataka</Text>
-          </View>
-          <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
-            <Ionicons name="notifications-outline" size={22} color={COLORS.textDark} />
-            <View style={styles.bellBadge} />
-          </TouchableOpacity>
-        </View>
-
-        {/* ── Weather Hero Card with Live Animations ── */}
-        <View style={[
-          styles.weatherCard,
-          weatherMode === 'raining' ? { backgroundColor: '#DBEAFE', borderColor: '#BFDBFE' } : { backgroundColor: '#E2F1E5', borderColor: '#C8E6C9' }
-        ]}>
-
-          {/* Live Animations */}
-          {weatherMode === 'raining' ? (
-            <AnimatedRainDrops />
-          ) : (
-            <AnimatedSun />
-          )}
-
-          <View style={styles.weatherTop}>
-            <View>
-              <Text style={styles.weatherTemp}>
-                {weatherMode === 'raining' ? '22°c' : '28°c'}
-              </Text>
-              <Text style={styles.weatherCond}>
-                {weatherMode === 'raining' ? 'Heavy Rain' : 'Sunny Day'}
-              </Text>
-            </View>
-
-            {/* Mode Switch Pill Toggle */}
-            <TouchableOpacity
-              style={styles.rainBadge}
-              onPress={() => setWeatherMode(prev => prev === 'sunny' ? 'raining' : 'sunny')}
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name={weatherMode === 'raining' ? 'rainy' : 'sunny'}
-                size={16}
-                color={weatherMode === 'raining' ? COLORS.accentBlue : COLORS.accentAmber}
-              />
-              <View style={{ marginLeft: 6 }}>
-                <Text style={styles.rainBadgeTitle}>
-                  {weatherMode === 'raining' ? 'Raining Mode' : 'Sunny Mode'}
-                </Text>
-                <Text style={styles.rainBadgePct}>Tap to toggle</Text>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={h.greeting}>Namaskara, {displayName} 🌿</Text>
+              <View style={h.locRow}>
+                <Ionicons name="location" size={11} color={C.textMuted} />
+                <Text style={h.loc}>Kolar, Karnataka</Text>
               </View>
+            </View>
+            <TouchableOpacity style={h.bellBtn} activeOpacity={0.7}>
+              <Ionicons name="notifications-outline" size={20} color={C.textDark} />
+              <View style={h.bellDot} />
             </TouchableOpacity>
           </View>
 
-          {/* Decorative subtle landscape illustration overlay */}
-          <View style={styles.landscapeGraphic}>
-            <Text style={{ fontSize: 36, opacity: 0.35 }}>
-              {weatherMode === 'raining' ? '🌧️ 🌾 🚜' : '☀️ 🌾 🚜'}
-            </Text>
-          </View>
-        </View>
+          {/* ── Weather Hero Card ── */}
+          <LinearGradient
+            colors={['#B8E1CC', '#95D5B2', '#74C69D']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={h.weatherCard}
+          >
+            <AnimatedSun />
 
-        {/* ── Overview Cards Row ── */}
-        <View style={styles.overviewRow}>
-          {/* My Farm */}
-          <View style={styles.overviewCard}>
-            <View style={[styles.overviewIconBg, { backgroundColor: '#E8F5E9' }]}>
-              <MaterialCommunityIcons name="sprout" size={20} color={COLORS.primary} />
+            <View style={h.weatherLocRow}>
+              <MaterialCommunityIcons name="map-marker" size={14} color={C.primaryDark} />
+              <Text style={h.weatherLoc}>Malur, Kolar</Text>
+              <View style={h.weatherLiveDot} />
+              <Text style={h.weatherLive}>Live</Text>
             </View>
-            <Text style={styles.overviewTitle}>My Farm</Text>
-            <Text style={styles.overviewSub}>{farmer.land_ha} ha</Text>
-          </View>
 
-          {/* Crops */}
-          <View style={styles.overviewCard}>
-            <View style={[styles.overviewIconBg, { backgroundColor: '#E8F5E9' }]}>
-              <FontAwesome5 name="seedling" size={18} color={COLORS.primary} />
+            <Text style={h.weatherTemp}>28°</Text>
+            <Text style={h.weatherCond}>Sunny · Perfect for spraying</Text>
+            <Text style={h.weatherKn}>ಸ್ಪ್ರೇಗೆ ಸೂಕ್ತ</Text>
+
+            <View style={h.weatherMetricsRow}>
+              <WeatherMetric icon="water" label="Humidity" value="62%" />
+              <View style={h.metricDivider} />
+              <WeatherMetric icon="weather-windy" label="Wind" value="8 km/h" />
+              <View style={h.metricDivider} />
+              <WeatherMetric icon="weather-rainy" label="Rain" value="0%" />
             </View>
-            <Text style={styles.overviewTitle}>Crops</Text>
-            <Text style={styles.overviewSub} numberOfLines={1}>{farmer.crops}</Text>
+          </LinearGradient>
+
+          {/* ── Quick Actions Grid ── */}
+          <Text style={h.sectionTitle}>Quick Actions</Text>
+          <Text style={h.sectionTitleKn}>ತ್ವರಿತ ಕ್ರಿಯೆಗಳು</Text>
+
+          <View style={h.actionGrid}>
+            <QuickAction
+              icon="scan" iconLib="mci" iconName="line-scan"
+              gradient={['#40916C', '#2D6A4F']}
+              label="Scan Disease" kn="ರೋಗ ಸ್ಕ್ಯಾನ್"
+              onPress={() => router.push('/(tabs)/disease')}
+            />
+            <QuickAction
+              icon="storefront" iconLib="ion"
+              gradient={['#F59E0B', '#D97706']}
+              label="Sell Produce" kn="ಬೆಳೆ ಮಾರಾಟ"
+              onPress={() => router.push('/(tabs)/market')}
+            />
+            <QuickAction
+              icon="thermometer" iconLib="ion"
+              gradient={['#3B82F6', '#2563EB']}
+              label="Soil Sensor" kn="ಮಣ್ಣಿನ ಸಂವೇದಕ"
+              onPress={() => router.push('/(tabs)/weather')}
+            />
+            <QuickAction
+              icon="analytics" iconLib="ion"
+              gradient={['#8B5CF6', '#6D28D9']}
+              label="Farm Ledger" kn="ಆದಾಯ-ವೆಚ್ಚ"
+              onPress={() => router.push('/(tabs)/ledger')}
+            />
           </View>
 
-          {/* Livestock */}
-          <View style={styles.overviewCard}>
-            <View style={[styles.overviewIconBg, { backgroundColor: '#E8F5E9' }]}>
-              <MaterialCommunityIcons name="barn" size={20} color={COLORS.primary} />
+          {/* ── Farm Overview ── */}
+          <View style={h.sectionRow}>
+            <View>
+              <Text style={h.sectionTitle}>My Farm</Text>
+              <Text style={h.sectionTitleKn}>ನನ್ನ ಜಮೀನು</Text>
             </View>
-            <Text style={styles.overviewTitle}>Livestock</Text>
-            <Text style={styles.overviewSub} numberOfLines={1}>{farmer.livestock}</Text>
           </View>
-        </View>
 
-        {/* ── Market Prices Section ── */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Market Prices</Text>
-          <TouchableOpacity activeOpacity={0.7}>
-            <Text style={styles.viewAllText}>View All</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={h.farmOverviewRow}>
+            <OverviewCard icon="sprout" iconLib="mci" tint="#E8F5E9" label="Land" value="2.5 ha" />
+            <OverviewCard icon="seedling" iconLib="fa5" tint="#FEF3C7" label="Crops" value="3 types" />
+            <OverviewCard icon="cow" iconLib="mci" tint="#DBEAFE" label="Livestock" value="3" />
+          </View>
 
-        <View style={styles.marketRow}>
-          {MARKET_PRICES.map((item) => (
-            <View key={item.crop} style={styles.marketCard}>
-              <Text style={styles.marketCrop}>{item.crop}</Text>
-              <Text style={styles.marketPrice}>{item.price}</Text>
+          {/* ── Market Prices ── */}
+          <View style={h.sectionRow}>
+            <View>
+              <Text style={h.sectionTitle}>Market Prices</Text>
+              <Text style={h.sectionTitleKn}>ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು</Text>
+            </View>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/market')} activeOpacity={0.7}>
+              <Text style={h.viewAll}>View All →</Text>
+            </TouchableOpacity>
+          </View>
 
-              {/* Trend Pill */}
-              <View style={[
-                styles.trendBadge,
-                item.type === 'up' && { backgroundColor: '#E8F5E9' },
-                item.type === 'down' && { backgroundColor: '#FEE2E2' },
-                item.type === 'neutral' && { backgroundColor: '#FEF3C7' },
-              ]}>
-                <Feather
-                  name={item.type === 'up' ? 'trending-up' : item.type === 'down' ? 'trending-down' : 'minus'}
-                  size={12}
-                  color={item.type === 'up' ? COLORS.primary : item.type === 'down' ? COLORS.accentRed : COLORS.accentAmber}
-                />
-                <Text style={[
-                  styles.trendText,
-                  item.type === 'up' && { color: COLORS.primary },
-                  item.type === 'down' && { color: COLORS.accentRed },
-                  item.type === 'neutral' && { color: COLORS.accentAmber },
-                ]}>
-                  {item.change}
-                </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 20 }}>
+            {MARKET_PRICES.map((item) => (
+              <MarketCard key={item.crop} item={item} />
+            ))}
+          </ScrollView>
+
+          {/* ── Smart Suggestion ── */}
+          <Text style={[h.sectionTitle, { marginTop: 24 }]}>Today's Insight</Text>
+          <Text style={h.sectionTitleKn}>ಇಂದಿನ ಒಳನೋಟ</Text>
+
+          <LinearGradient
+            colors={['#F0FDF4', '#D8F3DC']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={h.insightCard}
+          >
+            <View style={h.insightIconBox}>
+              <FontAwesome5 name="seedling" size={22} color={C.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={h.insightBadge}>
+                <Ionicons name="trending-up" size={11} color={C.primary} />
+                <Text style={h.insightBadgeText}>34% higher profit expected</Text>
               </View>
-
-              {/* Mini trend graphic */}
-              <View style={styles.miniChartTrack}>
-                <View style={[
-                  styles.miniChartLine,
-                  {
-                    width: item.type === 'up' ? '85%' : item.type === 'down' ? '45%' : '65%',
-                    backgroundColor: item.type === 'up' ? COLORS.primary : item.type === 'down' ? COLORS.accentRed : COLORS.accentAmber,
-                    height: item.type === 'up' ? 3 : 2,
-                  }
-                ]} />
-              </View>
+              <Text style={h.insightTitle}>Grow Maize in Plot B this season</Text>
+              <Text style={h.insightSub}>
+                Based on current market trends and your soil conditions
+              </Text>
             </View>
-          ))}
-        </View>
+            <Ionicons name="chevron-forward" size={20} color={C.primary} />
+          </LinearGradient>
 
-        {/* ── Smart Suggestions Card ── */}
-        <Text style={[styles.sectionTitle, { marginTop: SPACING.xl, marginBottom: SPACING.sm }]}>
-          Smart Suggestions
-        </Text>
-        <View style={styles.suggestionCard}>
-          <View style={styles.suggestionIconBg}>
-            <FontAwesome5 name="seedling" size={20} color={COLORS.primary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.suggestionTitle}>Grow Maize in Plot B this season</Text>
-            <Text style={styles.suggestionSub}>
-              34% higher profit expected based on current market trends
-            </Text>
-          </View>
-        </View>
-
-      </ScrollView>
-    </SafeAreaView>
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.bgApp },
-  scroll: { padding: SPACING.xl, paddingBottom: 48 },
+// ── Sub-components ──────────────────────────────────────────────────────────
+function WeatherMetric({ icon, label, value }: any) {
+  return (
+    <View style={h.wMetric}>
+      <MaterialCommunityIcons name={icon} size={16} color={C.primaryDark} />
+      <Text style={h.wMetricValue}>{value}</Text>
+      <Text style={h.wMetricLabel}>{label}</Text>
+    </View>
+  );
+}
 
-  // Header
-  header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginBottom: SPACING.lg,
+function QuickAction({ icon, iconLib, iconName, gradient, label, kn, onPress }: any) {
+  const Icon = iconLib === 'mci' ? MaterialCommunityIcons : iconLib === 'fa5' ? FontAwesome5 : Ionicons;
+  const finalIcon = iconName ?? icon;
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={h.qaCard}>
+      <LinearGradient colors={gradient} style={h.qaIconBox} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <Icon name={finalIcon} size={20} color="#FFF" />
+      </LinearGradient>
+      <View style={{ flex: 1, marginLeft: 12 }}>
+        <Text style={h.qaLabel}>{label}</Text>
+        <Text style={h.qaKn}>{kn}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={16} color={C.textLight} />
+    </TouchableOpacity>
+  );
+}
+
+function OverviewCard({ icon, iconLib, tint, label, value }: any) {
+  const Icon = iconLib === 'mci' ? MaterialCommunityIcons : iconLib === 'fa5' ? FontAwesome5 : Ionicons;
+  return (
+    <View style={h.ovCard}>
+      <View style={[h.ovIconBox, { backgroundColor: tint }]}>
+        <Icon name={icon} size={18} color={C.primaryDark} />
+      </View>
+      <Text style={h.ovLabel}>{label}</Text>
+      <Text style={h.ovValue}>{value}</Text>
+    </View>
+  );
+}
+
+function MarketCard({ item }: { item: MarketItem }) {
+  const isUp = item.change > 0;
+  const isDown = item.change < 0;
+  const color = isUp ? C.primary : isDown ? C.red : C.amber;
+  const bg = isUp ? C.primaryPale : isDown ? C.redBg : C.amberBg;
+
+  return (
+    <View style={h.mkCard}>
+      <View style={h.mkTopRow}>
+        <Text style={h.mkCrop}>{item.crop}</Text>
+        <View style={[h.mkPill, { backgroundColor: bg }]}>
+          <Ionicons
+            name={isUp ? 'trending-up' : isDown ? 'trending-down' : 'remove'}
+            size={10} color={color}
+          />
+          <Text style={[h.mkPillText, { color }]}>
+            {Math.abs(item.change)}%
+          </Text>
+        </View>
+      </View>
+      <Text style={h.mkKn}>{item.kn}</Text>
+      <Text style={h.mkPrice}>₹{item.price}<Text style={h.mkPriceUnit}>/kg</Text></Text>
+
+      {/* Mini sparkline */}
+      <View style={h.mkSparkline}>
+        {[0.4, 0.6, 0.5, 0.7, 0.9, 0.75, isUp ? 1 : isDown ? 0.3 : 0.7].map((v, i) => (
+          <View
+            key={i}
+            style={{
+              flex: 1,
+              marginHorizontal: 1,
+              height: v * 24,
+              borderRadius: 2,
+              backgroundColor: color,
+              opacity: 0.15 + v * 0.7,
+            }}
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// ── Styles ──────────────────────────────────────────────────────────────────
+const h = StyleSheet.create({
+  safe: { flex: 1 },
+  scroll: { paddingHorizontal: 20, paddingBottom: 40 },
+
+  // Top bar
+  topBar: { flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 20 },
+  avatar: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: C.primary,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: C.primary, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 5,
   },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  greeting: { fontSize: 22, fontWeight: '800', color: COLORS.textDark },
-  leafEmoji: { fontSize: 20 },
-  locationText: { fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
+  avatarText: { color: '#FFF', fontFamily: 'Inter_800ExtraBold', fontSize: 18 },
+  greeting: { fontFamily: 'Inter_700Bold', fontSize: 16, color: C.textDark },
+  locRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 2 },
+  loc: { fontFamily: 'Inter_500Medium', fontSize: 11, color: C.textMuted },
   bellBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: COLORS.bgCard, borderWidth: 1, borderColor: COLORS.border,
-    justifyContent: 'center', alignItems: 'center',
-    ...SHADOWS.card,
+    width: 42, height: 42, borderRadius: 21,
+    backgroundColor: C.card, borderWidth: 1, borderColor: C.border,
+    alignItems: 'center', justifyContent: 'center',
   },
-  bellBadge: {
-    position: 'absolute', top: 10, right: 10,
-    width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.accentRed,
-  },
+  bellDot: { position: 'absolute', top: 11, right: 11, width: 7, height: 7, borderRadius: 4, backgroundColor: C.red, borderWidth: 1.5, borderColor: C.card },
 
-  // Weather Card
+  // Weather
   weatherCard: {
-    borderRadius: RADII.xl,
-    padding: SPACING.xxl, marginBottom: SPACING.xl,
-    borderWidth: 1,
-    overflow: 'hidden', position: 'relative',
-    ...SHADOWS.card,
+    borderRadius: 22, padding: 22, position: 'relative', overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: C.primaryDark, shadowOpacity: 0.15, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 6,
   },
-  weatherTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 10 },
-  weatherTemp: { fontSize: 44, fontWeight: '800', color: COLORS.primaryDark, letterSpacing: -1 },
-  weatherCond: { fontSize: 14, color: COLORS.primary, fontWeight: '600', marginTop: 2 },
-  rainBadge: {
-    backgroundColor: 'rgba(255,255,255,0.85)', borderRadius: RADII.lg,
-    paddingHorizontal: 12, paddingVertical: 8, flexDirection: 'row', alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2,
-  },
-  rainBadgeTitle: { fontSize: 10, color: COLORS.textDark, fontWeight: '700' },
-  rainBadgePct: { fontSize: 10, color: COLORS.primary, fontWeight: '600' },
-  landscapeGraphic: { marginTop: 20, alignItems: 'flex-end', zIndex: 10 },
+  weatherLocRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  weatherLoc: { fontFamily: 'Inter_700Bold', fontSize: 12, color: C.primaryDark },
+  weatherLiveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#DC2626', marginLeft: 8 },
+  weatherLive: { fontFamily: 'Inter_700Bold', fontSize: 10, color: C.primaryDark, marginLeft: 3 },
+  weatherTemp: { fontFamily: 'Inter_800ExtraBold', fontSize: 56, color: C.primaryDark, letterSpacing: -2, marginTop: 6 },
+  weatherCond: { fontFamily: 'Inter_700Bold', fontSize: 15, color: C.primaryDark, marginTop: -4 },
+  weatherKn: { fontFamily: 'Inter_500Medium', fontSize: 12, color: 'rgba(27,67,50,0.7)', marginTop: 3 },
 
-  // Overview
-  overviewRow: { flexDirection: 'row', gap: 10, marginBottom: SPACING.xl },
-  overviewCard: {
-    flex: 1, backgroundColor: COLORS.bgCard, borderRadius: RADII.lg,
-    padding: SPACING.md, alignItems: 'center', borderWidth: 1, borderColor: COLORS.border,
-    ...SHADOWS.card,
+  weatherMetricsRow: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14,
+    padding: 12, marginTop: 20,
   },
-  overviewIconBg: {
-    width: 38, height: 38, borderRadius: 19,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 8,
-  },
-  overviewTitle: { fontSize: 12, color: COLORS.textMuted, fontWeight: '600' },
-  overviewSub: { fontSize: 13, fontWeight: '700', color: COLORS.textDark, marginTop: 2 },
+  wMetric: { flex: 1, alignItems: 'center', gap: 4 },
+  wMetricValue: { fontFamily: 'Inter_800ExtraBold', fontSize: 14, color: C.primaryDark },
+  wMetricLabel: { fontFamily: 'Inter_500Medium', fontSize: 10, color: C.primaryDark, opacity: 0.75 },
+  metricDivider: { width: 1, height: 24, backgroundColor: 'rgba(27,67,50,0.15)' },
 
-  // Section Header
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.textDark },
-  viewAllText: { fontSize: 12, color: COLORS.primary, fontWeight: '600' },
+  // Sections
+  sectionTitle: { fontFamily: 'Inter_800ExtraBold', fontSize: 18, color: C.textDark, letterSpacing: -0.3 },
+  sectionTitleKn: { fontFamily: 'Inter_500Medium', fontSize: 12, color: C.textMuted, marginTop: 1, marginBottom: 14 },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 },
+  viewAll: { fontFamily: 'Inter_700Bold', fontSize: 12, color: C.primary },
 
-  // Market Prices
-  marketRow: { flexDirection: 'row', gap: 10, marginBottom: SPACING.sm },
-  marketCard: {
-    flex: 1, backgroundColor: COLORS.bgCard, borderRadius: RADII.lg,
-    padding: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
-    ...SHADOWS.card,
+  // Quick actions
+  actionGrid: { gap: 10 },
+  qaCard: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: C.card, borderRadius: 16, padding: 12,
+    borderWidth: 1, borderColor: C.border,
+    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2,
   },
-  marketCrop: { fontSize: 13, color: COLORS.textMuted, fontWeight: '600' },
-  marketPrice: { fontSize: 15, fontWeight: '800', color: COLORS.textDark, marginVertical: 4 },
-  trendBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 6, paddingVertical: 3, borderRadius: RADII.pill,
-    alignSelf: 'flex-start',
+  qaIconBox: {
+    width: 46, height: 46, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
   },
-  trendText: { fontSize: 11, fontWeight: '700' },
-  miniChartTrack: { height: 3, backgroundColor: '#F3F4F6', borderRadius: 2, marginTop: 10, overflow: 'hidden' },
-  miniChartLine: { borderRadius: 2 },
+  qaLabel: { fontFamily: 'Inter_700Bold', fontSize: 14, color: C.textDark },
+  qaKn: { fontFamily: 'Inter_500Medium', fontSize: 11, color: C.textMuted, marginTop: 1 },
 
-  // Smart Suggestions
-  suggestionCard: {
-    backgroundColor: '#F4F9F5', borderRadius: RADII.lg,
-    padding: SPACING.lg, borderWidth: 1, borderColor: '#C8E6C9',
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    ...SHADOWS.card,
+  // Farm overview
+  farmOverviewRow: { flexDirection: 'row', gap: 10 },
+  ovCard: {
+    flex: 1, backgroundColor: C.card, borderRadius: 14, padding: 14,
+    alignItems: 'center', borderWidth: 1, borderColor: C.border,
   },
-  suggestionIconBg: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: '#E8F5E9', alignItems: 'center', justifyContent: 'center',
+  ovIconBox: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  ovLabel: { fontFamily: 'Inter_500Medium', fontSize: 11, color: C.textMuted },
+  ovValue: { fontFamily: 'Inter_800ExtraBold', fontSize: 14, color: C.textDark, marginTop: 2 },
+
+  // Market cards
+  mkCard: {
+    width: 140, backgroundColor: C.card, borderRadius: 14, padding: 12,
+    marginRight: 10, borderWidth: 1, borderColor: C.border,
+    shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1,
   },
-  suggestionTitle: { fontSize: 14, fontWeight: '700', color: COLORS.primaryDark },
-  suggestionSub: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2, lineHeight: 16 },
+  mkTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  mkCrop: { fontFamily: 'Inter_700Bold', fontSize: 13, color: C.textDark },
+  mkKn: { fontFamily: 'Inter_400Regular', fontSize: 10, color: C.textMuted, marginTop: 1 },
+  mkPill: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
+  mkPillText: { fontFamily: 'Inter_700Bold', fontSize: 10 },
+  mkPrice: { fontFamily: 'Inter_800ExtraBold', fontSize: 20, color: C.textDark, marginTop: 6, letterSpacing: -0.5 },
+  mkPriceUnit: { fontFamily: 'Inter_500Medium', fontSize: 11, color: C.textMuted },
+  mkSparkline: { flexDirection: 'row', alignItems: 'flex-end', height: 26, marginTop: 10 },
+
+  // Insight
+  insightCard: {
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: 16, padding: 16, gap: 14, marginTop: 14,
+    borderWidth: 1, borderColor: '#B7E4C7',
+  },
+  insightIconBox: {
+    width: 48, height: 48, borderRadius: 14,
+    backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center',
+    shadowColor: C.primary, shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3,
+  },
+  insightBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' },
+  insightBadgeText: { fontFamily: 'Inter_700Bold', fontSize: 11, color: C.primary },
+  insightTitle: { fontFamily: 'Inter_800ExtraBold', fontSize: 14, color: C.primaryDark, marginTop: 4 },
+  insightSub: { fontFamily: 'Inter_400Regular', fontSize: 12, color: C.textBody, marginTop: 2, lineHeight: 17 },
 });

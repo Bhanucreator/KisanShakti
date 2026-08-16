@@ -1,0 +1,12 @@
+# KisanShakti ML training deps.
+# Install into the backend venv:
+#   .\backend\venv\Scripts\pip.exe install -r backend\ai\requirements-ml.txt
+#
+# Python 3.12 tested. TF 2.16+ is the first release with full Python 3.12 support.
+# For CPU-only Windows, the plain `tensorflow` wheel is fine.
+
+tensorflow>=2.16,<2.20
+numpy>=1.26,<3
+pillow>=10.0
+kaggle>=1.6
+tqdm>=4.66
