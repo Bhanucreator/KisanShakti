@@ -5,8 +5,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
 import { SafeGradient as LinearGradient } from '../../components/safe-gradient';
+
+// Lazy-load expo-image-picker — may be missing from older APKs
+let ImagePicker: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  ImagePicker = require('expo-image-picker');
+} catch {
+  ImagePicker = null;
+}
 import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/vector-icons';
 import { useDiseaseDetection, InferenceResult } from '../../hooks/use-disease-detection';
 
@@ -190,19 +198,32 @@ export default function DiseaseScreen() {
   }
 
   async function pickFromGallery() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant photo library access.');
+    if (!ImagePicker) {
+      Alert.alert(
+        'Update Needed',
+        'Gallery upload requires the latest app build. Please install the newest APK to enable this feature.',
+        [{ text: 'OK' }]
+      );
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 0.85,
-      allowsEditing: true,
-      aspect: [1, 1],
-    });
-    if (!result.canceled && result.assets[0]?.uri) {
-      await analyseUri(result.assets[0].uri);
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant photo library access.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.85,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (!result.canceled && result.assets[0]?.uri) {
+        await analyseUri(result.assets[0].uri);
+      }
+    } catch (e) {
+      console.error('[Disease] gallery pick failed:', e);
+      Alert.alert('Gallery Error', 'Could not open gallery. Try the newest APK.');
     }
   }
 

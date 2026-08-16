@@ -8,6 +8,12 @@ const KEYS = {
   phone:       'farmer_phone',
 } as const;
 
+// Bump this to force all existing users back to the login screen — useful
+// when we ship UI changes that only appear post-login and users don't have
+// a logout button in the older APK they've already installed.
+const AUTH_VERSION_KEY = 'auth_version';
+const CURRENT_AUTH_VERSION = '2';
+
 interface AuthState {
   token:       string | null;
   farmerId:    string | null;
@@ -35,6 +41,20 @@ export function useAuth(): UseAuth {
   useEffect(() => {
     (async () => {
       try {
+        // One-time forced logout when AUTH_VERSION changes
+        const storedVersion = await AsyncStorage.getItem(AUTH_VERSION_KEY);
+        if (storedVersion !== CURRENT_AUTH_VERSION) {
+          await AsyncStorage.multiRemove([
+            KEYS.token, KEYS.farmerId, KEYS.farmerName, KEYS.phone,
+          ]);
+          await AsyncStorage.setItem(AUTH_VERSION_KEY, CURRENT_AUTH_VERSION);
+          setState({
+            token: null, farmerId: null, farmerName: null, phone: null,
+            isLoading: false, isAuthenticated: false,
+          });
+          return;
+        }
+
         const pairs = await AsyncStorage.multiGet([
           KEYS.token,
           KEYS.farmerId,
