@@ -36,12 +36,13 @@ export default function UpajRootLayout() {
     if (redirected.current) return;
     redirected.current = true;
 
-    if (auth.isAuthenticated) {
+    // Only enter the app when both signed in AND onboarding is complete
+    if (auth.isAuthenticated && auth.isOnboarded) {
       router.replace('/(tabs)');
     } else {
       router.replace('/login');
     }
-  }, [ready, auth.isAuthenticated]);
+  }, [ready, auth.isAuthenticated, auth.isOnboarded]);
 
   if (!ready) {
     return (

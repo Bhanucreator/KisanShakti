@@ -71,7 +71,14 @@
       "expo-font",
       "expo-web-browser",
       "expo-image",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow KisanShakti to use your location to auto-detect your farm and find nearby buyers."
+        }
+      ],
+      "expo-image-picker"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,126 +1,133 @@
+/**
+ * useAuth — offline-first auth backed by local SQLite.
+ *
+ * The farmer profile (with auth token) lives in `farmer_profile` in the local
+ * SQLite DB. This means the user stays signed in even without internet, and
+ * the profile survives reinstall (via device backup, on OS-supported paths).
+ *
+ * `isAuthenticated = onboarded && token exists`
+ * `isOnboarded` alone indicates profile-collection is complete (post-OTP).
+ */
+
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getFarmerProfile,
+  upsertFarmerProfile,
+  signOutLocal,
+  FarmerProfile,
+} from '../lib/local-db';
 
-const KEYS = {
-  token:       'auth_token',
-  farmerId:    'farmer_id',
-  farmerName:  'farmer_name',
-  phone:       'farmer_phone',
-} as const;
-
-// Bump this to force all existing users back to the login screen — useful
-// when we ship UI changes that only appear post-login and users don't have
-// a logout button in the older APK they've already installed.
-const AUTH_VERSION_KEY = 'auth_version';
-const CURRENT_AUTH_VERSION = '2';
+// Bump this to force existing users to redo onboarding
+const AUTH_MIGRATION_KEY = 'auth_migration';
+const CURRENT_MIGRATION = '3';
 
 interface AuthState {
-  token:       string | null;
-  farmerId:    string | null;
-  farmerName:  string | null;
-  phone:       string | null;
-  isLoading:   boolean;
-  isAuthenticated: boolean;
+  profile:         FarmerProfile | null;
+  token:           string | null;
+  farmerId:        string | null;
+  farmerName:      string | null;
+  phone:           string | null;
+  isLoading:       boolean;
+  isAuthenticated: boolean;   // has token + onboarded
+  isOnboarded:     boolean;   // has profile with name+location
 }
 
 interface UseAuth extends AuthState {
-  signIn: (token: string, farmerId: string, name: string, phone: string) => Promise<void>;
+  signIn: (input: {
+    token: string;
+    server_id: string;
+    phone: string;
+    name?: string;
+  }) => Promise<void>;
+  updateProfile: (updates: Partial<{
+    name: string;
+    location_name: string;
+    latitude: number;
+    longitude: number;
+    total_land_ha: number;
+    onboarded: boolean;
+  }>) => Promise<void>;
   signOut: () => Promise<void>;
+  reload:  () => Promise<void>;
 }
 
+const EMPTY: AuthState = {
+  profile: null, token: null, farmerId: null, farmerName: null, phone: null,
+  isLoading: true, isAuthenticated: false, isOnboarded: false,
+};
+
 export function useAuth(): UseAuth {
-  const [state, setState] = useState<AuthState>({
-    token:           null,
-    farmerId:        null,
-    farmerName:      null,
-    phone:           null,
-    isLoading:       true,
-    isAuthenticated: false,
-  });
+  const [state, setState] = useState<AuthState>(EMPTY);
+
+  const reload = useCallback(async () => {
+    try {
+      const profile = await getFarmerProfile();
+      if (!profile) {
+        setState({ ...EMPTY, isLoading: false });
+        return;
+      }
+      setState({
+        profile,
+        token:           profile.auth_token,
+        farmerId:        profile.server_id ?? profile.id,
+        farmerName:      profile.name || null,
+        phone:           profile.phone,
+        isLoading:       false,
+        isAuthenticated: !!profile.auth_token && profile.onboarded,
+        isOnboarded:     profile.onboarded,
+      });
+    } catch (e) {
+      console.error('[useAuth] reload failed:', e);
+      setState({ ...EMPTY, isLoading: false });
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
+      // One-time migration: clear any legacy AsyncStorage auth left over
+      // from the pre-SQLite build so users start fresh.
       try {
-        // One-time forced logout when AUTH_VERSION changes
-        const storedVersion = await AsyncStorage.getItem(AUTH_VERSION_KEY);
-        if (storedVersion !== CURRENT_AUTH_VERSION) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+        const v = await AsyncStorage.getItem(AUTH_MIGRATION_KEY);
+        if (v !== CURRENT_MIGRATION) {
           await AsyncStorage.multiRemove([
-            KEYS.token, KEYS.farmerId, KEYS.farmerName, KEYS.phone,
+            'auth_token', 'farmer_id', 'farmer_name', 'farmer_phone', 'auth_version',
           ]);
-          await AsyncStorage.setItem(AUTH_VERSION_KEY, CURRENT_AUTH_VERSION);
-          setState({
-            token: null, farmerId: null, farmerName: null, phone: null,
-            isLoading: false, isAuthenticated: false,
-          });
-          return;
+          await AsyncStorage.setItem(AUTH_MIGRATION_KEY, CURRENT_MIGRATION);
         }
-
-        const pairs = await AsyncStorage.multiGet([
-          KEYS.token,
-          KEYS.farmerId,
-          KEYS.farmerName,
-          KEYS.phone,
-        ]);
-
-        const map: Record<string, string | null> = {};
-        for (const [key, value] of pairs) {
-          map[key] = value;
-        }
-
-        const token = map[KEYS.token];
-
-        setState({
-          token,
-          farmerId:        map[KEYS.farmerId],
-          farmerName:      map[KEYS.farmerName],
-          phone:           map[KEYS.phone],
-          isLoading:       false,
-          isAuthenticated: !!token,
-        });
-      } catch {
-        setState(prev => ({ ...prev, isLoading: false }));
-      }
+      } catch {}
+      await reload();
     })();
-  }, []);
+  }, [reload]);
 
-  const signIn = useCallback(
-    async (token: string, farmerId: string, name: string, phone: string) => {
-      await AsyncStorage.multiSet([
-        [KEYS.token,      token],
-        [KEYS.farmerId,   farmerId],
-        [KEYS.farmerName, name],
-        [KEYS.phone,      phone],
-      ]);
+  const signIn = useCallback(async (input: {
+    token: string; server_id: string; phone: string; name?: string;
+  }) => {
+    await upsertFarmerProfile({
+      phone:      input.phone,
+      name:       input.name ?? '',
+      server_id:  input.server_id,
+      auth_token: input.token,
+      onboarded:  false,
+    });
+    await reload();
+  }, [reload]);
 
-      setState({
-        token,
-        farmerId,
-        farmerName:      name,
-        phone,
-        isLoading:       false,
-        isAuthenticated: true,
-      });
-    },
-    [],
-  );
+  const updateProfile = useCallback(async (updates: any) => {
+    const current = await getFarmerProfile();
+    if (!current) return;
+    await upsertFarmerProfile({
+      phone: current.phone,
+      ...updates,
+    });
+    await reload();
+  }, [reload]);
 
   const signOut = useCallback(async () => {
-    await AsyncStorage.multiRemove([
-      KEYS.token,
-      KEYS.farmerId,
-      KEYS.farmerName,
-      KEYS.phone,
-    ]);
+    await signOutLocal();
+    await reload();
+  }, [reload]);
 
-    setState({
-      token:           null,
-      farmerId:        null,
-      farmerName:      null,
-      phone:           null,
-      isLoading:       false,
-      isAuthenticated: false,
-    });
-  }, []);
-
-  return { ...state, signIn, signOut };
+  return { ...state, signIn, updateProfile, signOut, reload };
 }

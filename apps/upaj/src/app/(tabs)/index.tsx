@@ -8,6 +8,7 @@ import { SafeGradient as LinearGradient } from '../../components/safe-gradient';
 import { Ionicons, FontAwesome5, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '../../hooks/use-auth';
+import { getFarmerCrops, FarmerCrop } from '../../lib/local-db';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -81,6 +82,24 @@ export default function HomeScreen() {
   const auth = useAuth();
   const displayName = (auth.farmerName ?? 'Farmer').split(' ')[0];
   const [showProfile, setShowProfile] = useState(false);
+  const [farmerCrops, setFarmerCrops] = useState<FarmerCrop[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      if (!auth.profile?.id) return;
+      try {
+        const crops = await getFarmerCrops(auth.profile.id);
+        setFarmerCrops(crops);
+      } catch (e) {
+        console.warn('[home] load crops failed', e);
+      }
+    })();
+  }, [auth.profile?.id]);
+
+  const totalLand = auth.profile?.total_land_ha ?? 0;
+  const cropsList = farmerCrops.length
+    ? farmerCrops.map(c => c.crop_name).join(', ')
+    : '—';
 
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
@@ -135,15 +154,21 @@ export default function HomeScreen() {
                 </View>
                 <View style={h.metaChip}>
                   <Ionicons name="location-outline" size={11} color="#95D5B2" />
-                  <Text style={h.metaChipText}>Kolar, KA</Text>
+                  <Text style={h.metaChipText} numberOfLines={1}>
+                    {auth.profile?.location_name ?? '—'}
+                  </Text>
                 </View>
               </View>
               <View style={h.profileStatsRow}>
-                <ProfileStat label="Land" value="2.5" unit="ha" />
+                <ProfileStat label="Land" value={totalLand.toFixed(1)} unit="ha" />
                 <View style={h.statDivider} />
-                <ProfileStat label="Crops" value="3" unit="types" />
+                <ProfileStat label="Crops" value={String(farmerCrops.length)} unit="types" />
                 <View style={h.statDivider} />
-                <ProfileStat label="Cattle" value="3" unit="head" />
+                <ProfileStat
+                  label="Allocated"
+                  value={farmerCrops.reduce((s, c) => s + c.land_ha, 0).toFixed(1)}
+                  unit="ha"
+                />
               </View>
             </View>
           </TouchableOpacity>
@@ -231,6 +256,8 @@ export default function HomeScreen() {
         visible={showProfile}
         onClose={() => setShowProfile(false)}
         auth={auth}
+        crops={farmerCrops}
+        totalLand={totalLand}
       />
     </View>
   );
@@ -292,7 +319,7 @@ function MarketCard({ item, onPress }: any) {
   );
 }
 
-function ProfileModal({ visible, onClose, auth }: any) {
+function ProfileModal({ visible, onClose, auth, crops, totalLand }: any) {
   const slide = useRef(new Animated.Value(600)).current;
   useEffect(() => {
     Animated.spring(slide, {
@@ -326,7 +353,17 @@ function ProfileModal({ visible, onClose, auth }: any) {
           <View style={p.infoCard}>
             <InfoRow icon="phone-portrait-outline" label="Mobile" value={auth.phone ?? '+91 —'} />
             <View style={p.divider} />
-            <InfoRow icon="location-outline" label="Location" value="Malur, Kolar, Karnataka" />
+            <InfoRow icon="location-outline" label="Location" value={auth.profile?.location_name ?? '—'} />
+            <View style={p.divider} />
+            <InfoRow
+              icon="navigate-outline"
+              label="GPS"
+              value={
+                auth.profile?.latitude && auth.profile?.longitude
+                  ? `${auth.profile.latitude.toFixed(4)}, ${auth.profile.longitude.toFixed(4)}`
+                  : 'Not set'
+              }
+            />
             <View style={p.divider} />
             <InfoRow icon="id-card-outline" label="Farmer ID" value={auth.farmerId?.slice(0, 8) ?? '—'} />
           </View>
@@ -334,12 +371,38 @@ function ProfileModal({ visible, onClose, auth }: any) {
           {/* Farm Details */}
           <Text style={p.sectionLabel}>Farm Details · ಜಮೀನಿನ ವಿವರಗಳು</Text>
           <View style={p.infoCard}>
-            <InfoRow icon="leaf-outline" label="Total Land" value="2.5 hectares" />
+            <InfoRow icon="leaf-outline" label="Total Land" value={`${totalLand.toFixed(1)} hectares`} />
             <View style={p.divider} />
-            <InfoRow icon="sparkles-outline" label="Current Crops" value="Tomato, Ragi, Potato" />
-            <View style={p.divider} />
-            <InfoRow icon="paw-outline" label="Livestock" value="2 Cows, 1 Goat" />
+            <InfoRow
+              icon="sparkles-outline"
+              label="Current Crops"
+              value={crops.length ? crops.map((c: any) => c.crop_name).join(', ') : 'None added'}
+            />
           </View>
+
+          {/* Crop breakdown */}
+          {crops.length > 0 && (
+            <>
+              <Text style={p.sectionLabel}>Crop Allocation · ಬೆಳೆ ಹಂಚಿಕೆ</Text>
+              <View style={p.infoCard}>
+                {crops.map((c: any, i: number) => (
+                  <React.Fragment key={c.id}>
+                    {i > 0 && <View style={p.divider} />}
+                    <View style={p.infoRow}>
+                      <View style={p.infoIcon}>
+                        <MaterialCommunityIcons name="sprout" size={14} color={C.green} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={p.infoLabel}>{c.crop_name_kn ?? '—'}</Text>
+                        <Text style={p.infoValue}>{c.crop_name}</Text>
+                      </View>
+                      <Text style={p.settingValue}>{c.land_ha.toFixed(1)} ha</Text>
+                    </View>
+                  </React.Fragment>
+                ))}
+              </View>
+            </>
+          )}
 
           {/* Settings */}
           <Text style={p.sectionLabel}>Settings</Text>

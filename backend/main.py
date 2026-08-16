@@ -152,14 +152,76 @@ def verify_otp(body: VerifyOTPRequest, db: Session = Depends(database.get_db)):
 # ─── Farmer Profile ───────────────────────────────────────────────────────────
 
 @app.get("/api/v1/farmers/me")
-def get_my_farmer_profile(farmer: models.FarmerProfile = Depends(get_current_farmer)):
+def get_my_farmer_profile(
+    farmer: models.FarmerProfile = Depends(get_current_farmer),
+    db: Session = Depends(database.get_db),
+):
+    crops = db.query(models.FarmerCrop).filter_by(farmer_id=str(farmer.id)).all()
     return {
         "id": str(farmer.id),
         "phone_number": farmer.phone_number,
         "full_name": farmer.full_name,
         "total_land_ha": float(farmer.total_land_ha),
         "cattle_count": farmer.cattle_count,
+        "location_name": farmer.location_name,
+        "latitude": float(farmer.latitude) if farmer.latitude is not None else None,
+        "longitude": float(farmer.longitude) if farmer.longitude is not None else None,
+        "crops": [
+            {
+                "id": str(c.id),
+                "crop_name": c.crop_name,
+                "crop_name_kn": c.crop_name_kn,
+                "land_ha": float(c.land_ha),
+            } for c in crops
+        ],
     }
+
+
+# ── Extended profile update (onboarding) ────────────────────────────────────
+
+class CropInput(BaseModel):
+    crop_name: str
+    crop_name_kn: Optional[str] = None
+    land_ha: float
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: Optional[str] = None
+    location_name: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    total_land_ha: Optional[float] = None
+    cattle_count: Optional[int] = None
+    crops: Optional[List[CropInput]] = None  # replaces all existing crops
+
+
+@app.put("/api/v1/farmers/profile")
+def update_farmer_profile(
+    body: UpdateProfileRequest,
+    farmer: models.FarmerProfile = Depends(get_current_farmer),
+    db: Session = Depends(database.get_db),
+):
+    if body.full_name is not None:      farmer.full_name = body.full_name
+    if body.location_name is not None:  farmer.location_name = body.location_name
+    if body.latitude is not None:       farmer.latitude = body.latitude
+    if body.longitude is not None:      farmer.longitude = body.longitude
+    if body.total_land_ha is not None:  farmer.total_land_ha = body.total_land_ha
+    if body.cattle_count is not None:   farmer.cattle_count = body.cattle_count
+
+    if body.crops is not None:
+        db.query(models.FarmerCrop).filter_by(farmer_id=str(farmer.id)).delete()
+        for c in body.crops:
+            db.add(models.FarmerCrop(
+                id=str(uuid.uuid4()),
+                farmer_id=str(farmer.id),
+                crop_name=c.crop_name,
+                crop_name_kn=c.crop_name_kn,
+                land_ha=c.land_ha,
+            ))
+
+    db.commit()
+    db.refresh(farmer)
+    return {"status": "updated", "id": str(farmer.id)}
 
 @app.post("/api/v1/farmers/register")
 def register_farmer(farmer_data: schemas.FarmerProfileBase, db: Session = Depends(database.get_db)):

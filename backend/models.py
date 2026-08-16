@@ -25,12 +25,24 @@ class TransactionType(str, enum.Enum):
 class FarmerProfile(Base):
     __tablename__ = "farmer_profiles"
 
-    # String UUID works with both SQLite and PostgreSQL
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     phone_number = Column(String, unique=True, index=True, nullable=False)
     full_name = Column(String, nullable=False)
     total_land_ha = Column(Numeric, nullable=False, default=0.0)
     cattle_count = Column(Integer, default=0)
+    location_name = Column(String, nullable=True)
+    latitude = Column(Numeric, nullable=True)
+    longitude = Column(Numeric, nullable=True)
+
+
+class FarmerCrop(Base):
+    __tablename__ = "farmer_crops"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    farmer_id = Column(String, ForeignKey("farmer_profiles.id"), nullable=False)
+    crop_name = Column(String, nullable=False)
+    crop_name_kn = Column(String, nullable=True)
+    land_ha = Column(Numeric, nullable=False)
 
 
 class BuyerProfile(Base):

@@ -1,67 +1,128 @@
+/**
+ * Login + Onboarding Wizard
+ * ──────────────────────────
+ * Matches the reference design at pages/home.jpeg:
+ *   - Top hero: bilingual logo + language toggle + tagline + feature pills
+ *   - Bottom rounded white card that hosts the multi-step wizard:
+ *       1. Phone → OTP
+ *       2. Name
+ *       3. Location (auto GPS or manual entry)
+ *       4. Total land in hectares
+ *       5. Add crops (crop + hectares per crop)
+ *       6. Done — writes to local SQLite and pushes to backend
+ */
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Animated, Easing,
   Keyboard, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform,
-  Dimensions, SafeAreaView, StatusBar, Alert,
+  Dimensions, StatusBar, Alert, Image,
 } from 'react-native';
 import { router } from 'expo-router';
-import { SafeGradient as LinearGradient, SafeBlur as BlurView } from '../components/safe-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeGradient as LinearGradient } from '../components/safe-gradient';
+import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useAuth } from '../hooks/use-auth';
+import { replaceFarmerCrops, getFarmerProfile } from '../lib/local-db';
 
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+// Lazy-load expo-location — may not be in older APKs
+let Location: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  Location = require('expo-location');
+} catch { Location = null; }
+
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.183.6.220:8000';
 
-type Step = 'phone' | 'otp';
+// ── Palette ─────────────────────────────────────────────────────────────────
+const C = {
+  primary: '#2D6A4F',
+  primaryDark: '#1B4332',
+  primaryBright: '#40916C',
+  primaryNeon: '#52B788',
+  primaryPale: '#D8F3DC',
+  primaryTint: '#F0FDF4',
+  bg: '#F8F9F5',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  textDark: '#0F1F17',
+  textBody: '#2C3E37',
+  textMuted: '#6B7A73',
+  textLight: '#9CA8A1',
+  red: '#DC2626',
+};
+
+// ── Crop presets ─────────────────────────────────────────────────────────────
+const CROP_PRESETS = [
+  { name: 'Tomato',   kn: 'ಟೊಮ್ಯಾಟೊ',   emoji: '🍅' },
+  { name: 'Potato',   kn: 'ಆಲೂಗಡ್ಡೆ',    emoji: '🥔' },
+  { name: 'Ragi',     kn: 'ರಾಗಿ',        emoji: '🌾' },
+  { name: 'Onion',    kn: 'ಈರುಳ್ಳಿ',     emoji: '🧅' },
+  { name: 'Maize',    kn: 'ಜೋಳ',        emoji: '🌽' },
+  { name: 'Chili',    kn: 'ಮೆಣಸಿನಕಾಯಿ',  emoji: '🌶️' },
+  { name: 'Sugarcane', kn: 'ಕಬ್ಬು',      emoji: '🎋' },
+  { name: 'Cotton',   kn: 'ಹತ್ತಿ',       emoji: '🌱' },
+  { name: 'Groundnut', kn: 'ಕಡಲೆಕಾಯಿ',  emoji: '🥜' },
+  { name: 'Wheat',    kn: 'ಗೋಧಿ',        emoji: '🌾' },
+];
+
+type Step = 'phone' | 'otp' | 'name' | 'location' | 'land' | 'crops';
 const OTP_LENGTH = 6;
 const RESEND_COUNTDOWN = 30;
 
+// ── Main Component ──────────────────────────────────────────────────────────
 export default function LoginScreen() {
   const auth = useAuth();
-
+  const [lang, setLang] = useState<'en' | 'kn'>('en');
   const [step, setStep] = useState<Step>('phone');
+
+  // ── Phone / OTP state ─────
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [phoneSending, setPhoneSending] = useState(false);
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [otpError, setOtpError] = useState('');
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [countdown, setCountdown] = useState(RESEND_COUNTDOWN);
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [farmerName, setFarmerName] = useState('');
-
   const otpRefs = useRef<Array<TextInput | null>>(Array(OTP_LENGTH).fill(null));
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const scrollRef = useRef<ScrollView>(null);
 
-  const cardTranslateY = useRef(new Animated.Value(80)).current;
+  // ── Onboarding state ─────
+  const [farmerName, setFarmerName] = useState('');
+  const [locName, setLocName] = useState('');
+  const [locLat, setLocLat] = useState<number | null>(null);
+  const [locLng, setLocLng] = useState<number | null>(null);
+  const [locFetching, setLocFetching] = useState(false);
+  const [landHa, setLandHa] = useState('');
+  const [crops, setCrops] = useState<{ name: string; kn: string; land_ha: number }[]>([]);
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // ── Animations ─────
+  const cardTranslateY = useRef(new Animated.Value(60)).current;
   const cardOpacity = useRef(new Animated.Value(0)).current;
-  const heroFade = useRef(new Animated.Value(0)).current;
-  const orbitRotate = useRef(new Animated.Value(0)).current;
-  const leafFloat = useRef(new Animated.Value(0)).current;
+  const stepSlide = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(heroFade, { toValue: 1, duration: 800, useNativeDriver: true }),
-      Animated.spring(cardTranslateY, { toValue: 0, damping: 20, stiffness: 140, useNativeDriver: true }),
-      Animated.timing(cardOpacity, { toValue: 1, duration: 500, delay: 200, useNativeDriver: true }),
+      Animated.spring(cardTranslateY, { toValue: 0, damping: 22, stiffness: 160, useNativeDriver: true }),
+      Animated.timing(cardOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
     ]).start();
-
-    Animated.loop(
-      Animated.timing(orbitRotate, { toValue: 1, duration: 24000, easing: Easing.linear, useNativeDriver: true })
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(leafFloat, { toValue: 1, duration: 3000, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(leafFloat, { toValue: 0, duration: 3000, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ])
-    ).start();
   }, []);
 
   useEffect(() => () => { if (countdownRef.current) clearInterval(countdownRef.current); }, []);
+
+  // Animate step change
+  const goToStep = useCallback((next: Step, direction: 'forward' | 'back' = 'forward') => {
+    Animated.timing(stepSlide, {
+      toValue: direction === 'forward' ? -30 : 30,
+      duration: 150, useNativeDriver: true,
+    }).start(() => {
+      setStep(next);
+      stepSlide.setValue(direction === 'forward' ? 30 : -30);
+      Animated.spring(stepSlide, { toValue: 0, damping: 22, stiffness: 200, useNativeDriver: true }).start();
+    });
+  }, []);
 
   const startCountdown = useCallback(() => {
     setCountdown(RESEND_COUNTDOWN);
@@ -75,16 +136,12 @@ export default function LoginScreen() {
   }, []);
 
   const fullPhone = `+91${phoneNumber}`;
-  const formatCountdown = () => {
-    const m = Math.floor(countdown / 60);
-    const s = countdown % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
 
+  // ── Send OTP ─────────────────────────────
   const handleSendOtp = async () => {
     setPhoneError('');
     if (phoneNumber.length !== 10) {
-      setPhoneError('Please enter a valid 10-digit mobile number');
+      setPhoneError(t('Enter a valid 10-digit mobile number', 'ಸರಿಯಾದ 10-ಅಂಕಿಯ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ'));
       return;
     }
     Keyboard.dismiss();
@@ -100,585 +157,863 @@ export default function LoginScreen() {
       startCountdown();
       setOtp(Array(OTP_LENGTH).fill(''));
       setOtpError('');
-      setStep('otp');
+      goToStep('otp');
       if (data.dev_otp) {
-        Alert.alert('🔑 Dev OTP', `Your code: ${data.dev_otp}`, [
+        Alert.alert('🔑 Dev OTP', `Code: ${data.dev_otp}`, [
           { text: 'Auto-fill', onPress: () => setOtp(data.dev_otp.split('')) }
         ]);
-      } else {
-        setTimeout(() => otpRefs.current[0]?.focus(), 350);
       }
     } catch {
-      setPhoneError(`Cannot reach ${API_BASE}\nCheck backend & Wi-Fi.`);
-    } finally {
-      setPhoneSending(false);
-    }
+      setPhoneError(`Cannot reach ${API_BASE}. Check backend & Wi-Fi.`);
+    } finally { setPhoneSending(false); }
   };
 
+  // ── Verify OTP → sign in → continue onboarding ─────
   const handleVerifyOtp = async () => {
     setOtpError('');
-    if (otp.join('').length < OTP_LENGTH) { setOtpError('Enter the complete 6-digit OTP'); return; }
-    if (isNewUser && farmerName.trim().length < 2) { setOtpError('Please enter your full name'); return; }
+    if (otp.join('').length < OTP_LENGTH) {
+      setOtpError(t('Enter the complete 6-digit OTP', 'ಸಂಪೂರ್ಣ 6-ಅಂಕಿಯ OTP ನಮೂದಿಸಿ'));
+      return;
+    }
     Keyboard.dismiss();
     setOtpVerifying(true);
     try {
-      const body: Record<string, string> = { phone: fullPhone, otp: otp.join(''), role: 'farmer' };
-      if (farmerName.trim()) body.name = farmerName.trim();
       const res = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          phone: fullPhone, otp: otp.join(''), role: 'farmer',
+          name: farmerName || phoneNumber,
+        }),
       });
       const data = await res.json();
       if (!res.ok) { setOtpError(data?.detail ?? 'Invalid OTP'); return; }
-      if (data.is_new_user && !isNewUser) { setIsNewUser(true); setOtpError(''); setOtpVerifying(false); return; }
-      await auth.signIn(data.access_token, String(data.user_id), data.name ?? farmerName.trim(), fullPhone);
-      router.replace('/(tabs)');
-    } catch { setOtpError('Network error. Please try again.'); }
-    finally { setOtpVerifying(false); }
+
+      // Save to local SQLite via useAuth
+      await auth.signIn({
+        token:     data.access_token,
+        server_id: String(data.user_id),
+        phone:     fullPhone,
+        name:      farmerName || '',
+      });
+
+      // If already onboarded on server (returning user), skip to app
+      if (!data.is_new_user) {
+        const existing = await getFarmerProfile();
+        if (existing?.name && existing.location_name && existing.total_land_ha > 0) {
+          await auth.updateProfile({ onboarded: true });
+          router.replace('/(tabs)');
+          return;
+        }
+      }
+
+      // Continue onboarding
+      goToStep('name');
+    } catch {
+      setOtpError('Network error. Please try again.');
+    } finally { setOtpVerifying(false); }
   };
 
+  // ── OTP box handlers ─────
   const handleOtpChange = (text: string, index: number) => {
     const digit = text.replace(/[^0-9]/g, '').slice(-1);
     const next = [...otp]; next[index] = digit; setOtp(next);
     if (digit && index < OTP_LENGTH - 1) otpRefs.current[index + 1]?.focus();
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
   };
-
-  const handleOtpKeyPress = (key: string, index: number) => {
+  const handleOtpKey = (key: string, index: number) => {
     if (key === 'Backspace' && !otp[index] && index > 0) {
       const next = [...otp]; next[index - 1] = ''; setOtp(next);
       otpRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleResend = async () => {
-    if (countdown > 0) return;
-    setOtp(Array(OTP_LENGTH).fill(''));
-    setOtpError('');
-    setPhoneSending(true);
+  // ── Name step ─────
+  const handleNameNext = () => {
+    if (farmerName.trim().length < 2) return Alert.alert('Name required', 'Please enter your full name');
+    goToStep('location');
+  };
+
+  // ── Location step: auto GPS ─────
+  const handleAutoLocation = async () => {
+    if (!Location) {
+      Alert.alert('Location Unavailable', 'GPS module needs a newer APK. Please enter manually.');
+      return;
+    }
+    setLocFetching(true);
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: fullPhone, role: 'farmer' }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setOtpError(data?.detail ?? 'Failed to resend'); return; }
-      startCountdown();
-      if (data.dev_otp) {
-        Alert.alert('🔑 Dev OTP', `Code: ${data.dev_otp}`, [
-          { text: 'Auto-fill', onPress: () => setOtp(data.dev_otp.split('')) }
-        ]);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant location access or enter manually.');
+        return;
       }
-    } catch { setOtpError('Network error'); }
-    finally { setPhoneSending(false); }
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      setLocLat(pos.coords.latitude);
+      setLocLng(pos.coords.longitude);
+
+      // Reverse geocode
+      try {
+        const places = await Location.reverseGeocodeAsync({
+          latitude: pos.coords.latitude, longitude: pos.coords.longitude,
+        });
+        const p = places[0];
+        if (p) {
+          const label = [p.name, p.district, p.region ?? p.subregion, p.country]
+            .filter(Boolean).join(', ');
+          setLocName(label);
+        }
+      } catch (e) {
+        console.warn('[reverseGeocode] failed', e);
+      }
+    } catch (e: any) {
+      Alert.alert('GPS Error', e?.message ?? 'Could not fetch location. Enter manually.');
+    } finally { setLocFetching(false); }
   };
 
-  const goBackToPhone = () => {
-    setStep('phone'); setOtp(Array(OTP_LENGTH).fill('')); setOtpError('');
-    setIsNewUser(false); setFarmerName('');
-    if (countdownRef.current) clearInterval(countdownRef.current);
+  const handleLocationNext = () => {
+    if (!locName.trim()) return Alert.alert('Location required', 'Enter your village/town or use GPS');
+    goToStep('land');
   };
 
-  const orbitSpin = orbitRotate.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const leafOffset = leafFloat.interpolate({ inputRange: [0, 1], outputRange: [0, -12] });
+  // ── Land step ─────
+  const handleLandNext = () => {
+    const n = parseFloat(landHa);
+    if (!n || n <= 0) return Alert.alert('Land required', 'Enter your total farm size in hectares');
+    if (n > 500) return Alert.alert('Too large', 'Enter a value under 500 ha');
+    goToStep('crops');
+  };
+
+  // ── Crops step ─────
+  const addCropPreset = (preset: typeof CROP_PRESETS[0]) => {
+    if (crops.find(c => c.name === preset.name)) return;
+    setCrops([...crops, { name: preset.name, kn: preset.kn, land_ha: 0 }]);
+  };
+  const updateCropHa = (idx: number, val: string) => {
+    const n = parseFloat(val) || 0;
+    setCrops(crops.map((c, i) => i === idx ? { ...c, land_ha: n } : c));
+  };
+  const removeCrop = (idx: number) => setCrops(crops.filter((_, i) => i !== idx));
+
+  const totalAllocated = crops.reduce((sum, c) => sum + c.land_ha, 0);
+  const totalLand = parseFloat(landHa) || 0;
+  const remaining = totalLand - totalAllocated;
+
+  const handleFinishOnboarding = async () => {
+    if (crops.length === 0) return Alert.alert('Add crops', 'Please add at least one crop');
+    if (totalAllocated <= 0) return Alert.alert('Set hectares', 'Enter land per crop');
+
+    setSavingProfile(true);
+    try {
+      const currentProfile = await getFarmerProfile();
+      if (!currentProfile) throw new Error('Profile missing');
+
+      // Update local SQLite
+      await auth.updateProfile({
+        name:          farmerName,
+        location_name: locName,
+        latitude:      locLat ?? undefined,
+        longitude:     locLng ?? undefined,
+        total_land_ha: totalLand,
+        onboarded:     true,
+      });
+      await replaceFarmerCrops(currentProfile.id, crops.map(c => ({
+        crop_name: c.name, crop_name_kn: c.kn, land_ha: c.land_ha,
+      })));
+
+      // Push to backend (best-effort; local is source of truth)
+      try {
+        await fetch(`${API_BASE}/api/v1/farmers/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${currentProfile.auth_token}`,
+          },
+          body: JSON.stringify({
+            full_name: farmerName,
+            location_name: locName,
+            latitude: locLat, longitude: locLng,
+            total_land_ha: totalLand,
+            crops: crops.map(c => ({
+              crop_name: c.name, crop_name_kn: c.kn, land_ha: c.land_ha,
+            })),
+          }),
+        });
+      } catch (e) {
+        console.warn('[onboarding] backend sync deferred:', e);
+      }
+
+      router.replace('/(tabs)');
+    } catch (e) {
+      console.error('[onboarding] finish failed:', e);
+      Alert.alert('Error', 'Could not save profile. Try again.');
+    } finally { setSavingProfile(false); }
+  };
+
+  const t = (en: string, kn: string) => lang === 'en' ? en : kn;
+
+  // ── Progress dots ─────
+  const stepIndex = { phone: 0, otp: 1, name: 2, location: 3, land: 4, crops: 5 }[step];
+  const totalSteps = 6;
 
   return (
     <View style={s.root}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A1F14" />
-
-      {/* Full-screen gradient backdrop */}
-      <LinearGradient
-        colors={['#0A1F14', '#0D2818', '#1B4332']}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-
-      {/* Ambient orbital rings */}
-      <Animated.View
-        style={[s.orbitContainer, { transform: [{ rotate: orbitSpin }] }]}
-        pointerEvents="none"
-      >
-        <View style={[s.orbit, { width: 340, height: 340, borderColor: 'rgba(82, 183, 136, 0.15)' }]} />
-        <View style={[s.orbit, { width: 260, height: 260, borderColor: 'rgba(82, 183, 136, 0.22)' }]} />
-        <View style={[s.orbit, { width: 180, height: 180, borderColor: 'rgba(82, 183, 136, 0.30)' }]} />
-        <View style={[s.orbitDot, { top: 0, backgroundColor: '#52B788' }]} />
-        <View style={[s.orbitDot, { top: 40, right: 30, backgroundColor: '#95D5B2', width: 6, height: 6 }]} />
-      </Animated.View>
+      <StatusBar barStyle="dark-content" backgroundColor="#EAF3E4" />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
-          ref={scrollRef}
-          contentContainerStyle={s.scrollContent}
+          contentContainerStyle={s.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* ── Hero Brand Section ─────────────────────────────────── */}
-          <SafeAreaView style={s.heroWrap}>
-            <Animated.View style={{ opacity: heroFade }}>
-              <View style={s.brandRow}>
-                <Animated.Text style={[s.brandLeaf, { transform: [{ translateY: leafOffset }] }]}>
-                  🌿
-                </Animated.Text>
+          {/* ═══ HERO SECTION ═══ */}
+          <LinearGradient
+            colors={['#EAF3E4', '#D8F3DC', '#B7E4C7']}
+            style={s.hero}
+          >
+            {/* Top row: Logo + Language toggle */}
+            <View style={s.heroTopRow}>
+              <View style={s.logoRow}>
+                <View style={s.logoIcon}>
+                  <MaterialCommunityIcons name="leaf" size={22} color={C.primary} />
+                </View>
                 <View>
-                  <Text style={s.brandName}>KisanShakti</Text>
-                  <Text style={s.brandTag}>ಕಿಸಾನ್ ಶಕ್ತಿ</Text>
+                  <Text style={s.logoName}>
+                    Kisan<Text style={{ color: C.primary }}>Shakti</Text>
+                  </Text>
+                  <Text style={s.logoKn}>ಕಿಸಾನ್ ಶಕ್ತಿ</Text>
                 </View>
               </View>
-              <View style={s.divider} />
-              <Text style={s.heroTitle}>
-                Smart farming{'\n'}for smart farmers
-              </Text>
-              <Text style={s.heroSubtitle}>
-                ಸ್ಮಾರ್ಟ್ ರೈತರಿಗಾಗಿ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ
-              </Text>
+              <TouchableOpacity
+                style={s.langBtn}
+                activeOpacity={0.8}
+                onPress={() => setLang(l => l === 'en' ? 'kn' : 'en')}
+              >
+                <Ionicons name="globe-outline" size={13} color={C.primaryDark} />
+                <Text style={s.langText}>{lang === 'en' ? 'ಕನ್ನಡ' : 'English'}</Text>
+                <Feather name="chevron-down" size={11} color={C.primaryDark} />
+              </TouchableOpacity>
+            </View>
 
-              <View style={s.badgeRow}>
-                <FeatureBadge icon="scan" label="AI Disease Detection" />
-                <FeatureBadge icon="pulse" label="Live Market Prices" />
+            {/* Tagline */}
+            <Text style={s.tagline}>
+              <Text style={{ color: C.textDark }}>{t('Smart farming', 'ಸ್ಮಾರ್ಟ್ ಕೃಷಿ')}</Text>
+              {'\n'}
+              <Text style={{ color: C.primary }}>{t('for smart farmers', 'ಸ್ಮಾರ್ಟ್ ರೈತರಿಗಾಗಿ')}</Text>
+            </Text>
+            <Text style={s.tagSub}>
+              {t('AI insights, live weather, disease detection\n& best market prices',
+                 'AI ಒಳನೋಟಗಳು, ನೇರ ಹವಾಮಾನ, ರೋಗ ಪತ್ತೆ\n& ಅತ್ಯುತ್ತಮ ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು')}
+            </Text>
+
+            {/* Feature pills */}
+            <View style={s.featureRow}>
+              <View style={s.featurePill}>
+                <View style={s.featurePillIcon}>
+                  <MaterialCommunityIcons name="shield-check" size={12} color={C.primary} />
+                </View>
+                <Text style={s.featurePillText}>{t('AI Disease Detection', 'AI ರೋಗ ಪತ್ತೆ')}</Text>
               </View>
-            </Animated.View>
-          </SafeAreaView>
+              <View style={s.featurePill}>
+                <View style={s.featurePillIcon}>
+                  <Feather name="trending-up" size={12} color={C.primary} />
+                </View>
+                <Text style={s.featurePillText}>{t('Live Market Prices', 'ನೇರ ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು')}</Text>
+              </View>
+            </View>
+          </LinearGradient>
 
-          {/* ── Glassmorphism Card ─────────────────────────────────── */}
+          {/* ═══ WIZARD CARD ═══ */}
           <Animated.View
-            style={[s.cardOuter, {
-              opacity: cardOpacity,
-              transform: [{ translateY: cardTranslateY }]
-            }]}
+            style={[s.card, { opacity: cardOpacity, transform: [{ translateY: cardTranslateY }] }]}
           >
-            <BlurView intensity={Platform.OS === 'ios' ? 40 : 100} tint="light" style={s.card}>
-              {step === 'phone' ? (
-                <PhoneStage
-                  phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber}
+            {/* Progress bar */}
+            <View style={s.progress}>
+              {Array.from({ length: totalSteps }).map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    s.progressBar,
+                    { backgroundColor: i <= stepIndex ? C.primary : '#E8ECE9' },
+                    { width: i === stepIndex ? 22 : 14 },
+                  ]}
+                />
+              ))}
+            </View>
+
+            <Animated.View style={{ transform: [{ translateX: stepSlide }] }}>
+              {step === 'phone' && (
+                <PhoneStep
+                  t={t} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber}
                   phoneError={phoneError} sending={phoneSending} onSend={handleSendOtp}
                 />
-              ) : (
-                <OtpStage
-                  phone={phoneNumber} otp={otp} focusedIndex={focusedIndex}
-                  setFocusedIndex={setFocusedIndex} otpRefs={otpRefs}
+              )}
+              {step === 'otp' && (
+                <OtpStep
+                  t={t} phone={phoneNumber} otp={otp} otpRefs={otpRefs}
                   otpError={otpError} verifying={otpVerifying} countdown={countdown}
-                  isNewUser={isNewUser} farmerName={farmerName} setFarmerName={setFarmerName}
-                  formatCountdown={formatCountdown} onOtpChange={handleOtpChange}
-                  onOtpKeyPress={handleOtpKeyPress} onVerify={handleVerifyOtp}
-                  onResend={handleResend} onBack={goBackToPhone}
+                  onOtpChange={handleOtpChange} onOtpKey={handleOtpKey}
+                  onVerify={handleVerifyOtp} onBack={() => goToStep('phone', 'back')}
                 />
               )}
-            </BlurView>
+              {step === 'name' && (
+                <NameStep t={t} name={farmerName} setName={setFarmerName} onNext={handleNameNext} />
+              )}
+              {step === 'location' && (
+                <LocationStep
+                  t={t} locName={locName} setLocName={setLocName}
+                  fetching={locFetching} onAutoFetch={handleAutoLocation}
+                  onBack={() => goToStep('name', 'back')} onNext={handleLocationNext}
+                />
+              )}
+              {step === 'land' && (
+                <LandStep
+                  t={t} landHa={landHa} setLandHa={setLandHa}
+                  onBack={() => goToStep('location', 'back')} onNext={handleLandNext}
+                />
+              )}
+              {step === 'crops' && (
+                <CropsStep
+                  t={t} crops={crops} totalLand={totalLand} remaining={remaining}
+                  onAdd={addCropPreset} onUpdate={updateCropHa} onRemove={removeCrop}
+                  saving={savingProfile}
+                  onBack={() => goToStep('land', 'back')} onFinish={handleFinishOnboarding}
+                />
+              )}
+            </Animated.View>
           </Animated.View>
 
-          <View style={{ height: 40 }} />
+          {/* Safety pill */}
+          <View style={s.safetyPill}>
+            <MaterialCommunityIcons name="shield-check" size={12} color={C.primary} />
+            <Text style={s.safetyText}>{t('Your data is safe and never shared', 'ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತವಾಗಿದೆ')}</Text>
+          </View>
+
+          <Text style={s.terms}>
+            {t('By continuing, you agree to our', 'ಮುಂದುವರೆಯುವ ಮೂಲಕ ನೀವು ಒಪ್ಪುತ್ತೀರಿ')}
+            {' '}
+            <Text style={s.termsLink}>{t('Terms', 'ನಿಯಮಗಳು')}</Text>
+            {' & '}
+            <Text style={s.termsLink}>{t('Privacy Policy', 'ಗೌಪ್ಯತಾ ನೀತಿ')}</Text>
+          </Text>
+
+          <View style={{ height: 30 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
 }
 
-// ── Feature Badge ─────────────────────────────────────────────────────────────
-function FeatureBadge({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
-  return (
-    <View style={s.featureBadge}>
-      <Ionicons name={icon} size={14} color="#95D5B2" />
-      <Text style={s.featureBadgeText}>{label}</Text>
-    </View>
-  );
-}
-
-// ── Phone Stage ────────────────────────────────────────────────────────────────
-function PhoneStage({ phoneNumber, setPhoneNumber, phoneError, sending, onSend }: any) {
+// ═══ STEP: Phone ═══════════════════════════════════════════════════════════
+function PhoneStep({ t, phoneNumber, setPhoneNumber, phoneError, sending, onSend }: any) {
   return (
     <View>
-      <View style={s.stageHeader}>
-        <View>
-          <Text style={s.stageTitle}>Welcome</Text>
-          <Text style={s.stageTitleKn}>ಸ್ವಾಗತ</Text>
+      <View style={s.stepHeaderRow}>
+        <View style={s.stepIconBox}>
+          <MaterialCommunityIcons name="cellphone-check" size={16} color={C.primary} />
         </View>
-        <View style={s.stepIndicator}>
-          <View style={[s.stepDot, s.stepDotActive]} />
-          <View style={s.stepDot} />
+        <View style={{ flex: 1 }}>
+          <Text style={s.stepTitle}>{t('Welcome to KisanShakti', 'ಸ್ವಾಗತ')}</Text>
+          <Text style={s.stepSub}>{t("Let's grow better, together.", 'ಜೊತೆಗೆ ಬೆಳೆಯೋಣ')}</Text>
         </View>
       </View>
-      <Text style={s.stageSubtitle}>Enter your mobile number to continue</Text>
 
-      <Text style={s.fieldLabel}>Mobile Number · ಮೊಬೈಲ್ ಸಂಖ್ಯೆ</Text>
+      <Text style={s.fieldLabel}>{t('Mobile Number', 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ')}</Text>
+      <Text style={s.fieldHint}>{t("We'll send you a 6-digit OTP", 'ನಾವು 6-ಅಂಕಿಯ OTP ಕಳುಹಿಸುತ್ತೇವೆ')}</Text>
+
       <View style={[s.phoneRow, phoneError && s.inputWrapError]}>
         <View style={s.flagBox}>
-          <Text style={s.flagText}>🇮🇳</Text>
+          <Text style={{ fontSize: 15 }}>🇮🇳</Text>
           <Text style={s.dialCode}>+91</Text>
+          <Feather name="chevron-down" size={10} color={C.textMuted} />
         </View>
-        <TextInput
-          style={s.phoneInput}
-          placeholder="98765 43210"
-          placeholderTextColor="#9CA3AF"
-          keyboardType="number-pad"
-          maxLength={10}
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          returnKeyType="done"
-          onSubmitEditing={onSend}
-          autoFocus
-        />
+        <View style={s.phoneInputWrap}>
+          <Feather name="phone" size={13} color={C.textLight} />
+          <TextInput
+            style={s.phoneInput}
+            placeholder="98765 43210" placeholderTextColor="#9CA8A1"
+            keyboardType="number-pad" maxLength={10}
+            value={phoneNumber} onChangeText={setPhoneNumber}
+            returnKeyType="done" onSubmitEditing={onSend} autoFocus
+          />
+        </View>
       </View>
+      {!!phoneError && <ErrorLine text={phoneError} />}
 
-      {!!phoneError && (
-        <View style={s.errorBox}>
-          <Ionicons name="alert-circle" size={14} color="#DC2626" />
-          <Text style={s.errorText}>{phoneError}</Text>
-        </View>
-      )}
-
-      <TouchableOpacity onPress={onSend} disabled={sending} activeOpacity={0.9} style={{ marginTop: 24 }}>
+      <TouchableOpacity onPress={onSend} disabled={sending} activeOpacity={0.9} style={{ marginTop: 18 }}>
         <LinearGradient
-          colors={sending ? ['#6B7280', '#4B5563'] : ['#2D6A4F', '#1B4332']}
-          style={s.btn}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          colors={sending ? ['#889690', '#6B7A73'] : [C.primaryBright, C.primaryDark]}
+          style={s.primaryBtn}
         >
-          {sending ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <>
-              <Text style={s.btnText}>Get OTP</Text>
-              <Ionicons name="arrow-forward" size={18} color="#FFF" />
-            </>
-          )}
+          {sending ? <ActivityIndicator color="#FFF" />
+            : (<><Text style={s.primaryBtnText}>{t('Get OTP', 'OTP ಪಡೆಯಿರಿ')}</Text>
+                 <Ionicons name="arrow-forward" size={15} color="#FFF" /></>)}
         </LinearGradient>
       </TouchableOpacity>
-
-      <Text style={s.termsText}>
-        By continuing, you agree to our{' '}
-        <Text style={s.termsLink}>Terms</Text> and{' '}
-        <Text style={s.termsLink}>Privacy Policy</Text>
-      </Text>
     </View>
   );
 }
 
-// ── OTP Stage ──────────────────────────────────────────────────────────────────
-function OtpStage({
-  phone, otp, focusedIndex, setFocusedIndex, otpRefs, otpError,
-  verifying, countdown, isNewUser, farmerName, setFarmerName,
-  formatCountdown, onOtpChange, onOtpKeyPress, onVerify, onResend, onBack,
-}: any) {
+// ═══ STEP: OTP ═════════════════════════════════════════════════════════════
+function OtpStep({ t, phone, otp, otpRefs, otpError, verifying, countdown,
+                   onOtpChange, onOtpKey, onVerify, onBack }: any) {
   return (
     <View>
-      <View style={s.stageHeader}>
-        <TouchableOpacity style={s.backBtn} onPress={onBack} activeOpacity={0.7}>
-          <Ionicons name="chevron-back" size={18} color="#1B4332" />
+      <View style={s.stepHeaderRow}>
+        <TouchableOpacity style={s.backBtnSmall} onPress={onBack}>
+          <Feather name="chevron-left" size={14} color={C.textDark} />
         </TouchableOpacity>
-        <View style={s.stepIndicator}>
-          <View style={s.stepDot} />
-          <View style={[s.stepDot, s.stepDotActive]} />
+        <View style={{ flex: 1 }}>
+          <Text style={s.stepTitle}>{t('Verify OTP', 'OTP ಪರಿಶೀಲಿಸಿ')}</Text>
+          <Text style={s.stepSub}>{t('Sent to', 'ಇಗೆ ಕಳುಹಿಸಲಾಗಿದೆ')} <Text style={{ fontFamily: 'Inter_700Bold', color: C.textDark }}>+91 {phone}</Text></Text>
         </View>
       </View>
 
-      <Text style={s.stageTitle}>Verify OTP</Text>
-      <Text style={s.stageTitleKn}>OTP ಪರಿಶೀಲಿಸಿ</Text>
-      <Text style={s.stageSubtitle}>
-        Sent to <Text style={{ fontWeight: '700', color: '#1B4332' }}>+91 {phone}</Text>
-      </Text>
-
       <View style={s.otpRow}>
-        {otp.map((digit: string, index: number) => (
+        {otp.map((digit: string, i: number) => (
           <TextInput
-            key={index}
-            ref={(ref: any) => { otpRefs.current[index] = ref; }}
-            style={[
-              s.otpBox,
-              focusedIndex === index && s.otpBoxFocused,
-              digit && s.otpBoxFilled,
-            ]}
-            value={digit}
-            onChangeText={(t) => onOtpChange(t, index)}
-            onKeyPress={({ nativeEvent }: any) => onOtpKeyPress(nativeEvent.key, index)}
-            onFocus={() => setFocusedIndex(index)}
-            onBlur={() => setFocusedIndex(null)}
-            keyboardType="number-pad"
-            maxLength={1}
-            textAlign="center"
-            textContentType="oneTimeCode"
-            selectTextOnFocus
+            key={i}
+            ref={(r: any) => { otpRefs.current[i] = r; }}
+            style={[s.otpBox, digit && s.otpBoxFilled]}
+            value={digit} maxLength={1} keyboardType="number-pad"
+            textAlign="center" textContentType="oneTimeCode" selectTextOnFocus
+            onChangeText={(v) => onOtpChange(v, i)}
+            onKeyPress={({ nativeEvent }: any) => onOtpKey(nativeEvent.key, i)}
           />
         ))}
       </View>
-
-      {!!otpError && (
-        <View style={s.errorBox}>
-          <Ionicons name="alert-circle" size={14} color="#DC2626" />
-          <Text style={s.errorText}>{otpError}</Text>
-        </View>
-      )}
+      {!!otpError && <ErrorLine text={otpError} />}
 
       <View style={s.resendRow}>
-        <Text style={s.resendPrefix}>Didn't receive it? </Text>
-        {countdown > 0 ? (
-          <Text style={s.resendTimer}>Resend in {formatCountdown()}</Text>
-        ) : (
-          <TouchableOpacity onPress={onResend} activeOpacity={0.7}>
-            <Text style={s.resendLink}>Resend OTP</Text>
-          </TouchableOpacity>
-        )}
+        {countdown > 0
+          ? <Text style={s.resendMuted}>{t('Resend in', 'ಪುನಃ ಕಳುಹಿಸಿ')} 0:{String(countdown).padStart(2, '0')}</Text>
+          : <TouchableOpacity><Text style={s.resendLink}>{t('Resend OTP', 'OTP ಪುನಃ ಕಳುಹಿಸಿ')}</Text></TouchableOpacity>
+        }
       </View>
 
-      {isNewUser && (
-        <View style={s.nameWrapper}>
-          <Text style={s.fieldLabel}>Your name · ನಿಮ್ಮ ಹೆಸರು</Text>
-          <TextInput
-            style={s.nameInput}
-            placeholder="Enter your full name"
-            placeholderTextColor="#9CA3AF"
-            value={farmerName}
-            onChangeText={setFarmerName}
-            autoCapitalize="words"
-            returnKeyType="done"
-          />
-        </View>
-      )}
-
-      <TouchableOpacity onPress={onVerify} disabled={verifying} activeOpacity={0.9} style={{ marginTop: 24 }}>
-        <LinearGradient
-          colors={verifying ? ['#6B7280', '#4B5563'] : ['#2D6A4F', '#1B4332']}
-          style={s.btn}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-        >
-          {verifying ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <>
-              <Text style={s.btnText}>Verify &amp; Continue</Text>
-              <Ionicons name="checkmark-circle" size={18} color="#FFF" />
-            </>
-          )}
+      <TouchableOpacity onPress={onVerify} disabled={verifying} activeOpacity={0.9} style={{ marginTop: 16 }}>
+        <LinearGradient colors={[C.primaryBright, C.primaryDark]} style={s.primaryBtn}>
+          {verifying ? <ActivityIndicator color="#FFF" />
+            : (<><Text style={s.primaryBtnText}>{t('Verify & Continue', 'ಪರಿಶೀಲಿಸಿ')}</Text>
+                 <Ionicons name="checkmark-circle" size={15} color="#FFF" /></>)}
         </LinearGradient>
       </TouchableOpacity>
-
-      <View style={{ height: 100 }} />
     </View>
   );
 }
 
-// ── Styles ─────────────────────────────────────────────────────────────────────
-const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0A1F14' },
-  scrollContent: { flexGrow: 1 },
+// ═══ STEP: Name ════════════════════════════════════════════════════════════
+function NameStep({ t, name, setName, onNext }: any) {
+  return (
+    <View>
+      <View style={s.stepHeaderRow}>
+        <View style={s.stepIconBox}>
+          <Feather name="user" size={16} color={C.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.stepTitle}>{t("What's your name?", 'ನಿಮ್ಮ ಹೆಸರೇನು?')}</Text>
+          <Text style={s.stepSub}>{t("We'll personalize your farm dashboard", 'ನಿಮ್ಮ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ವೈಯಕ್ತೀಕರಿಸುತ್ತೇವೆ')}</Text>
+        </View>
+      </View>
 
-  // Orbital background
-  orbitContainer: {
-    position: 'absolute',
-    top: SCREEN_HEIGHT * 0.05,
-    right: -80,
-    width: 340,
-    height: 340,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  orbit: { position: 'absolute', borderRadius: 9999, borderWidth: 1 },
-  orbitDot: {
-    position: 'absolute',
-    width: 8, height: 8,
-    borderRadius: 4,
-    shadowColor: '#52B788',
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-  },
+      <Text style={s.fieldLabel}>{t('Full Name', 'ಪೂರ್ಣ ಹೆಸರು')}</Text>
+      <View style={s.textInputWrap}>
+        <Feather name="user" size={13} color={C.textLight} />
+        <TextInput
+          style={s.textInput}
+          placeholder={t('e.g. Ramesh Gowda', 'ಉದಾ. ರಮೇಶ್ ಗೌಡ')}
+          placeholderTextColor="#9CA8A1"
+          value={name} onChangeText={setName}
+          autoCapitalize="words" returnKeyType="done" autoFocus
+          onSubmitEditing={onNext}
+        />
+      </View>
+
+      <TouchableOpacity onPress={onNext} activeOpacity={0.9} style={{ marginTop: 18 }}>
+        <LinearGradient colors={[C.primaryBright, C.primaryDark]} style={s.primaryBtn}>
+          <Text style={s.primaryBtnText}>{t('Next', 'ಮುಂದೆ')}</Text>
+          <Ionicons name="arrow-forward" size={15} color="#FFF" />
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ═══ STEP: Location ════════════════════════════════════════════════════════
+function LocationStep({ t, locName, setLocName, fetching, onAutoFetch, onBack, onNext }: any) {
+  return (
+    <View>
+      <View style={s.stepHeaderRow}>
+        <TouchableOpacity style={s.backBtnSmall} onPress={onBack}>
+          <Feather name="chevron-left" size={14} color={C.textDark} />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={s.stepTitle}>{t('Where is your farm?', 'ನಿಮ್ಮ ಜಮೀನು ಎಲ್ಲಿದೆ?')}</Text>
+          <Text style={s.stepSub}>{t('For weather & nearby buyers', 'ಹವಾಮಾನ & ಹತ್ತಿರದ ಖರೀದಿದಾರರಿಗಾಗಿ')}</Text>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={s.gpsBtn} activeOpacity={0.85}
+        onPress={onAutoFetch} disabled={fetching}
+      >
+        <View style={s.gpsIconBox}>
+          {fetching ? <ActivityIndicator color={C.primary} size="small" />
+            : <MaterialCommunityIcons name="crosshairs-gps" size={16} color={C.primary} />}
+        </View>
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={s.gpsTitle}>{t('Use my GPS location', 'ನನ್ನ GPS ಸ್ಥಳ ಬಳಸಿ')}</Text>
+          <Text style={s.gpsSub}>{t('Auto-detect from map', 'ನಕ್ಷೆಯಿಂದ ಸ್ವಯಂ-ಪತ್ತೆ')}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={14} color={C.textLight} />
+      </TouchableOpacity>
+
+      <View style={s.divider}>
+        <View style={s.dividerLine} />
+        <Text style={s.dividerText}>{t('OR ENTER MANUALLY', 'ಅಥವಾ ಕೈಯಿಂದ ನಮೂದಿಸಿ')}</Text>
+        <View style={s.dividerLine} />
+      </View>
+
+      <Text style={s.fieldLabel}>{t('Village / Town', 'ಗ್ರಾಮ / ಪಟ್ಟಣ')}</Text>
+      <View style={s.textInputWrap}>
+        <Ionicons name="location-outline" size={13} color={C.textLight} />
+        <TextInput
+          style={s.textInput}
+          placeholder={t('e.g. Malur, Kolar', 'ಉದಾ. ಮಾಲೂರು, ಕೋಲಾರ')}
+          placeholderTextColor="#9CA8A1"
+          value={locName} onChangeText={setLocName}
+          autoCapitalize="words" returnKeyType="done" onSubmitEditing={onNext}
+        />
+      </View>
+
+      <TouchableOpacity onPress={onNext} activeOpacity={0.9} style={{ marginTop: 18 }}>
+        <LinearGradient colors={[C.primaryBright, C.primaryDark]} style={s.primaryBtn}>
+          <Text style={s.primaryBtnText}>{t('Next', 'ಮುಂದೆ')}</Text>
+          <Ionicons name="arrow-forward" size={15} color="#FFF" />
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ═══ STEP: Land ════════════════════════════════════════════════════════════
+function LandStep({ t, landHa, setLandHa, onBack, onNext }: any) {
+  return (
+    <View>
+      <View style={s.stepHeaderRow}>
+        <TouchableOpacity style={s.backBtnSmall} onPress={onBack}>
+          <Feather name="chevron-left" size={14} color={C.textDark} />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={s.stepTitle}>{t('Total farm size?', 'ಒಟ್ಟು ಜಮೀನಿನ ಗಾತ್ರ?')}</Text>
+          <Text style={s.stepSub}>{t('In hectares (1 ha ≈ 2.47 acres)', 'ಹೆಕ್ಟೇರ್‌ಗಳಲ್ಲಿ (1 ha ≈ 2.47 ಎಕರೆ)')}</Text>
+        </View>
+      </View>
+
+      <Text style={s.fieldLabel}>{t('Land in Hectares', 'ಹೆಕ್ಟೇರ್‌ಗಳಲ್ಲಿ ಜಮೀನು')}</Text>
+      <View style={s.textInputWrap}>
+        <MaterialCommunityIcons name="sprout" size={14} color={C.textLight} />
+        <TextInput
+          style={s.textInput}
+          placeholder="e.g. 2.5" placeholderTextColor="#9CA8A1"
+          value={landHa} onChangeText={setLandHa}
+          keyboardType="decimal-pad" returnKeyType="done" autoFocus
+          onSubmitEditing={onNext}
+        />
+        <Text style={s.unitLabel}>ha</Text>
+      </View>
+
+      <TouchableOpacity onPress={onNext} activeOpacity={0.9} style={{ marginTop: 18 }}>
+        <LinearGradient colors={[C.primaryBright, C.primaryDark]} style={s.primaryBtn}>
+          <Text style={s.primaryBtnText}>{t('Next', 'ಮುಂದೆ')}</Text>
+          <Ionicons name="arrow-forward" size={15} color="#FFF" />
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ═══ STEP: Crops ═══════════════════════════════════════════════════════════
+function CropsStep({ t, crops, totalLand, remaining, onAdd, onUpdate, onRemove,
+                     saving, onBack, onFinish }: any) {
+  return (
+    <View>
+      <View style={s.stepHeaderRow}>
+        <TouchableOpacity style={s.backBtnSmall} onPress={onBack}>
+          <Feather name="chevron-left" size={14} color={C.textDark} />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={s.stepTitle}>{t('What crops do you grow?', 'ನೀವು ಯಾವ ಬೆಳೆಗಳನ್ನು ಬೆಳೆಯುತ್ತೀರಿ?')}</Text>
+          <Text style={s.stepSub}>
+            {totalLand.toFixed(1)} ha {t('total', 'ಒಟ್ಟು')} · {remaining.toFixed(1)} ha {t('remaining', 'ಉಳಿದಿದೆ')}
+          </Text>
+        </View>
+      </View>
+
+      {/* Preset chips */}
+      <Text style={s.fieldLabel}>{t('Tap to add', 'ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ')}</Text>
+      <View style={s.presetsRow}>
+        {CROP_PRESETS.map((p) => {
+          const added = crops.find((c: any) => c.name === p.name);
+          return (
+            <TouchableOpacity
+              key={p.name}
+              style={[s.presetChip, added && s.presetChipAdded]}
+              onPress={() => onAdd(p)} activeOpacity={0.8}
+              disabled={!!added}
+            >
+              <Text style={{ fontSize: 13 }}>{p.emoji}</Text>
+              <Text style={[s.presetText, added && s.presetTextAdded]}>{p.name}</Text>
+              {added && <Ionicons name="checkmark-circle" size={11} color={C.primary} />}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* Added crops with hectare inputs */}
+      {crops.length > 0 && (
+        <>
+          <Text style={[s.fieldLabel, { marginTop: 14 }]}>{t('Set hectares per crop', 'ಪ್ರತಿ ಬೆಳೆಗೆ ಹೆಕ್ಟೇರ್ ಹೊಂದಿಸಿ')}</Text>
+          <View style={{ gap: 6 }}>
+            {crops.map((c: any, i: number) => (
+              <View key={c.name} style={s.cropRow}>
+                <Text style={s.cropRowKn}>{c.kn}</Text>
+                <View style={s.cropRowMain}>
+                  <Text style={s.cropRowName}>{c.name}</Text>
+                  <View style={s.cropHaWrap}>
+                    <TextInput
+                      style={s.cropHaInput}
+                      placeholder="0" placeholderTextColor="#9CA8A1"
+                      keyboardType="decimal-pad"
+                      value={c.land_ha ? String(c.land_ha) : ''}
+                      onChangeText={(v) => onUpdate(i, v)}
+                    />
+                    <Text style={s.cropHaUnit}>ha</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => onRemove(i)} style={s.cropRemove}>
+                    <Ionicons name="close" size={13} color={C.textMuted} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+
+      <TouchableOpacity onPress={onFinish} disabled={saving} activeOpacity={0.9} style={{ marginTop: 18 }}>
+        <LinearGradient
+          colors={saving ? ['#889690', '#6B7A73'] : [C.primaryBright, C.primaryDark]}
+          style={s.primaryBtn}
+        >
+          {saving ? <ActivityIndicator color="#FFF" />
+            : (<><Text style={s.primaryBtnText}>{t('Complete Setup', 'ಸೆಟಪ್ ಪೂರ್ಣಗೊಳಿಸಿ')}</Text>
+                 <Ionicons name="checkmark-circle" size={15} color="#FFF" /></>)}
+        </LinearGradient>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ═══ Helpers ═══════════════════════════════════════════════════════════════
+function ErrorLine({ text }: { text: string }) {
+  return (
+    <View style={s.errorRow}>
+      <Ionicons name="alert-circle" size={11} color={C.red} />
+      <Text style={s.errorText}>{text}</Text>
+    </View>
+  );
+}
+
+// ═══ Styles ════════════════════════════════════════════════════════════════
+const s = StyleSheet.create({
+  root: { flex: 1, backgroundColor: C.bg },
+  scroll: { flexGrow: 1 },
 
   // Hero
-  heroWrap: {
-    paddingHorizontal: 28,
-    paddingTop: 20,
-    paddingBottom: 32,
+  hero: {
+    paddingTop: Platform.OS === 'ios' ? 50 : 32,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
-  brandLeaf: { fontSize: 30 },
-  brandName: {
-    fontFamily: 'Inter_800ExtraBold',
-    fontSize: 20,
-    color: '#FFFFFF',
-    letterSpacing: -0.3,
+  heroTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logoIcon: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(45,106,79,0.15)',
   },
-  brandTag: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: 1,
-  },
-  divider: {
-    width: 32, height: 3, borderRadius: 2,
-    backgroundColor: '#52B788',
-    marginTop: 22, marginBottom: 12,
-  },
-  heroTitle: {
-    fontFamily: 'Inter_800ExtraBold',
-    fontSize: 24,
-    color: '#FFFFFF',
-    lineHeight: 30,
-    letterSpacing: -0.5,
-  },
-  heroSubtitle: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.65)',
-    marginTop: 5,
-  },
-  badgeRow: { flexDirection: 'row', gap: 8, marginTop: 20, flexWrap: 'wrap' },
-  featureBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: 'rgba(82, 183, 136, 0.15)',
-    borderWidth: 1, borderColor: 'rgba(82, 183, 136, 0.3)',
+  logoName: { fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: C.textDark, letterSpacing: -0.3 },
+  logoKn: { fontFamily: 'Inter_500Medium', fontSize: 10, color: C.textMuted, marginTop: 0 },
+  langBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20,
+    borderWidth: 1, borderColor: 'rgba(45,106,79,0.15)',
   },
-  featureBadgeText: {
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 11,
-    color: '#95D5B2',
+  langText: { fontFamily: 'Inter_700Bold', fontSize: 11, color: C.primaryDark },
+
+  tagline: {
+    fontFamily: 'Inter_800ExtraBold', fontSize: 22, lineHeight: 28,
+    letterSpacing: -0.5, marginTop: 22,
   },
+  tagSub: {
+    fontFamily: 'Inter_500Medium', fontSize: 11, color: C.textBody,
+    marginTop: 6, lineHeight: 16,
+  },
+  featureRow: { flexDirection: 'row', gap: 8, marginTop: 18 },
+  featurePill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20,
+    borderWidth: 1, borderColor: 'rgba(45,106,79,0.15)',
+  },
+  featurePillIcon: {
+    width: 20, height: 20, borderRadius: 10, backgroundColor: C.primaryPale,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  featurePillText: { fontFamily: 'Inter_700Bold', fontSize: 10, color: C.textDark },
 
   // Card
-  cardOuter: {
-    marginHorizontal: 20,
-    borderRadius: 28,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.35,
-    shadowRadius: 30,
-    elevation: 20,
-  },
   card: {
-    padding: 26,
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.75)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
+    marginHorizontal: 16, marginTop: -16, padding: 18,
+    backgroundColor: C.card, borderRadius: 22,
+    borderWidth: 1, borderColor: '#E8ECE9',
+    shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 8,
   },
 
-  stageHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  stageTitle: {
-    fontFamily: 'Inter_800ExtraBold',
-    fontSize: 20,
-    color: '#111827',
-    letterSpacing: -0.3,
-  },
-  stageTitleKn: {
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 13,
-    color: '#6B7A99',
-    marginTop: 2,
-  },
-  stageSubtitle: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    color: '#6B7A99',
-    marginTop: 6,
-    marginBottom: 24,
-    lineHeight: 20,
-  },
+  progress: { flexDirection: 'row', gap: 4, marginBottom: 16 },
+  progressBar: { height: 3, borderRadius: 2 },
 
-  stepIndicator: { flexDirection: 'row', gap: 5, marginTop: 4 },
-  stepDot: { width: 20, height: 4, borderRadius: 2, backgroundColor: '#E5E7EB' },
-  stepDotActive: { backgroundColor: '#1B4332', width: 28 },
-
-  fieldLabel: {
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 12,
-    color: '#4B5563',
-    marginBottom: 8,
-    letterSpacing: 0.3,
+  stepHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14, gap: 10 },
+  stepIconBox: {
+    width: 32, height: 32, borderRadius: 10, backgroundColor: C.primaryPale,
+    alignItems: 'center', justifyContent: 'center',
   },
-
-  phoneRow: {
-    flexDirection: 'row',
-    borderRadius: 14,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+  backBtnSmall: {
+    width: 30, height: 30, borderRadius: 8, backgroundColor: '#F3F4F6',
+    alignItems: 'center', justifyContent: 'center',
   },
-  inputWrapError: { borderColor: '#DC2626' },
+  stepTitle: { fontFamily: 'Inter_800ExtraBold', fontSize: 15, color: C.textDark, letterSpacing: -0.2 },
+  stepSub: { fontFamily: 'Inter_400Regular', fontSize: 11, color: C.textMuted, marginTop: 2 },
+
+  fieldLabel: { fontFamily: 'Inter_700Bold', fontSize: 11, color: C.textDark, marginBottom: 4 },
+  fieldHint: { fontFamily: 'Inter_400Regular', fontSize: 10, color: C.textMuted, marginBottom: 8 },
+
+  // Phone input
+  phoneRow: { flexDirection: 'row', gap: 6 },
   flagBox: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#F0FDF4', paddingHorizontal: 14, gap: 8,
-    borderRightWidth: 1, borderRightColor: '#E5E7EB',
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: C.primaryTint, paddingHorizontal: 10, borderRadius: 10,
+    borderWidth: 1, borderColor: C.border, height: 44,
   },
-  flagText: { fontSize: 18 },
-  dialCode: {
-    fontFamily: 'Inter_700Bold', fontSize: 15, color: '#1B4332',
+  dialCode: { fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textDark },
+  phoneInputWrap: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#FFF', borderRadius: 10, paddingHorizontal: 12,
+    borderWidth: 1, borderColor: C.border, height: 44,
   },
   phoneInput: {
-    flex: 1, height: 54, paddingHorizontal: 14,
-    fontFamily: 'Inter_600SemiBold', fontSize: 16, color: '#111827',
-    letterSpacing: 0.5,
+    flex: 1, fontFamily: 'Inter_600SemiBold', fontSize: 13, color: C.textDark,
+    letterSpacing: 0.5, padding: 0,
   },
 
-  errorBox: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    marginTop: 8, paddingHorizontal: 4,
+  // General text input
+  textInputWrap: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#FFF', borderRadius: 10, paddingHorizontal: 12,
+    borderWidth: 1, borderColor: C.border, height: 44,
   },
-  errorText: {
-    fontFamily: 'Inter_500Medium', fontSize: 12, color: '#DC2626',
-    flex: 1, lineHeight: 16,
+  textInput: {
+    flex: 1, fontFamily: 'Inter_500Medium', fontSize: 13, color: C.textDark, padding: 0,
   },
+  unitLabel: { fontFamily: 'Inter_700Bold', fontSize: 11, color: C.textMuted },
+  inputWrapError: { borderColor: C.red },
 
-  btn: {
-    height: 56, borderRadius: 14,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    shadowColor: '#1B4332',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35, shadowRadius: 12,
-    elevation: 8,
-  },
-  btnText: {
-    fontFamily: 'Inter_800ExtraBold', fontSize: 16, color: '#FFFFFF',
-    letterSpacing: 0.3,
-  },
+  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, paddingHorizontal: 2 },
+  errorText: { fontFamily: 'Inter_500Medium', fontSize: 10, color: C.red, flex: 1 },
 
-  termsText: {
-    fontFamily: 'Inter_400Regular', fontSize: 11.5, color: '#9CA3AF',
-    textAlign: 'center', marginTop: 20, lineHeight: 17,
+  // Primary button
+  primaryBtn: {
+    height: 48, borderRadius: 12,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    shadowColor: C.primaryDark, shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6,
   },
-  termsLink: { color: '#1B4332', fontFamily: 'Inter_700Bold' },
+  primaryBtnText: { fontFamily: 'Inter_800ExtraBold', fontSize: 13, color: '#FFF', letterSpacing: 0.3 },
 
-  backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#F3F4F6', alignItems: 'center', justifyContent: 'center',
-  },
-
-  otpRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    marginTop: 8, marginBottom: 4,
-  },
+  // OTP
+  otpRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
   otpBox: {
-    width: 46, height: 58, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#E5E7EB',
-    backgroundColor: '#FAFAFA',
-    fontFamily: 'Inter_800ExtraBold', fontSize: 22, color: '#111827',
+    width: 40, height: 50, borderRadius: 10,
+    borderWidth: 1.5, borderColor: C.border, backgroundColor: '#FAFBFA',
+    fontFamily: 'Inter_800ExtraBold', fontSize: 18, color: C.textDark,
   },
-  otpBoxFocused: {
-    borderColor: '#1B4332', borderWidth: 2,
-    backgroundColor: '#F0FDF4',
-    shadowColor: '#1B4332',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15, shadowRadius: 6, elevation: 3,
-  },
-  otpBoxFilled: { borderColor: '#2D6A4F', backgroundColor: '#F0FDF4' },
+  otpBoxFilled: { borderColor: C.primary, backgroundColor: C.primaryTint },
+  resendRow: { alignItems: 'center', marginTop: 12 },
+  resendMuted: { fontFamily: 'Inter_500Medium', fontSize: 11, color: C.textLight },
+  resendLink: { fontFamily: 'Inter_700Bold', fontSize: 11, color: C.primary },
 
-  resendRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 16 },
-  resendPrefix: { fontFamily: 'Inter_400Regular', fontSize: 13, color: '#6B7A99' },
-  resendTimer: { fontFamily: 'Inter_600SemiBold', fontSize: 13, color: '#9CA3AF' },
-  resendLink: { fontFamily: 'Inter_700Bold', fontSize: 13, color: '#1B4332' },
-
-  nameWrapper: { marginTop: 20 },
-  nameInput: {
-    height: 52, borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 14,
-    paddingHorizontal: 14, fontFamily: 'Inter_500Medium', fontSize: 15,
-    color: '#111827', backgroundColor: '#FFFFFF',
+  // Location
+  gpsBtn: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: C.primaryTint, borderWidth: 1, borderColor: '#B7E4C7',
+    borderRadius: 12, padding: 12,
   },
+  gpsIconBox: {
+    width: 34, height: 34, borderRadius: 10, backgroundColor: '#FFF',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  gpsTitle: { fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textDark },
+  gpsSub: { fontFamily: 'Inter_400Regular', fontSize: 10, color: C.textMuted, marginTop: 1 },
+
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 14, gap: 8 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: C.border },
+  dividerText: { fontFamily: 'Inter_700Bold', fontSize: 9, color: C.textLight, letterSpacing: 0.5 },
+
+  // Crops
+  presetsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  presetChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: '#FAFBFA', borderWidth: 1, borderColor: C.border,
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20,
+  },
+  presetChipAdded: { backgroundColor: C.primaryTint, borderColor: '#B7E4C7' },
+  presetText: { fontFamily: 'Inter_600SemiBold', fontSize: 11, color: C.textDark },
+  presetTextAdded: { color: C.primary },
+
+  cropRow: {
+    backgroundColor: '#FAFBFA', borderRadius: 10, padding: 10,
+    borderWidth: 1, borderColor: C.border,
+  },
+  cropRowKn: { fontFamily: 'Inter_400Regular', fontSize: 10, color: C.textMuted },
+  cropRowMain: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
+  cropRowName: { flex: 1, fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textDark },
+  cropHaWrap: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: '#FFF', borderRadius: 8, paddingHorizontal: 10,
+    borderWidth: 1, borderColor: C.border, height: 34, width: 80,
+  },
+  cropHaInput: { flex: 1, fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textDark, padding: 0 },
+  cropHaUnit: { fontFamily: 'Inter_500Medium', fontSize: 10, color: C.textMuted },
+  cropRemove: {
+    width: 26, height: 26, borderRadius: 13, backgroundColor: '#F3F4F6',
+    alignItems: 'center', justifyContent: 'center', marginLeft: 8,
+  },
+
+  // Safety + terms
+  safetyPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'center',
+    backgroundColor: C.primaryTint, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
+    marginTop: 14, borderWidth: 1, borderColor: '#B7E4C7',
+  },
+  safetyText: { fontFamily: 'Inter_600SemiBold', fontSize: 10, color: C.primary },
+  terms: {
+    fontFamily: 'Inter_400Regular', fontSize: 10, color: C.textMuted,
+    textAlign: 'center', marginTop: 10, paddingHorizontal: 30, lineHeight: 15,
+  },
+  termsLink: { fontFamily: 'Inter_700Bold', color: C.primary },
 });
