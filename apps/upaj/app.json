@@ -3,7 +3,7 @@
     "name": "KisanShakti Upaj",
     "slug": "upaj",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
+    "sdkVersion": "57.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "upaj",
@@ -66,7 +66,12 @@
           "bluetoothAlwaysPermission": "Allow KisanShakti to connect to the ESP32 soil sensor"
         }
       ],
-      "react-native-fast-tflite"
+      "react-native-fast-tflite",
+      "expo-sqlite",
+      "expo-font",
+      "expo-web-browser",
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true

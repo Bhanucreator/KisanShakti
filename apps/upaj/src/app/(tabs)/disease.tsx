@@ -64,7 +64,7 @@ function CropFrame() {
 
         {/* Thin full border */}
         <View style={{
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
           borderWidth: 1,
           borderColor: `${color}55`,
           borderRadius: 4,
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
 
   // Model loading overlay
   modelLoadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     zIndex: 999,
     backgroundColor: 'rgba(255,255,255,0.88)',
     justifyContent: 'center',
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
 
   // Inference spinner overlay (inside card)
   inferenceSpinnerOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     zIndex: 10,
     backgroundColor: 'rgba(255,255,255,0.7)',
     justifyContent: 'center',

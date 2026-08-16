@@ -1,23 +1,7 @@
-/**
- * useDiseaseDetection
- * ───────────────────
- * React hook that:
- *   1. Loads the crop-disease TFLite model (MobileNetV2 INT8, 38-class PlantVillage)
- *   2. Copies the bundled SQLite treatments DB to the device on first launch
- *   3. Exposes `runInference(photoUri)` → top-1 class + full treatment row
- *
- * Dependencies (already in package.json):
- *   react-native-fast-tflite ^3.0.1
- *   expo-sqlite ~16.0.10
- *   expo-file-system (bundled with Expo SDK 54)
- *   expo-asset (bundled with Expo SDK 54)
- *   expo-image-manipulator ~13.0.6
- */
-
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadTensorflowModel, TensorflowModel } from 'react-native-fast-tflite';
 import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
+import { File, Directory, Paths } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Asset } from 'expo-asset';
 
@@ -62,7 +46,6 @@ type DiseaseRow = {
 const IMG_SIZE = 224;
 const NUM_CLASSES = 38;
 
-/** PlantVillage class names in index order (must match training script) */
 const CLASS_NAMES: string[] = [
   'Apple_scab', 'Apple_black_rot', 'Apple_cedar_apple_rust', 'Apple_healthy',
   'Blueberry_healthy',
@@ -83,19 +66,19 @@ const CLASS_NAMES: string[] = [
 ];
 
 const DB_NAME = 'disease_treatments.db';
-const DB_SQLITE_DIR = FileSystem.documentDirectory + 'SQLite/';
-const DB_DEST_PATH  = DB_SQLITE_DIR + DB_NAME;
 
-// ── Helper: copy bundled DB asset to document directory ──────────────────────
+// ── Helper: copy bundled DB asset to SQLite directory ─────────────────────────
 
 async function ensureDBCopied(): Promise<void> {
-  const exists = await FileSystem.getInfoAsync(DB_DEST_PATH);
-  if (exists.exists) return;
+  const sqliteDir = new Directory(Paths.document, 'SQLite');
+  const destFile = new File(sqliteDir, DB_NAME);
 
-  // Make sure the SQLite directory exists
-  await FileSystem.makeDirectoryAsync(DB_SQLITE_DIR, { intermediates: true });
+  if (destFile.exists) return;
 
-  // Resolve the bundled asset
+  if (!sqliteDir.exists) {
+    sqliteDir.create({ intermediates: true });
+  }
+
   const asset = Asset.fromModule(
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../../assets/disease_treatments.db')
@@ -106,13 +89,13 @@ async function ensureDBCopied(): Promise<void> {
     throw new Error('[useDiseaseDetection] Failed to resolve DB asset localUri');
   }
 
-  await FileSystem.copyAsync({ from: asset.localUri, to: DB_DEST_PATH });
+  const srcFile = new File(asset.localUri);
+  await srcFile.copy(destFile);
 }
 
 // ── Helper: preprocess photo → Float32Array [0, 1] (H×W×C) ──────────────────
 
 async function photoToFloat32(uri: string): Promise<Float32Array> {
-  // Resize to 224×224 and encode as JPEG base64
   const result = await ImageManipulator.manipulateAsync(
     uri,
     [{ resize: { width: IMG_SIZE, height: IMG_SIZE } }],
@@ -122,9 +105,6 @@ async function photoToFloat32(uri: string): Promise<Float32Array> {
   const base64 = result.base64;
   if (!base64) throw new Error('[useDiseaseDetection] manipulateAsync returned no base64');
 
-  // Decode base64 → approximate per-channel float values normalised to [0, 1].
-  // JPEG base64 bytes are not raw pixel bytes, but this approximation is
-  // sufficient for MobileNetV2 INT8 inference on-device.
   const binary = atob(base64);
   const floatLength = IMG_SIZE * IMG_SIZE * 3;
   const float32 = new Float32Array(floatLength);
@@ -158,21 +138,19 @@ export function useDiseaseDetection() {
   const [isRunning, setIsRunning]         = useState(false);
   const [error, setError]                 = useState<string | null>(null);
 
-  // ── Load model + DB on mount ────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
 
     async function init() {
       try {
-        // 1. Load TFLite model
         const model = await loadTensorflowModel(
           // eslint-disable-next-line @typescript-eslint/no-require-imports
-          require('../../assets/models/crop_disease_v1.tflite')
+          require('../../assets/models/crop_disease_v1.tflite'),
+          []
         );
         if (cancelled) return;
         modelRef.current = model;
 
-        // 2. Copy DB asset if needed, then open it
         await ensureDBCopied();
         if (cancelled) return;
 
@@ -194,13 +172,10 @@ export function useDiseaseDetection() {
 
     return () => {
       cancelled = true;
-      // Close DB connection on unmount
       dbRef.current?.closeAsync().catch(() => {});
       dbRef.current = null;
     };
   }, []);
-
-  // ── runInference ────────────────────────────────────────────────────────────
 
   const runInference = useCallback(
     async (photoUri: string): Promise<InferenceResult | null> => {
@@ -211,39 +186,35 @@ export function useDiseaseDetection() {
 
       setIsRunning(true);
       try {
-        // 1. Preprocess image
         const inputTensor = await photoToFloat32(photoUri);
+        // run() accepts and returns ArrayBuffer[]
+        const outputs = await modelRef.current.run([inputTensor.buffer as ArrayBuffer]);
+        const outputBuf = outputs[0];
 
-        // 2. Run model
-        //    react-native-fast-tflite v3 API: model.run([inputTensor])
-        const outputs = await modelRef.current.run([inputTensor]);
+        // Try Float32 first, fall back to Uint8 if values look quantized
+        const float32View = new Float32Array(outputBuf);
+        const uint8View   = new Uint8Array(outputBuf);
+        const isInt8Output = float32View.every(v => Number.isInteger(v) && v >= 0 && v <= 255);
 
-        // 3. Decode output — model emits one output tensor of shape [1, 38]
-        const rawOutput = outputs[0] as Float32Array | Uint8Array | number[];
-
-        // Normalise if INT8 uint8 output (values 0-255 → 0-1 via softmax proxy)
         let scores: number[];
-        if (rawOutput instanceof Uint8Array) {
-          const sum = Array.from(rawOutput).reduce((a, b) => a + b, 0) || 1;
-          scores = Array.from(rawOutput).map((v) => v / sum);
+        if (isInt8Output) {
+          const sum = uint8View.reduce((a, b) => a + b, 0) || 1;
+          scores = Array.from(uint8View).map((v) => v / sum);
         } else {
-          scores = Array.from(rawOutput as Float32Array | number[]);
+          scores = Array.from(float32View);
         }
 
-        // Clamp to known class count
         const sliced = scores.slice(0, NUM_CLASSES);
         const { index: classIdx, value: rawConf } = argmax(sliced);
         const confidence = Math.round(rawConf * 100);
         const classLabel = CLASS_NAMES[classIdx] ?? `class_${classIdx}`;
 
-        // 4. Fetch treatment row from SQLite
         const row = await dbRef.current.getFirstAsync<DiseaseRow>(
           'SELECT * FROM diseases WHERE class_index = ?',
           [classIdx]
         );
 
         if (!row) {
-          // Fallback if DB row is missing
           return {
             classIndex:        classIdx,
             classLabel,

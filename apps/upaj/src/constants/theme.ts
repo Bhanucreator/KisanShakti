@@ -98,11 +98,25 @@ export const Fonts = {
 };
 
 export const Colors = {
-  light: { text: COLORS.textDark, background: COLORS.bgApp, tint: COLORS.primary },
-  dark: { text: COLORS.textDark, background: COLORS.bgApp, tint: COLORS.primary },
+  light: {
+    text: COLORS.textDark,
+    background: COLORS.bgApp,
+    tint: COLORS.primary,
+    backgroundSelected: COLORS.primaryTint,
+    backgroundElement: COLORS.bgSubtle,
+    textSecondary: COLORS.textSecondary,
+  },
+  dark: {
+    text: COLORS.textDark,
+    background: COLORS.bgApp,
+    tint: COLORS.primary,
+    backgroundSelected: COLORS.primaryTint,
+    backgroundElement: COLORS.bgSubtle,
+    textSecondary: COLORS.textSecondary,
+  },
 };
 
-export type ThemeColor = 'text' | 'background' | 'tint';
+export type ThemeColor = 'text' | 'background' | 'tint' | 'backgroundSelected' | 'backgroundElement' | 'textSecondary';
 
 export const Spacing = {
   one: 4,

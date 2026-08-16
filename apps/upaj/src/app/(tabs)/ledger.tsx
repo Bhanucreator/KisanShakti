@@ -685,7 +685,7 @@ const styles = StyleSheet.create({
 
   // Modal
   modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },
+  modalBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.45)' },
   modalSheet: {
     backgroundColor: COLORS.bgCard,
     borderTopLeftRadius: RADII.xl,
