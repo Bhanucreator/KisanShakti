@@ -1,0 +1,26 @@
+# Python virtual environments — never commit these
+backend/venv/
+backend/.venv/
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+
+# Node dependencies
+**/node_modules/
+
+# Expo local build artifacts
+**/.expo/
+**/dist/
+**/android/
+**/ios/
+
+# Environment secrets
+**/.env
+*.env.local
+
+# Logs
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
