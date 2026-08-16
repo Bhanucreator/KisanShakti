@@ -234,24 +234,28 @@ def get_nearby_crops(
     return crops[:50]
 
 
+class CreateListingRequest(BaseModel):
+    crop_name: str
+    quantity_kg: float
+    calculated_price_per_kg: float
+    latitude: float = 13.1367
+    longitude: float = 78.1325
+
+
 @app.post("/api/v1/crops/listing")
 def create_crop_listing(
-    crop_name: str,
-    quantity_kg: float,
-    calculated_price_per_kg: float,
-    latitude: float = 13.1367,
-    longitude: float = 78.1325,
+    body: CreateListingRequest,
     farmer: models.FarmerProfile = Depends(get_current_farmer),
     db: Session = Depends(database.get_db),
 ):
     listing = models.CropListing(
         id=str(uuid.uuid4()),
         farmer_id=str(farmer.id),
-        crop_name=crop_name,
-        quantity_kg=quantity_kg,
-        calculated_price_per_kg=calculated_price_per_kg,
+        crop_name=body.crop_name,
+        quantity_kg=body.quantity_kg,
+        calculated_price_per_kg=body.calculated_price_per_kg,
         status=models.CropStatus.AVAILABLE,
-        location=f"{latitude},{longitude}",
+        location=f"{body.latitude},{body.longitude}",
     )
     db.add(listing)
     db.commit()
@@ -259,8 +263,15 @@ def create_crop_listing(
 
 # ─── Smart Pricing ────────────────────────────────────────────────────────────
 
+class SmartPriceRequest(BaseModel):
+    crop_name: str
+    quality_modifier: float = 0.0
+
+
 @app.post("/api/v1/pricing/smart-price")
-def get_smart_price(crop_name: str, quality_modifier: float = 0.0):
+def get_smart_price(body: SmartPriceRequest):
+    crop_name = body.crop_name
+    quality_modifier = body.quality_modifier
     base_prices = {
         "Tomato": 20.0, "Potato": 15.0, "Onion": 25.0,
         "Cabbage": 18.0, "Carrot": 22.0, "Brinjal": 16.0,
@@ -269,7 +280,14 @@ def get_smart_price(crop_name: str, quality_modifier: float = 0.0):
     }
     quality_modifier = max(-0.05, min(0.05, quality_modifier))
     base = base_prices.get(crop_name, 30.0)
-    return {"crop_name": crop_name, "smart_price": round(base * (1 + quality_modifier), 2)}
+    smart_price = round(base * (1 + quality_modifier), 2)
+    return {
+        "crop_name": crop_name,
+        "base_price_per_kg": base,
+        "quality_modifier": quality_modifier,
+        "smart_price": smart_price,
+        "smart_price_per_kg": smart_price,
+    }
 
 # ─── Farm Ledger ──────────────────────────────────────────────────────────────
 
@@ -297,20 +315,24 @@ def get_farm_ledger(
     ]
 
 
+class LedgerEntryRequest(BaseModel):
+    transaction_type: Literal["INCOME", "EXPENSE"]
+    amount: float
+    category: str
+
+
 @app.post("/api/v1/farm-ledger")
 def add_ledger_entry(
-    transaction_type: str,
-    amount: float,
-    category: str,
+    body: LedgerEntryRequest,
     farmer: models.FarmerProfile = Depends(get_current_farmer),
     db: Session = Depends(database.get_db),
 ):
     entry = models.FarmLedger(
         id=str(uuid.uuid4()),
         farmer_id=str(farmer.id),
-        transaction_type=transaction_type,
-        amount=amount,
-        category=category,
+        transaction_type=body.transaction_type,
+        amount=body.amount,
+        category=body.category,
         timestamp=datetime.utcnow(),
     )
     db.add(entry)

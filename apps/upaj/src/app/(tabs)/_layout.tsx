@@ -1,103 +1,194 @@
+/**
+ * Bottom tab layout — floating pill navbar per uisample/Navbar.png reference.
+ * Dark rounded container floating above content with a raised primary FAB
+ * for the Disease scan (center action).
+ */
+
 import { Tabs } from 'expo-router';
-import { Platform, Text, View, StyleSheet } from 'react-native';
-import { Ionicons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { COLORS, RADII } from '../../constants/theme';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
+import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+
+// ── Palette ─────────────────────────────────────────────────────────────────
+const C = {
+  navBg: '#0F1F17',
+  navBgActive: '#1B4332',
+  primary: '#2D6A4F',
+  primaryBright: '#52B788',
+  active: '#FFFFFF',
+  inactive: '#7A8B85',
+  fabPrimary: '#40916C',
+  fabPrimaryTop: '#52B788',
+  card: '#FFFFFF',
+};
 
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
-        tabBarStyle: {
-          backgroundColor: COLORS.bgCard,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.borderLight,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
-          paddingTop: 8,
-          height: Platform.OS === 'ios' ? 88 : 66,
-          elevation: 10,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-          marginTop: 2,
-        },
-      }}
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="disease"
-        options={{
-          title: 'Disease',
-          tabBarIcon: ({ focused, color }) => (
-            <MaterialCommunityIcons
-              name={focused ? 'scan-helper' : 'line-scan'}
-              size={23}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="market"
-        options={{
-          title: 'Market',
-          tabBarIcon: ({ focused, color }) => (
-            <View style={styles.centerFab}>
-              <Ionicons name="add" size={24} color={COLORS.textWhite} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="weather"
-        options={{
-          title: 'Weather',
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons name={focused ? 'partly-sunny' : 'partly-sunny-outline'} size={23} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="ledger"
-        options={{
-          title: 'Profit',
-          tabBarIcon: ({ focused, color }) => (
-            <FontAwesome5 name="chart-line" size={19} color={color} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="index"   options={{ title: 'Home' }} />
+      <Tabs.Screen name="market"  options={{ title: 'Market' }} />
+      <Tabs.Screen name="disease" options={{ title: 'Scan' }} />
+      <Tabs.Screen name="weather" options={{ title: 'Weather' }} />
+      <Tabs.Screen name="ledger"  options={{ title: 'Ledger' }} />
     </Tabs>
   );
 }
 
-const styles = StyleSheet.create({
-  centerFab: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: COLORS.primary,
+// ── Icon per route ──────────────────────────────────────────────────────────
+function TabIcon({ name, active }: { name: string; active: boolean }) {
+  const color = active ? C.active : C.inactive;
+  const size = 20;
+  switch (name) {
+    case 'index':
+      return <Ionicons name={active ? 'home' : 'home-outline'} size={size} color={color} />;
+    case 'market':
+      return <Feather name="shopping-bag" size={size} color={color} />;
+    case 'disease':
+      return <MaterialCommunityIcons name="line-scan" size={26} color="#FFFFFF" />;
+    case 'weather':
+      return <Ionicons name={active ? 'partly-sunny' : 'partly-sunny-outline'} size={size} color={color} />;
+    case 'ledger':
+      return <Feather name="pie-chart" size={size} color={color} />;
+    default:
+      return null;
+  }
+}
+
+// ── Floating Tab Bar ────────────────────────────────────────────────────────
+function FloatingTabBar({ state, navigation }: any) {
+  const routes = state.routes;
+  const activeIndex = state.index;
+
+  return (
+    <View pointerEvents="box-none" style={s.wrap}>
+      <View style={s.pill}>
+        {routes.map((route: any, i: number) => {
+          const isActive = i === activeIndex;
+          const isFab = route.name === 'disease';
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress', target: route.key, canPreventDefault: true,
+            });
+            if (!isActive && !event.defaultPrevented) {
+              navigation.navigate(route.name as never);
+            }
+          };
+
+          // Center FAB (scan)
+          if (isFab) {
+            return (
+              <Pressable key={route.key} onPress={onPress} style={s.fabWrap}>
+                <View style={s.fabRing}>
+                  <View style={s.fab}>
+                    <TabIcon name={route.name} active={isActive} />
+                  </View>
+                </View>
+              </Pressable>
+            );
+          }
+
+          // Regular tab
+          return (
+            <Pressable key={route.key} onPress={onPress} style={s.tab}>
+              {isActive ? (
+                <View style={s.activePill}>
+                  <TabIcon name={route.name} active />
+                  <Text style={s.activeLabel} numberOfLines={1}>
+                    {getLabel(route.name)}
+                  </Text>
+                </View>
+              ) : (
+                <TabIcon name={route.name} active={false} />
+              )}
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+function getLabel(name: string): string {
+  switch (name) {
+    case 'index':   return 'Home';
+    case 'market':  return 'Market';
+    case 'weather': return 'Weather';
+    case 'ledger':  return 'Ledger';
+    default:        return '';
+  }
+}
+
+// ── Styles ──────────────────────────────────────────────────────────────────
+const s = StyleSheet.create({
+  wrap: {
+    position: 'absolute',
+    left: 16, right: 16,
+    bottom: Platform.OS === 'ios' ? 24 : 14,
+    alignItems: 'center',
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: C.navBg,
+    borderRadius: 32,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    width: '100%',
+    maxWidth: 380,
+    // shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.28,
+    shadowRadius: 16,
+    elevation: 14,
+  },
+  tab: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -8,
-    shadowColor: COLORS.primary,
+    height: 42,
+    minWidth: 40,
+  },
+  activePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: C.navBgActive,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  activeLabel: {
+    color: '#FFF',
+    fontFamily: 'Inter_700Bold',
+    fontSize: 12,
+    letterSpacing: 0.2,
+  },
+  fabWrap: {
+    width: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fabRing: {
+    width: 56, height: 56,
+    borderRadius: 28,
+    backgroundColor: C.navBg,
+    alignItems: 'center', justifyContent: 'center',
+    marginTop: -22,
+    borderWidth: 3, borderColor: C.navBg,
+  },
+  fab: {
+    width: 48, height: 48,
+    borderRadius: 24,
+    backgroundColor: C.fabPrimary,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: C.fabPrimary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowOpacity: 0.5, shadowRadius: 10,
+    elevation: 8,
   },
 });
