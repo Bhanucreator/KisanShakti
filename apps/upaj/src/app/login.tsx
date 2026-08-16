@@ -25,7 +25,7 @@ import { useAuth } from '../hooks/use-auth';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HERO_HEIGHT = SCREEN_HEIGHT * 0.42;
-const API_BASE = 'http://10.0.2.2:8000';
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.183.6.220:8000';
 
 type Step = 'phone' | 'otp';
 
