@@ -485,21 +485,24 @@ export default function LoginScreen() {
             </Animated.View>
           </Animated.View>
 
-          {/* Safety pill */}
-          <View style={s.safetyPill}>
-            <MaterialCommunityIcons name="shield-check" size={12} color={C.primary} />
-            <Text style={s.safetyText}>{t('Your data is safe and never shared', 'ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತವಾಗಿದೆ')}</Text>
+          {/* Spacer pushes footer to bottom of screen */}
+          <View style={{ flex: 1, minHeight: 24 }} />
+
+          {/* ═══ FOOTER ═══ */}
+          <View style={s.footer}>
+            <View style={s.footerDivider} />
+            <View style={s.safetyPill}>
+              <MaterialCommunityIcons name="shield-check" size={11} color={C.primary} />
+              <Text style={s.safetyText}>{t('Your data is safe and never shared', 'ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತವಾಗಿದೆ')}</Text>
+            </View>
+            <Text style={s.terms}>
+              {t('By continuing, you agree to our', 'ಮುಂದುವರೆಯುವ ಮೂಲಕ ನೀವು ಒಪ್ಪುತ್ತೀರಿ')}
+              {' '}
+              <Text style={s.termsLink}>{t('Terms', 'ನಿಯಮಗಳು')}</Text>
+              {' & '}
+              <Text style={s.termsLink}>{t('Privacy Policy', 'ಗೌಪ್ಯತಾ ನೀತಿ')}</Text>
+            </Text>
           </View>
-
-          <Text style={s.terms}>
-            {t('By continuing, you agree to our', 'ಮುಂದುವರೆಯುವ ಮೂಲಕ ನೀವು ಒಪ್ಪುತ್ತೀರಿ')}
-            {' '}
-            <Text style={s.termsLink}>{t('Terms', 'ನಿಯಮಗಳು')}</Text>
-            {' & '}
-            <Text style={s.termsLink}>{t('Privacy Policy', 'ಗೌಪ್ಯತಾ ನೀತಿ')}</Text>
-          </Text>
-
-          <View style={{ height: 30 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -829,11 +832,11 @@ function ErrorLine({ text }: { text: string }) {
 // ═══ Styles ════════════════════════════════════════════════════════════════
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
-  scroll: { flexGrow: 1 },
+  scroll: { flexGrow: 1, minHeight: '100%' },
 
   // Hero
   hero: {
-    paddingTop: Platform.OS === 'ios' ? 50 : 32,
+    paddingTop: Platform.OS === 'ios' ? 70 : 56,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 32,
@@ -1004,16 +1007,29 @@ const s = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', marginLeft: 8,
   },
 
-  // Safety + terms
+  // Footer
+  footer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 20,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  footerDivider: {
+    width: 40, height: 3, borderRadius: 2,
+    backgroundColor: C.border,
+    marginBottom: 14,
+  },
   safetyPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'center',
-    backgroundColor: C.primaryTint, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
-    marginTop: 14, borderWidth: 1, borderColor: '#B7E4C7',
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: C.primaryTint,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
+    borderWidth: 1, borderColor: '#B7E4C7',
   },
   safetyText: { fontFamily: 'Inter_600SemiBold', fontSize: 10, color: C.primary },
   terms: {
     fontFamily: 'Inter_400Regular', fontSize: 10, color: C.textMuted,
-    textAlign: 'center', marginTop: 10, paddingHorizontal: 30, lineHeight: 15,
+    textAlign: 'center', marginTop: 10, paddingHorizontal: 20, lineHeight: 15,
   },
   termsLink: { fontFamily: 'Inter_700Bold', color: C.primary },
 });

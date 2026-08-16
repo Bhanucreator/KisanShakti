@@ -38,6 +38,19 @@ app.add_middleware(
 @app.on_event("startup")
 def create_tables():
     database.Base.metadata.create_all(bind=database.engine)
+    # Auto-migrate: add any columns missing from an older DB
+    with database.engine.connect() as conn:
+        existing = {row[1] for row in conn.exec_driver_sql(
+            "PRAGMA table_info(farmer_profiles)"
+        ).fetchall()}
+        for col_ddl in [
+            ("location_name", "ALTER TABLE farmer_profiles ADD COLUMN location_name TEXT"),
+            ("latitude",      "ALTER TABLE farmer_profiles ADD COLUMN latitude NUMERIC"),
+            ("longitude",     "ALTER TABLE farmer_profiles ADD COLUMN longitude NUMERIC"),
+        ]:
+            if col_ddl[0] not in existing:
+                conn.exec_driver_sql(col_ddl[1])
+        conn.commit()
 
 # ─── Singletons ──────────────────────────────────────────────────────────────
 
