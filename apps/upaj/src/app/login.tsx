@@ -5,8 +5,7 @@ import {
   Dimensions, SafeAreaView, StatusBar, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
+import { SafeGradient as LinearGradient, SafeBlur as BlurView } from '../components/safe-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/use-auth';
 

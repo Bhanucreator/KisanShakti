@@ -5,8 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
+import { SafeGradient as LinearGradient } from '../../components/safe-gradient';
 import { Ionicons, MaterialCommunityIcons, Feather, FontAwesome5 } from '@expo/vector-icons';
 import { useDiseaseDetection, InferenceResult } from '../../hooks/use-disease-detection';
 

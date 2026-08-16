@@ -4,7 +4,7 @@ import {
   Animated, Easing, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import { SafeGradient as LinearGradient } from '../../components/safe-gradient';
 import { Ionicons, FontAwesome5, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '../../hooks/use-auth';
