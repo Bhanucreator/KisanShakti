@@ -79,9 +79,7 @@ apps/upaj/assets/models/*.tflite.old
 **/.easignore.local
 
 # ─── Claude Code runtime ────────────────────────────────────────────────
-.claude/scheduled_tasks.lock
-.claude/scheduled_tasks/
-.claude/local/
+.claude/
 
 # ─── Editor / OS junk ───────────────────────────────────────────────────
 .DS_Store
