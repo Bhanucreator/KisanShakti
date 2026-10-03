@@ -78,8 +78,10 @@ apps/upaj/assets/models/*.tflite.old
 **/eas-build-local-nodejs/
 **/.easignore.local
 
-# ─── Claude Code runtime ────────────────────────────────────────────────
-.claude/
+# ─── Claude Code runtime & config ───────────────────────────────────────
+**/.claude/
+**/.claude*
+**/CLAUDE.md
 
 # ─── Editor / OS junk ───────────────────────────────────────────────────
 .DS_Store
