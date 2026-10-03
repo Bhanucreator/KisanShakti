@@ -56,7 +56,7 @@ jobs:
     name: "Deploy Backend (Docker → ECR → App Runner)"
     runs-on: ubuntu-latest
     needs: test-backend
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AWS_OIDC_ROLE_ARN != ''
 
     permissions:
       id-token: write
