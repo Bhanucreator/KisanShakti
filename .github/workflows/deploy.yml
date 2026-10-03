@@ -47,7 +47,7 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: postgresql+psycopg2://test_user:test_pass@localhost:5432/kisanshakti_test
-          JWT_SECRET: test_secret
+          JWT_SECRET: kisanshakti-ci-test-jwt-secret-key-32-chars-min
           WEATHER_API_KEY: test_key
           AGMARKNET_API_KEY: test_key
         run: pytest tests/ -v --tb=short
