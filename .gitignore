@@ -84,6 +84,7 @@ apps/upaj/assets/models/*.tflite.old
 **/CLAUDE.md
 
 # ─── Editor / OS junk ───────────────────────────────────────────────────
+/*.pdf
 .DS_Store
 Thumbs.db
 desktop.ini
