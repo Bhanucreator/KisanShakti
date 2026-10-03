@@ -25,7 +25,10 @@ load_dotenv()
 from models import Base
 target_metadata = Base.metadata
 
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/kisanshakti"))
+db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/kisanshakti")
+if db_url.startswith("postgresql://"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+config.set_main_option("sqlalchemy.url", db_url)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

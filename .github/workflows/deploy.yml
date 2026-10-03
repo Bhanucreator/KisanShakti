@@ -40,13 +40,13 @@ jobs:
       - name: Run migrations
         working-directory: backend
         env:
-          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/kisanshakti_test
+          DATABASE_URL: postgresql+psycopg2://test_user:test_pass@localhost:5432/kisanshakti_test
         run: alembic upgrade head
 
       - name: Run pytest
         working-directory: backend
         env:
-          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/kisanshakti_test
+          DATABASE_URL: postgresql+psycopg2://test_user:test_pass@localhost:5432/kisanshakti_test
           JWT_SECRET: test_secret
           WEATHER_API_KEY: test_key
           AGMARKNET_API_KEY: test_key
