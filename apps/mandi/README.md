@@ -1,56 +1,115 @@
-# Welcome to your Expo app 👋
+# Mandi — the buyer app · ಮಂಡಿ
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Kannada + English React Native app for agricultural buyers, traders,
+wholesalers, and retail shopkeepers to source crops directly from
+Karnataka farmers on KisanShakti.
 
-## Get started
+Built on Expo SDK 54 / React Native. Same backend as the farmer app
+([Upaj](../upaj/README.md)) — see [../../backend/README.md](../../backend/README.md).
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Screens
 
-2. Start the app
+| Tab | What it does |
+|---|---|
+| **Discover** | Nearby crop listings within the buyer's sourcing radius (default 25 km), category filter chips, search bar (300 ms debounced), pull-to-refresh, notification bell |
+| **Requests** | Pending offers the buyer has made; the farmer's status (PENDING / ACCEPTED / REJECTED) |
+| **Orders** | Accepted offers (in-delivery + completed). Delivery OTP entry lives here; ratings for completed farmers |
+| **Profile** | Shop identity, trade stats (total spent, orders completed, crops bought), sourcing radius, Terms, Privacy, Sign out, Delete-my-account |
 
-   ```bash
-   npx expo start
-   ```
+Plus:
+- Phone OTP login → JWT session (dev-stub OTP auto-fills)
+- Onboarding: shop name, shop type (Retail / Wholesale / Processing), sourcing radius
+- Full-bleed crop-detail hero with photo carousel (`crop-detail.tsx`)
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run in dev
 
 ```bash
-npm run reset-project
+npm install
+export EXPO_PUBLIC_API_URL=http://10.0.2.2:8000    # Android emulator
+npx expo start --clear
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+For real phones on the same WiFi or mobile data, see
+[../upaj/README.md#run-in-dev](../upaj/README.md#run-in-dev) — same story.
 
-### Other setup steps
+---
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Project layout
 
-## Learn more
+```
+src/
+├── app/
+│   ├── _layout.tsx             # Auth gate + splash
+│   ├── login.tsx               # OTP + shop profile
+│   ├── (tabs)/
+│   │   ├── index.tsx           # Discover
+│   │   ├── requests.tsx        # Pending offers
+│   │   ├── orders.tsx          # Accepted + completed
+│   │   └── profile.tsx         # Shop settings + Delete account
+│   ├── crop-detail.tsx         # Photo carousel + farmer info + make-offer sheet
+│   ├── chat.tsx                # (placeholder for future in-app messaging)
+│   └── legal/
+│       ├── terms.tsx           # Terms of Service (buyer-tuned)
+│       └── privacy.tsx         # Privacy Policy (buyer-tuned)
+├── components/                 # Small shared UI bits
+├── constants/theme.ts          # Colors + spacing
+├── hooks/use-auth.ts           # AsyncStorage-backed auth state
+└── lib/api.ts                  # All backend calls
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Discover ranking
 
-## Join the community
+Listings are ranked server-side by a combined score:
+- **60 % distance** — nearer wins, capped at the buyer's `sourcing_radius_km`
+- **40 % price fairness** — closer to the crop's AGMARKNET benchmark wins
 
-Join our community of developers creating universal apps.
+Buyers can override via category chips (Tomato / Onion / Ragi / …) or
+free-text search. Both apply on top of the radius filter.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## Offer flow
+
+1. Buyer taps a listing card → `/crop-detail`
+2. Fills out **Make Offer** sheet: price/kg + quantity + optional note
+3. Backend validates the price is within ±5 % of AGMARKNET benchmark
+4. Offer submitted → PENDING
+5. Farmer accepts on Upaj → sibling offers on the same listing are
+   auto-rejected → buyer sees ACCEPTED in the Requests tab
+6. Farmer generates a 4-digit delivery OTP → shares with buyer at
+   pickup
+7. Buyer enters the OTP in the Orders tab → offer moves to COMPLETED
+   → sale posts to the farmer's ledger automatically → rating prompt
+   appears on the buyer's side
+
+---
+
+## Rate limits (server-enforced)
+
+Buyers are capped at **20 offers per 5 minutes** to prevent flooding
+farmer listings with lowball noise. 21st offer returns 429 with a
+wait-time message.
+
+---
+
+## Build APK
+
+Same EAS flow as Upaj. See [../upaj/README.md#build-apk-for-internal-testing](../upaj/README.md#build-apk-for-internal-testing).
+
+---
+
+## Deleting an account (Play Store policy)
+
+Profile → **Delete my account** → double-confirm → cascade removes:
+- Buyer profile row
+- All offers the buyer made
+- All ratings the buyer gave
+- Notification history
+
+Irreversible. Backend endpoint: `DELETE /api/v1/buyers/me`.

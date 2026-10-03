@@ -6,8 +6,10 @@ import uuid
 from datetime import datetime
 from typing import List, Literal, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -15,6 +17,11 @@ from sqlalchemy import text
 import models
 import schemas
 import database
+from home_endpoints import router as home_router
+from sensor_endpoints import router as sensor_router
+from bi_endpoints import router as bi_router
+from commerce_endpoints import router as commerce_router
+from notifications import router as notifications_router
 from auth import OTPStore
 from dependencies import (
     get_current_buyer,
@@ -33,6 +40,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(home_router)
+app.include_router(sensor_router)
+app.include_router(bi_router)
+app.include_router(commerce_router)
+app.include_router(notifications_router)
+
+# Serve listing photos publicly. Path relative to this file so it works
+# regardless of the shell's cwd when uvicorn starts.
+_uploads_dir = Path(__file__).parent / "uploads"
+_uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(_uploads_dir)), name="uploads")
+
 # ─── Init DB tables on startup ───────────────────────────────────────────────
 
 @app.on_event("startup")
@@ -47,15 +66,132 @@ def create_tables():
             ("location_name", "ALTER TABLE farmer_profiles ADD COLUMN location_name TEXT"),
             ("latitude",      "ALTER TABLE farmer_profiles ADD COLUMN latitude NUMERIC"),
             ("longitude",     "ALTER TABLE farmer_profiles ADD COLUMN longitude NUMERIC"),
+            ("cattle_count",  "ALTER TABLE farmer_profiles ADD COLUMN cattle_count INTEGER DEFAULT 0"),
         ]:
             if col_ddl[0] not in existing:
                 conn.exec_driver_sql(col_ddl[1])
+
+        # farm_ledger: cycle_id + subcategory (Farm Business feature)
+        ledger_cols = {row[1] for row in conn.exec_driver_sql(
+            "PRAGMA table_info(farm_ledger)"
+        ).fetchall()}
+        for col_name, ddl in [
+            ("cycle_id",    "ALTER TABLE farm_ledger ADD COLUMN cycle_id TEXT"),
+            ("subcategory", "ALTER TABLE farm_ledger ADD COLUMN subcategory TEXT"),
+        ]:
+            if col_name not in ledger_cols:
+                conn.exec_driver_sql(ddl)
+
+        # crop_listings: Hyperlocal Commerce Engine extensions
+        listing_cols = {row[1] for row in conn.exec_driver_sql(
+            "PRAGMA table_info(crop_listings)"
+        ).fetchall()}
+        for col_name, ddl in [
+            ("plot_id",                    "ALTER TABLE crop_listings ADD COLUMN plot_id TEXT"),
+            ("cycle_id",                   "ALTER TABLE crop_listings ADD COLUMN cycle_id TEXT"),
+            ("crop_name_kn",               "ALTER TABLE crop_listings ADD COLUMN crop_name_kn TEXT"),
+            ("latitude",                   "ALTER TABLE crop_listings ADD COLUMN latitude NUMERIC"),
+            ("longitude",                  "ALTER TABLE crop_listings ADD COLUMN longitude NUMERIC"),
+            ("benchmark_price_at_listing", "ALTER TABLE crop_listings ADD COLUMN benchmark_price_at_listing NUMERIC"),
+            ("photo_path",                 "ALTER TABLE crop_listings ADD COLUMN photo_path TEXT"),
+            ("village",                    "ALTER TABLE crop_listings ADD COLUMN village TEXT"),
+            ("created_at",                 "ALTER TABLE crop_listings ADD COLUMN created_at DATETIME"),
+            ("expires_at",                 "ALTER TABLE crop_listings ADD COLUMN expires_at DATETIME"),
+            ("market_source_apmc",         "ALTER TABLE crop_listings ADD COLUMN market_source_apmc TEXT"),
+            ("market_source_district",     "ALTER TABLE crop_listings ADD COLUMN market_source_district TEXT"),
+            ("market_source_price_kg",     "ALTER TABLE crop_listings ADD COLUMN market_source_price_kg NUMERIC"),
+            ("market_source_distance_km",  "ALTER TABLE crop_listings ADD COLUMN market_source_distance_km NUMERIC"),
+            ("market_source_date",         "ALTER TABLE crop_listings ADD COLUMN market_source_date TEXT"),
+        ]:
+            if col_name not in listing_cols:
+                conn.exec_driver_sql(ddl)
+        # Backfill: SQLite's `server_default=func.now()` fires only on
+        # CREATE TABLE, so any existing rows have created_at NULL after
+        # the ALTER above. A NULL there breaks the Pydantic response model.
+        conn.exec_driver_sql(
+            "UPDATE crop_listings SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
+        )
+
+        # trade_offers: delivery OTP + completion + cancellation fields
+        offer_cols = {row[1] for row in conn.exec_driver_sql(
+            "PRAGMA table_info(trade_offers)"
+        ).fetchall()}
+        for col_name, ddl in [
+            ("delivery_otp",     "ALTER TABLE trade_offers ADD COLUMN delivery_otp TEXT"),
+            ("completed_at",     "ALTER TABLE trade_offers ADD COLUMN completed_at DATETIME"),
+            ("cancelled_reason", "ALTER TABLE trade_offers ADD COLUMN cancelled_reason TEXT"),
+            ("hidden_from_buyer","ALTER TABLE trade_offers ADD COLUMN hidden_from_buyer INTEGER DEFAULT 0"),
+        ]:
+            if col_name not in offer_cols:
+                conn.exec_driver_sql(ddl)
+
+        # Backfill: for every listing that has a legacy photo_path but no row
+        # in listing_photos, seed a row as the primary (sort_order=0). Idempotent.
+        conn.exec_driver_sql("""
+            INSERT INTO listing_photos (id, listing_id, photo_path, sort_order, created_at)
+            SELECT lower(hex(randomblob(16))), cl.id, cl.photo_path, 0, CURRENT_TIMESTAMP
+            FROM crop_listings cl
+            WHERE cl.photo_path IS NOT NULL
+              AND NOT EXISTS (
+                SELECT 1 FROM listing_photos lp WHERE lp.listing_id = cl.id
+              )
+        """)
+        # Backfill: an older verify-otp flow saved shop_name = phone_number
+        # whenever the buyer signed up without entering a shop name. Blank
+        # those out (empty string — the column has a NOT NULL constraint from
+        # the original schema, and SQLite can't drop that without rebuilding
+        # the table) so the app re-prompts for a real name via PATCH /buyers/me.
+        # A row matches when shop_name equals its own phone_number, or when
+        # shop_name is a pure-digit / +-digit string (i.e. clearly a phone).
+        conn.exec_driver_sql("""
+            UPDATE buyer_profiles
+            SET shop_name = ''
+            WHERE shop_name IS NOT NULL AND shop_name != '' AND (
+                shop_name = phone_number
+                OR (
+                    length(replace(replace(shop_name, '+', ''), ' ', '')) >= 10
+                    AND replace(replace(shop_name, '+', ''), ' ', '')
+                        GLOB '[0-9]*'
+                )
+            )
+        """)
+
+        # sensor_readings: battery telemetry columns (added Sep 2026)
+        sensor_cols = {row[1] for row in conn.exec_driver_sql(
+            "PRAGMA table_info(sensor_readings)"
+        ).fetchall()}
+        for col_name, ddl in [
+            ("battery_v",   "ALTER TABLE sensor_readings ADD COLUMN battery_v NUMERIC"),
+            ("battery_pct", "ALTER TABLE sensor_readings ADD COLUMN battery_pct INTEGER"),
+        ]:
+            if col_name not in sensor_cols:
+                conn.exec_driver_sql(ddl)
+
         conn.commit()
+
+    # KMV price scheduler — refreshes Karnataka APMC data at 05:00 & 20:00 IST
+    # daily, with a cold-start kick if the cache is empty. See scheduler.py.
+    try:
+        import scheduler as _sched
+        _sched.start()
+    except Exception as _e:
+        # Non-fatal: API still serves what's in the cache; only the auto-refresh dies.
+        import logging as _log
+        _log.getLogger(__name__).warning("[startup] KMV scheduler did not start: %s", _e)
 
 # ─── Singletons ──────────────────────────────────────────────────────────────
 
 _otp_store = OTPStore()
 _DEBUG = os.getenv("DEBUG", "").lower() in {"1", "true", "yes"}
+
+# Delegates to the shared sliding-window limiter in rate_limit.py so every
+# feature uses the same throttling primitive. OTP is more restrictive than
+# most (paid SMS if we ever wire a real provider): 3/hr per phone, 10/hr per IP.
+from rate_limit import check_rate as _check_rate
+
+def _check_otp_rate(phone: str, ip: str) -> None:
+    _check_rate(bucket="otp_phone", key=phone, cap=3, window_s=3600, friendly="OTP requests")
+    _check_rate(bucket="otp_ip",    key=ip,    cap=10, window_s=3600, friendly="OTP requests")
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -89,6 +225,17 @@ class VerifyOTPResponse(BaseModel):
     token_type: str = "bearer"
     user_id: str
     is_new_user: bool
+    # True when the client should show a "complete your profile" step:
+    #   - genuinely new user, OR
+    #   - buyer whose stored shop_name is missing or looks like a phone number
+    #     (legacy fallback from an earlier build). Farmer profile completeness
+    #     is tracked via the local SQLite `onboarded` flag instead.
+    needs_profile: bool = False
+
+class BuyerProfileUpdate(BaseModel):
+    shop_name: str = Field(..., min_length=1, max_length=120)
+    shop_type: Optional[str] = None
+    sourcing_radius_km: Optional[float] = None
 
 # ─── Health ───────────────────────────────────────────────────────────────────
 
@@ -107,8 +254,15 @@ def health_check(db: Session = Depends(database.get_db)):
 # ─── Auth ─────────────────────────────────────────────────────────────────────
 
 @app.post("/api/v1/auth/send-otp", response_model=SendOTPResponse)
-def send_otp(body: SendOTPRequest):
+def send_otp(body: SendOTPRequest, request: Request):
+    client_ip = (request.client.host if request.client else "unknown")
+    _check_otp_rate(body.phone, client_ip)
     code = _otp_store.generate(body.phone)
+    # Always log the OTP to the backend terminal so devs can read it without
+    # needing an SMS gateway. In production this line is fine because prod
+    # doesn't run with a visible uvicorn terminal — real SMS delivery happens
+    # via a separate integration (Twilio/MSG91 not wired in yet).
+    print(f"[OTP] {body.role} · {body.phone} → {code}", flush=True)
     response = SendOTPResponse(message="OTP sent successfully")
     if _DEBUG:
         response.dev_otp = code
@@ -145,10 +299,18 @@ def verify_otp(body: VerifyOTPRequest, db: Session = Depends(database.get_db)):
         buyer = db.query(models.BuyerProfile).filter_by(phone_number=body.phone).first()
         if buyer is None:
             is_new_user = True
+            # Do NOT fall back shop_name to the phone number — that made the
+            # farmer's inbox show phones instead of shop names. Leave it as a
+            # sentinel-looking placeholder; the buyer will fill it via the
+            # PATCH /buyers/me call the app fires from the profile step.
+            # Column has NOT NULL from the original schema — use empty string
+            # as the sentinel for "not set yet". The needs_profile check
+            # below treats "" the same as missing, so the app prompts for
+            # a real shop name on first login.
             buyer = models.BuyerProfile(
                 id=str(uuid.uuid4()),
                 phone_number=body.phone,
-                shop_name=body.name or body.phone,
+                shop_name=(body.name or "").strip(),
                 shop_type=models.ShopType.KIRANA,
                 sourcing_radius_km=10,
                 shop_location="13.1367,78.1325",
@@ -158,9 +320,21 @@ def verify_otp(body: VerifyOTPRequest, db: Session = Depends(database.get_db)):
             db.refresh(buyer)
         user_id = str(buyer.id)
 
+    # Compute needs_profile: buyer without a real shop_name (missing, blank, or
+    # legacy fallback to the phone number) must complete their profile before
+    # they show up in farmers' inboxes as anything but "Buyer".
+    needs_profile = is_new_user
+    if body.role == "buyer" and not needs_profile:
+        sn = (buyer.shop_name or "").strip()
+        if not sn or sn == body.phone or sn.lstrip("+").isdigit():
+            needs_profile = True
+
     jwt_service = get_jwt_service()
     token = jwt_service.create_token(user_id=user_id, phone=body.phone, role=body.role)
-    return VerifyOTPResponse(access_token=token, token_type="bearer", user_id=user_id, is_new_user=is_new_user)
+    return VerifyOTPResponse(
+        access_token=token, token_type="bearer",
+        user_id=user_id, is_new_user=is_new_user, needs_profile=needs_profile,
+    )
 
 # ─── Farmer Profile ───────────────────────────────────────────────────────────
 
@@ -169,24 +343,52 @@ def get_my_farmer_profile(
     farmer: models.FarmerProfile = Depends(get_current_farmer),
     db: Session = Depends(database.get_db),
 ):
-    crops = db.query(models.FarmerCrop).filter_by(farmer_id=str(farmer.id)).all()
-    return {
-        "id": str(farmer.id),
-        "phone_number": farmer.phone_number,
-        "full_name": farmer.full_name,
-        "total_land_ha": float(farmer.total_land_ha),
-        "cattle_count": farmer.cattle_count,
-        "location_name": farmer.location_name,
-        "latitude": float(farmer.latitude) if farmer.latitude is not None else None,
-        "longitude": float(farmer.longitude) if farmer.longitude is not None else None,
-        "crops": [
+    """
+    Return the caller's farmer profile with every field coerced defensively.
+    A previous version threw uncaught 500s on farmer rows where a Numeric
+    column happened to arrive as None (partial-onboarding artefacts, seed-
+    script inserts pre-auto-migration, etc.). Now: every field is None-
+    guarded, any unexpected exception in the crop-list build path is logged
+    with a full traceback and swallowed to an empty list so the profile
+    still loads.
+    """
+    def _f(v):
+        """Coerce Numeric-like column to float, tolerating None or garbage."""
+        if v is None:
+            return None
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    try:
+        crops = db.query(models.FarmerCrop).filter_by(farmer_id=str(farmer.id)).all()
+        crop_out = [
             {
-                "id": str(c.id),
-                "crop_name": c.crop_name,
+                "id":           str(c.id),
+                "crop_name":    c.crop_name,
                 "crop_name_kn": c.crop_name_kn,
-                "land_ha": float(c.land_ha),
+                "land_ha":      _f(c.land_ha) or 0.0,
             } for c in crops
-        ],
+        ]
+    except Exception as e:
+        import traceback, logging
+        logging.getLogger(__name__).error(
+            "[/farmers/me] crop-list load failed for %s: %s\n%s",
+            farmer.id, e, traceback.format_exc(),
+        )
+        crop_out = []
+
+    return {
+        "id":            str(farmer.id),
+        "phone_number":  farmer.phone_number,
+        "full_name":     farmer.full_name or "",
+        "total_land_ha": _f(farmer.total_land_ha) or 0.0,
+        "cattle_count":  int(farmer.cattle_count) if farmer.cattle_count is not None else 0,
+        "location_name": farmer.location_name,
+        "latitude":      _f(farmer.latitude),
+        "longitude":     _f(farmer.longitude),
+        "crops":         crop_out,
     }
 
 
@@ -236,22 +438,114 @@ def update_farmer_profile(
     db.refresh(farmer)
     return {"status": "updated", "id": str(farmer.id)}
 
-@app.post("/api/v1/farmers/register")
-def register_farmer(farmer_data: schemas.FarmerProfileBase, db: Session = Depends(database.get_db)):
-    existing = db.query(models.FarmerProfile).filter_by(phone_number=farmer_data.phone_number).first()
-    if existing:
-        raise HTTPException(status.HTTP_409_CONFLICT, "Phone already registered.")
-    farmer = models.FarmerProfile(
-        id=str(uuid.uuid4()),
-        phone_number=farmer_data.phone_number,
-        full_name=farmer_data.full_name,
-        total_land_ha=farmer_data.total_land_ha,
-        cattle_count=farmer_data.cattle_count,
+# Legacy unauth'd registration route removed (Sep 2026). Sign-up now goes
+# through POST /api/v1/auth/verify-otp which creates the farmer row after
+# proving phone ownership. Keeping the route open allowed anyone to POST
+# arbitrary phone numbers and manufacture farmer rows.
+@app.post("/api/v1/farmers/register", deprecated=True, include_in_schema=False)
+def register_farmer_deprecated():
+    raise HTTPException(
+        status.HTTP_410_GONE,
+        "Farmer registration is now handled by /api/v1/auth/verify-otp.",
     )
-    db.add(farmer)
-    db.commit()
-    db.refresh(farmer)
-    return farmer
+
+
+@app.delete("/api/v1/farmers/me", status_code=status.HTTP_200_OK)
+def delete_my_farmer_account(
+    farmer: models.FarmerProfile = Depends(get_current_farmer),
+    db: Session = Depends(database.get_db),
+):
+    """
+    Right-to-be-forgotten: cascade-deletes the caller's farmer profile and
+    EVERY row that references them. Required for Play Store compliance
+    ("account deletion request"). Irreversible.
+
+    Cascade order matters (children before parents) because we don't rely
+    on ON DELETE CASCADE — the existing schema was built without those
+    constraints. Everything runs in a single transaction so a mid-flight
+    failure leaves the account intact.
+
+    NOTE: listings authored by this farmer disappear entirely, which means
+    buyers who had pending or completed offers against them lose those
+    historical references. This matches user expectations for account
+    deletion ("nothing of mine remains") and is stricter than needed for
+    compliance — swap for anonymisation later if we surface transaction
+    history to buyers.
+    """
+    fid = str(farmer.id)
+    try:
+        # 1. Ratings this farmer received (and cascades to listing ratings)
+        db.execute(text("DELETE FROM farmer_ratings WHERE farmer_id = :fid"), {"fid": fid})
+        # 2. Offers made against this farmer's listings — collect listing ids first
+        listing_ids = [
+            row[0] for row in db.execute(
+                text("SELECT id FROM crop_listings WHERE farmer_id = :fid"), {"fid": fid}
+            ).fetchall()
+        ]
+        if listing_ids:
+            for lid in listing_ids:
+                db.execute(text("DELETE FROM trade_offers   WHERE listing_id = :lid"), {"lid": lid})
+                db.execute(text("DELETE FROM listing_photos WHERE listing_id = :lid"), {"lid": lid})
+        # 3. Listings themselves
+        db.execute(text("DELETE FROM crop_listings         WHERE farmer_id = :fid"), {"fid": fid})
+        # 4. Farm business — cycles, plots, ledger
+        db.execute(text("DELETE FROM crop_cycles           WHERE logged_by_farmer_id = :fid"), {"fid": fid})
+        # plots via ownership history
+        plot_ids = [
+            row[0] for row in db.execute(
+                text("SELECT id FROM plots WHERE current_owner_farmer_id = :fid"), {"fid": fid}
+            ).fetchall()
+        ]
+        for pid in plot_ids:
+            db.execute(text("DELETE FROM plot_ownership_history WHERE plot_id = :pid"), {"pid": pid})
+        db.execute(text("DELETE FROM plots                 WHERE current_owner_farmer_id = :fid"), {"fid": fid})
+        db.execute(text("DELETE FROM farm_ledger           WHERE farmer_id = :fid"), {"fid": fid})
+        # 5. Sensor stack
+        db.execute(text("DELETE FROM sensor_readings       WHERE farmer_id = :fid"), {"fid": fid})
+        db.execute(text("DELETE FROM sensor_devices        WHERE farmer_id = :fid"), {"fid": fid})
+        # 6. Notifications addressed to this farmer
+        db.execute(text("DELETE FROM notifications         WHERE recipient_id = :fid AND recipient_role = 'farmer'"), {"fid": fid})
+        # 7. Onboarded-crops list
+        db.execute(text("DELETE FROM farmer_crops          WHERE farmer_id = :fid"), {"fid": fid})
+        # 8. Finally the profile row itself
+        db.execute(text("DELETE FROM farmer_profiles       WHERE id = :fid"), {"fid": fid})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            f"Account deletion failed: {type(e).__name__}. Nothing was deleted.",
+        )
+    return {"status": "deleted", "id": fid}
+
+
+@app.delete("/api/v1/buyers/me", status_code=status.HTTP_200_OK)
+def delete_my_buyer_account(
+    buyer: models.BuyerProfile = Depends(get_current_buyer),
+    db: Session = Depends(database.get_db),
+):
+    """
+    Right-to-be-forgotten for buyers. Same policy as the farmer flow —
+    everything owned by the buyer is deleted in a single transaction.
+    """
+    bid = str(buyer.id)
+    try:
+        # Offers this buyer made
+        db.execute(text("DELETE FROM trade_offers    WHERE buyer_id = :bid"), {"bid": bid})
+        # Ratings this buyer gave
+        db.execute(text("DELETE FROM farmer_ratings  WHERE buyer_id = :bid"), {"bid": bid})
+        # Notifications addressed to them
+        db.execute(text("DELETE FROM notifications   WHERE recipient_id = :bid AND recipient_role = 'buyer'"), {"bid": bid})
+        # Finally the profile row itself
+        db.execute(text("DELETE FROM buyer_profiles  WHERE id = :bid"), {"bid": bid})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            f"Account deletion failed: {type(e).__name__}. Nothing was deleted.",
+        )
+    return {"status": "deleted", "id": bid}
 
 # ─── Buyer Profile ────────────────────────────────────────────────────────────
 
@@ -265,9 +559,37 @@ def get_my_buyer_profile(buyer: models.BuyerProfile = Depends(get_current_buyer)
         "sourcing_radius_km": float(buyer.sourcing_radius_km),
     }
 
-@app.post("/api/v1/buyers/preferences")
-def save_buyer_preferences(shop_type: str, sourcing_radius_km: float):
-    return {"status": "saved", "shop_type": shop_type, "sourcing_radius_km": sourcing_radius_km}
+
+@app.patch("/api/v1/buyers/me")
+def update_my_buyer_profile(
+    body: BuyerProfileUpdate,
+    buyer: models.BuyerProfile = Depends(get_current_buyer),
+    db: Session = Depends(database.get_db),
+):
+    """Buyer completes/edits their own profile. Used from Mandi's login-time
+    profile step (after OTP verified) and from a future Settings screen."""
+    buyer.shop_name = body.shop_name.strip()
+    if body.shop_type:
+        try:
+            buyer.shop_type = models.ShopType(body.shop_type)
+        except ValueError:
+            # Unknown enum value — leave the existing type in place rather than 500.
+            pass
+    if body.sourcing_radius_km is not None:
+        buyer.sourcing_radius_km = body.sourcing_radius_km
+    db.commit()
+    db.refresh(buyer)
+    return {
+        "id": str(buyer.id),
+        "phone_number": buyer.phone_number,
+        "shop_name": buyer.shop_name,
+        "shop_type": buyer.shop_type,
+        "sourcing_radius_km": float(buyer.sourcing_radius_km),
+    }
+
+# Removed /api/v1/buyers/preferences — was a no-op stub that took shop_type
+# and sourcing_radius_km from the QUERY string with no auth. Real buyer
+# preferences are set via PATCH /api/v1/buyers/me.
 
 # ─── Crop Listings ────────────────────────────────────────────────────────────
 
@@ -336,33 +658,11 @@ def create_crop_listing(
     db.commit()
     return {"status": "listed", "listing_id": str(listing.id)}
 
-# ─── Smart Pricing ────────────────────────────────────────────────────────────
-
-class SmartPriceRequest(BaseModel):
-    crop_name: str
-    quality_modifier: float = 0.0
-
-
-@app.post("/api/v1/pricing/smart-price")
-def get_smart_price(body: SmartPriceRequest):
-    crop_name = body.crop_name
-    quality_modifier = body.quality_modifier
-    base_prices = {
-        "Tomato": 20.0, "Potato": 15.0, "Onion": 25.0,
-        "Cabbage": 18.0, "Carrot": 22.0, "Brinjal": 16.0,
-        "Wheat": 22.0, "Rice": 32.0, "Corn": 18.0,
-        "Sunflower": 45.0, "Groundnut": 50.0, "Sugarcane": 3.5,
-    }
-    quality_modifier = max(-0.05, min(0.05, quality_modifier))
-    base = base_prices.get(crop_name, 30.0)
-    smart_price = round(base * (1 + quality_modifier), 2)
-    return {
-        "crop_name": crop_name,
-        "base_price_per_kg": base,
-        "quality_modifier": quality_modifier,
-        "smart_price": smart_price,
-        "smart_price_per_kg": smart_price,
-    }
+# /api/v1/pricing/smart-price was removed — it returned hardcoded per-crop
+# base rates that ignored the farmer's location and today's actual mandi data.
+# Replaced by GET /api/v1/pricing/suggest?crop=&lat=&lon= (in commerce_endpoints.py)
+# which walks the nearest APMCs via KMV cache / data.gov.in and fits a real,
+# location-aware price. See memory: feedback-no-hardcoded-farmer-data.
 
 # ─── Farm Ledger ──────────────────────────────────────────────────────────────
 

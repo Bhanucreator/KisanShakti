@@ -45,6 +45,7 @@ interface UseAuth extends AuthState {
     latitude: number;
     longitude: number;
     total_land_ha: number;
+    cattle_count: number;
     onboarded: boolean;
   }>) => Promise<void>;
   signOut: () => Promise<void>;
@@ -133,6 +134,32 @@ export function useAuth(): UseAuth {
   }, [reload]);
 
   const signOut = useCallback(async () => {
+    // Clear per-user AsyncStorage caches so the NEXT farmer to sign in on
+    // this device doesn't see the previous farmer's last disease scan,
+    // cached crop suggestions, dismissed banners, etc. This is critical
+    // on shared devices (family farm phone, community demo phone).
+    try {
+      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      await AsyncStorage.multiRemove([
+        'disease:last_scan_v1',
+      ]);
+      // Also wipe the physical scan photos we saved to documentDirectory
+      // so the image files don't linger for the next user to Read.
+      try {
+        const FileSystem = require('expo-file-system');
+        const dir = FileSystem.documentDirectory;
+        if (dir) {
+          const files = await FileSystem.readDirectoryAsync(dir);
+          await Promise.all(
+            files
+              .filter((f: string) => f.startsWith('scan_') && f.endsWith('.jpg'))
+              .map((f: string) => FileSystem.deleteAsync(`${dir}${f}`, { idempotent: true }))
+          );
+        }
+      } catch (_) { /* best-effort cleanup */ }
+    } catch (e) {
+      console.warn('[useAuth] per-user cache clear failed:', e);
+    }
     await signOutLocal();
     await reload();
   }, [reload]);

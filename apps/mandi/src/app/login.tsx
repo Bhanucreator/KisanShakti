@@ -10,6 +10,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Animated, {
@@ -25,7 +26,10 @@ import { router } from 'expo-router';
 import { useAuth } from '../hooks/use-auth';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const API_BASE = 'http://10.0.2.2:8000';
+// Reads from EXPO_PUBLIC_API_URL at bundle time — set it in eas.json's env
+// per profile, or before `expo start` for dev. Falls back to the Android
+// emulator loopback (10.0.2.2) so an emulator user still gets a valid URL.
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:8000';
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
@@ -43,7 +47,15 @@ export default function LoginScreen() {
 
   // ── Stage state ─────────────────────────────────────────────────────────────
   const [stage, setStage]             = useState<Stage>('phone');
-  const [isNewUser, setIsNewUser]     = useState(false);
+  // Set from verify-otp response — NOT from send-otp (which doesn't return it).
+  // Also true when the backend detects a legacy buyer whose shop_name is a
+  // phone number (from an older signup flow that used a fallback).
+  const [needsProfile, setNeedsProfile] = useState(false);
+  // Persisted from verify-otp so the profile-completion step can PATCH
+  // /buyers/me with the buyer's JWT instead of trying to re-verify a
+  // consumed OTP (which used to 401).
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [buyerId, setBuyerId] = useState<string | null>(null);
 
   // ── Phone stage ──────────────────────────────────────────────────────────────
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -145,8 +157,14 @@ export default function LoginScreen() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail ?? 'Failed to send OTP');
-      setIsNewUser(data?.is_new_user ?? false);
+      // Note: `is_new_user` is NOT in the send-otp response — it's decided by
+      // verify-otp when we know the OTP was correct. Do not read it here.
       transitionToOtp();
+      if (data.dev_otp) {
+        Alert.alert('🔑 Dev OTP', `Code: ${data.dev_otp}`, [
+          { text: 'Auto-fill', onPress: () => setOtp(String(data.dev_otp).split('')) },
+        ]);
+      }
     } catch (err: any) {
       Alert.alert('Error', err?.message ?? 'Could not send OTP. Try again.');
     } finally {
@@ -171,21 +189,25 @@ export default function LoginScreen() {
           phone: '+91' + phoneNumber,
           otp: otpString,
           role: 'buyer',
-          ...(shopName ? { name: shopName } : {}),
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail ?? 'Invalid OTP');
 
-      if (isNewUser) {
-        // New buyer — collect profile first
+      // Stash the token + id so the profile step can PATCH /buyers/me. The
+      // OTP is consumed by this call — a second verify-otp would 401.
+      setAuthToken(data.access_token);
+      setBuyerId(String(data.user_id));
+      const requiresProfile = Boolean(data.needs_profile ?? data.is_new_user);
+      setNeedsProfile(requiresProfile);
+
+      if (requiresProfile) {
         transitionToProfile();
       } else {
-        // Existing buyer — sign in directly
         await signIn(
           data.access_token,
           String(data.user_id),
-          data.name ?? '',
+          data.shop_name ?? '',
           phoneNumber,
           data.shop_type ?? '',
         );
@@ -196,7 +218,7 @@ export default function LoginScreen() {
     } finally {
       setOtpBusy(false);
     }
-  }, [otp, phoneNumber, isNewUser, shopName, signIn, transitionToProfile]);
+  }, [otp, phoneNumber, signIn, transitionToProfile]);
 
   // ── Complete profile & sign in ────────────────────────────────────────────────
   const handleCompleteProfile = useCallback(async () => {
@@ -209,26 +231,33 @@ export default function LoginScreen() {
       return;
     }
 
+    if (!authToken) {
+      Alert.alert('Session expired', 'Please request a new OTP.');
+      setStage('phone');
+      return;
+    }
+
     setProfileBusy(true);
     try {
-      // Re-verify OTP with name so backend creates the buyer record properly
-      const res = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // PATCH the buyer record with the JWT we already have from verify-otp.
+      // Re-verifying OTP here would fail because the OTP was consumed.
+      const res = await fetch(`${API_BASE}/api/v1/buyers/me`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
-          phone: '+91' + phoneNumber,
-          otp: otp.join(''),
-          role: 'buyer',
-          name: shopName.trim(),
+          shop_name: shopName.trim(),
           shop_type: shopType,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.detail ?? 'Registration failed');
+      if (!res.ok) throw new Error(data?.detail ?? 'Could not save profile');
 
       await signIn(
-        data.access_token,
-        String(data.user_id),
+        authToken,
+        buyerId ?? String(data.id ?? ''),
         shopName.trim(),
         phoneNumber,
         shopType,
@@ -239,7 +268,7 @@ export default function LoginScreen() {
     } finally {
       setProfileBusy(false);
     }
-  }, [shopName, shopType, phoneNumber, otp, signIn]);
+  }, [shopName, shopType, phoneNumber, authToken, buyerId, signIn]);
 
   // ── OTP input handlers ────────────────────────────────────────────────────────
   const handleOtpChange = useCallback((text: string, index: number) => {
@@ -299,11 +328,18 @@ export default function LoginScreen() {
         }
       </TouchableOpacity>
 
+      {/* Consent sits inline right below the CTA — scrolls with the card,
+          never overlaps content. Muted styling keeps it out of the way.
+          The two spans are tappable and jump into the full legal screens. */}
       <Text style={styles.disclaimer}>
         By continuing, you agree to our{' '}
-        <Text style={styles.disclaimerLink}>Terms of Service</Text>
+        <Text style={styles.disclaimerLink} onPress={() => router.push('/legal/terms')}>
+          Terms of Service
+        </Text>
         {' '}and{' '}
-        <Text style={styles.disclaimerLink}>Privacy Policy</Text>
+        <Text style={styles.disclaimerLink} onPress={() => router.push('/legal/privacy')}>
+          Privacy Policy
+        </Text>
       </Text>
     </>
   );
@@ -419,137 +455,163 @@ export default function LoginScreen() {
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* Hero background */}
+      {/* Hero background — clean solid charcoal, no decorative circles.
+           The custom logo is the visual focus. */}
       <View style={styles.hero}>
-        {/* Decorative circles */}
-        <View style={[styles.circle, styles.circleTop]} />
-        <View style={[styles.circle, styles.circleMid]} />
-
-        {/* Logo block */}
+        {/* Logo block — uses the custom Mandi_icon.png the founder designed.
+             `resizeMode="contain"` keeps the artwork's aspect ratio no matter
+             the screen size. */}
         <Animated.View style={[styles.logoBlock, animLogo]}>
-          <Text style={styles.logoEmoji}>🏪</Text>
-          <Text style={styles.logoAppName}>KisanShakti</Text>
+          {/* Handshake artwork spans the full hero width — the two hands read
+              as coming from opposite edges of the screen, which is exactly
+              the buyer-meets-farmer moment Mandi represents. No circle/halo
+              behind it (the "balloon" that boxed in the artwork). */}
+          <Image
+            source={require('../../assets/images/mandi-logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={styles.logoSubtitle}>MANDI · ಮಂಡಿ</Text>
           <View style={styles.logoDivider} />
           <Text style={styles.logoTagline}>Fresh from the farm, direct to you</Text>
         </Animated.View>
       </View>
 
-      {/* Slide-up card */}
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View style={[styles.card, animCard]}>
-          {stage === 'phone'   && renderPhoneStage()}
-          {stage === 'otp'     && renderOtpStage()}
-          {stage === 'profile' && renderProfileStage()}
-        </Animated.View>
-
-        <Text style={styles.footerBadge}>🌾 Empowering farmers, enabling trade</Text>
-      </ScrollView>
+      {/* Card takes flex: 1 so it fills the remaining screen exactly. Phone
+          + OTP stages fit natively — no scroll bounce. Profile stage has
+          more content (name + 4 business chips) so it's wrapped in its own
+          ScrollView to handle overflow on smaller phones. */}
+      <Animated.View style={[styles.card, animCard]}>
+        {stage === 'phone' && renderPhoneStage()}
+        {stage === 'otp'   && renderOtpStage()}
+        {stage === 'profile' && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            {renderProfileStage()}
+          </ScrollView>
+        )}
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }
 
 // ── Styles ─────────────────────────────────────────────────────────────────────
+// Mandi palette — intentionally DIFFERENT from Upaj (Upaj is all-green, the
+// farmer voice). Mandi is buyer/commerce: warm charcoal + amber gold, the
+// Zomato/Swiggy/Blinkit family. Reads as "marketplace, appetite, energy"
+// without a shred of green — so the two apps feel like sibling brands
+// with different personalities, not two green clones.
+const C = {
+  heroDeep:      '#1F1B24',   // warm charcoal (slight aubergine warmth, NOT navy blue)
+  heroMid:       '#2A2530',
+  cardCream:     '#FFFDF7',   // ivory card
+  primary:       '#F59E0B',   // amber gold — CTAs, commerce accent
+  primaryDark:   '#B45309',
+  amber:         '#F59E0B',   // same as primary; kept alias for readability
+  ink:           '#111318',
+  body:          '#374151',
+  muted:         '#6B7280',
+  hairline:      '#F0EDE5',
+};
+
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#1A1A2E',
+    backgroundColor: C.heroDeep,
   },
 
-  // Hero section
+  // Hero — solid warm charcoal, clean. 42% of screen so the handshake
+  // logo, subtitle, and tagline all breathe. Card below takes the rest
+  // (58%) via flex: 1 with NO negative margin so nothing is covered.
   hero: {
     height: SCREEN_HEIGHT * 0.42,
-    backgroundColor: '#1A1A2E',
+    backgroundColor: C.heroDeep,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    paddingHorizontal: 0,
+    paddingBottom: 20,
   },
-  circle: {
-    position: 'absolute',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(217,119,6,0.15)',
-  },
-  circleTop: {
-    width: 300,
-    height: 300,
-    top: -100,
-    right: -80,
-    backgroundColor: 'rgba(217,119,6,0.05)',
-  },
-  circleMid: {
-    width: 200,
-    height: 200,
-    bottom: -60,
-    left: -60,
-    backgroundColor: 'rgba(45,106,79,0.08)',
-  },
-
-  // Logo
+  // Logo — the handshake artwork stretches across the full hero width so
+  // the two hands look like they're coming in from the left/right screen
+  // edges (the visual metaphor for buyer + farmer meeting in the middle).
   logoBlock: {
     alignItems: 'center',
+    width: '100%',
+    zIndex: 2,
   },
-  logoEmoji: {
-    fontSize: 52,
-    marginBottom: 8,
-  },
-  logoAppName: {
-    fontSize: 30,
-    fontFamily: 'Inter_800ExtraBold',
-    color: '#FFFFFF',
-    letterSpacing: -0.5,
+  logoImage: {
+    // Full-width handshake, height sized so the subtitle + tagline below
+    // still have breathing room inside the 42%-tall hero.
+    width: '100%',
+    height: 170,
+    marginBottom: 4,
   },
   logoSubtitle: {
     fontSize: 13,
-    fontFamily: 'Inter_700Bold',
-    color: '#D97706',
-    letterSpacing: 3,
-    marginTop: 4,
+    fontFamily: 'Inter_800ExtraBold',
+    color: C.amber,
+    letterSpacing: 4,
+    marginTop: 8,
     textTransform: 'uppercase',
   },
   logoDivider: {
-    width: 40,
+    width: 32,
     height: 2,
-    backgroundColor: '#D97706',
+    backgroundColor: 'rgba(217,119,6,0.5)',
     borderRadius: 2,
-    marginVertical: 12,
+    marginVertical: 10,
   },
   logoTagline: {
-    fontSize: 13,
-    fontFamily: 'Inter_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    fontFamily: 'Inter_500Medium',
+    color: 'rgba(255,255,255,0.7)',
     letterSpacing: 0.3,
   },
 
-  // Scroll / card area
-  scrollContent: {
-    flexGrow: 1,
-  },
+  // Card fills the remaining space (~58% of screen) via flex: 1. No
+  // negative margin — the hero's rounded corners and the card's rounded
+  // top sit flush against each other. Content fits without scroll.
   card: {
-    backgroundColor: '#FFFFFF',
+    flex: 1,
+    backgroundColor: C.cardCream,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 40,
-    minHeight: SCREEN_HEIGHT * 0.62,
+    paddingHorizontal: 26,
+    paddingTop: 26,
+    paddingBottom: 20,
+    // Subtle shadow lifts the card off the hero
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
   },
 
-  // Card typography
-  cardTitle: {
-    fontSize: 22,
+  // Card typography — bigger, more display-worthy title with a warm eyebrow
+  eyebrow: {
+    fontSize: 11,
     fontFamily: 'Inter_800ExtraBold',
-    color: '#111827',
+    color: C.amber,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  cardTitle: {
+    fontSize: 26,
+    fontFamily: 'Inter_800ExtraBold',
+    color: C.ink,
     marginBottom: 6,
+    letterSpacing: -0.5,
   },
   cardSubtitle: {
     fontSize: 14,
     fontFamily: 'Inter_400Regular',
-    color: '#6B7280',
+    color: C.muted,
     marginBottom: 28,
     lineHeight: 20,
   },
@@ -562,49 +624,53 @@ const styles = StyleSheet.create({
   backBtnText: {
     fontSize: 14,
     fontFamily: 'Inter_700Bold',
-    color: '#D97706',
+    color: C.primary,
   },
 
-  // Phone input
+  // Phone input — cleaner, more premium; subtle amber flag chip anchors it
   phoneRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: C.hairline,
     borderRadius: 14,
-    backgroundColor: '#F9FAFB',
-    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 22,
     overflow: 'hidden',
   },
   countryCode: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: 14,
     paddingVertical: 16,
     borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-    backgroundColor: '#F3F4F6',
+    borderRightColor: C.hairline,
+    backgroundColor: '#FEFCF6',
   },
   countryCodeText: {
     fontSize: 15,
-    fontFamily: 'Inter_700Bold',
-    color: '#374151',
+    fontFamily: 'Inter_800ExtraBold',
+    color: C.ink,
   },
   phoneInput: {
     flex: 1,
     paddingHorizontal: 14,
     paddingVertical: 16,
     fontSize: 16,
-    fontFamily: 'Inter_400Regular',
-    color: '#111827',
+    fontFamily: 'Inter_500Medium',
+    color: C.ink,
+    letterSpacing: 0.5,
   },
 
   // Primary button
   primaryBtn: {
-    backgroundColor: '#D97706',
+    backgroundColor: C.primary,
     borderRadius: 14,
     paddingVertical: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#D97706',
+    shadowColor: C.primaryDark,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -620,17 +686,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // Disclaimer
+  // Disclaimer — inline below the primary CTA. Muted so it doesn't compete.
   disclaimer: {
     fontSize: 11,
     fontFamily: 'Inter_400Regular',
-    color: '#9CA3AF',
+    color: C.muted,
     textAlign: 'center',
-    marginTop: 16,
     lineHeight: 16,
+    marginTop: 16,
   },
   disclaimerLink: {
-    color: '#D97706',
+    color: C.amber,
     fontFamily: 'Inter_700Bold',
   },
 
@@ -654,8 +720,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   otpBoxFilled: {
-    borderColor: '#D97706',
-    backgroundColor: '#FEF3C7',
+    borderColor: C.primary,
+    backgroundColor: '#ECFDF5',
   },
 
   // Resend
@@ -675,7 +741,7 @@ const styles = StyleSheet.create({
   resendActive: {
     fontSize: 14,
     fontFamily: 'Inter_700Bold',
-    color: '#D97706',
+    color: C.amber,
   },
 
   // Profile fields
@@ -725,13 +791,4 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
 
-  // Footer
-  footerBadge: {
-    fontSize: 12,
-    fontFamily: 'Inter_400Regular',
-    color: 'rgba(255,255,255,0.45)',
-    textAlign: 'center',
-    paddingVertical: 20,
-    backgroundColor: '#1A1A2E',
-  },
 });

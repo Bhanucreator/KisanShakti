@@ -12,6 +12,7 @@ import {
 import { useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useAuth } from '../hooks/use-auth';
+import { startSoilMoistureWatcher } from '../lib/soil-alert';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,6 +29,11 @@ export default function UpajRootLayout() {
   const redirected = useRef(false);
 
   const ready = fontsLoaded && !auth.isLoading;
+
+  // Start the soil-moisture push watcher once — subscribes to the sensor
+  // bus and fires an Android tray notification whenever the BLE-connected
+  // ESP32 reports moisture dropping below the dry threshold.
+  useEffect(() => { startSoilMoistureWatcher(); }, []);
 
   useEffect(() => {
     if (!ready) return;
@@ -62,6 +68,10 @@ export default function UpajRootLayout() {
           animation: 'none',
         }}
       />
+      {/* Legal screens — Play Store review requires these to be reachable
+          in-app AND from the store listing URL. */}
+      <Stack.Screen name="legal/terms" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="legal/privacy" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }

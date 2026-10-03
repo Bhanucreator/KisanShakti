@@ -52,21 +52,12 @@ const C = {
   red: '#DC2626',
 };
 
-// ── Crop presets ─────────────────────────────────────────────────────────────
-const CROP_PRESETS = [
-  { name: 'Tomato',   kn: 'ಟೊಮ್ಯಾಟೊ',   emoji: '🍅' },
-  { name: 'Potato',   kn: 'ಆಲೂಗಡ್ಡೆ',    emoji: '🥔' },
-  { name: 'Ragi',     kn: 'ರಾಗಿ',        emoji: '🌾' },
-  { name: 'Onion',    kn: 'ಈರುಳ್ಳಿ',     emoji: '🧅' },
-  { name: 'Maize',    kn: 'ಜೋಳ',        emoji: '🌽' },
-  { name: 'Chili',    kn: 'ಮೆಣಸಿನಕಾಯಿ',  emoji: '🌶️' },
-  { name: 'Sugarcane', kn: 'ಕಬ್ಬು',      emoji: '🎋' },
-  { name: 'Cotton',   kn: 'ಹತ್ತಿ',       emoji: '🌱' },
-  { name: 'Groundnut', kn: 'ಕಡಲೆಕಾಯಿ',  emoji: '🥜' },
-  { name: 'Wheat',    kn: 'ಗೋಧಿ',        emoji: '🌾' },
-];
-
-type Step = 'phone' | 'otp' | 'name' | 'location' | 'land' | 'crops';
+// Onboarding flow is intentionally short: phone → OTP → name → location →
+// land → done. Crops are NOT collected here; the farmer's crop types are
+// derived from what they actually log in the Business (Ledger) tab. This
+// keeps signup fast and prevents the double-entry pain of asking about
+// crops both here and in the Business feature.
+type Step = 'phone' | 'otp' | 'name' | 'location' | 'land';
 const OTP_LENGTH = 6;
 const RESEND_COUNTDOWN = 30;
 
@@ -95,7 +86,6 @@ export default function LoginScreen() {
   const [locLng, setLocLng] = useState<number | null>(null);
   const [locFetching, setLocFetching] = useState(false);
   const [landHa, setLandHa] = useState('');
-  const [crops, setCrops] = useState<{ name: string; kn: string; land_ha: number }[]>([]);
   const [savingProfile, setSavingProfile] = useState(false);
 
   // ── Animations ─────
@@ -314,32 +304,15 @@ export default function LoginScreen() {
     goToStep('land');
   };
 
-  // ── Land step ─────
-  const handleLandNext = () => {
+  // ── Land step is now the LAST wizard step. Instead of transitioning to a
+  //    crops step, it finishes onboarding directly. Crop types are derived
+  //    later from Business (Ledger) cycles, not collected here.
+  const totalLand = parseFloat(landHa) || 0;
+
+  const handleFinishOnboarding = async () => {
     const n = parseFloat(landHa);
     if (!n || n <= 0) return Alert.alert('Land required', 'Enter your total farm size in hectares');
     if (n > 500) return Alert.alert('Too large', 'Enter a value under 500 ha');
-    goToStep('crops');
-  };
-
-  // ── Crops step ─────
-  const addCropPreset = (preset: typeof CROP_PRESETS[0]) => {
-    if (crops.find(c => c.name === preset.name)) return;
-    setCrops([...crops, { name: preset.name, kn: preset.kn, land_ha: 0 }]);
-  };
-  const updateCropHa = (idx: number, val: string) => {
-    const n = parseFloat(val) || 0;
-    setCrops(crops.map((c, i) => i === idx ? { ...c, land_ha: n } : c));
-  };
-  const removeCrop = (idx: number) => setCrops(crops.filter((_, i) => i !== idx));
-
-  const totalAllocated = crops.reduce((sum, c) => sum + c.land_ha, 0);
-  const totalLand = parseFloat(landHa) || 0;
-  const remaining = totalLand - totalAllocated;
-
-  const handleFinishOnboarding = async () => {
-    if (crops.length === 0) return Alert.alert('Add crops', 'Please add at least one crop');
-    if (totalAllocated <= 0) return Alert.alert('Set hectares', 'Enter land per crop');
 
     setSavingProfile(true);
     try {
@@ -355,9 +328,6 @@ export default function LoginScreen() {
         total_land_ha: totalLand,
         onboarded:     true,
       });
-      await replaceFarmerCrops(currentProfile.id, crops.map(c => ({
-        crop_name: c.name, crop_name_kn: c.kn, land_ha: c.land_ha,
-      })));
 
       // Push to backend (best-effort; local is source of truth)
       try {
@@ -372,9 +342,8 @@ export default function LoginScreen() {
             location_name: locName,
             latitude: locLat, longitude: locLng,
             total_land_ha: totalLand,
-            crops: crops.map(c => ({
-              crop_name: c.name, crop_name_kn: c.kn, land_ha: c.land_ha,
-            })),
+            // NOTE: no `crops` field — crop types are derived from cycles
+            // logged in the Business tab, not declared here at signup.
           }),
         });
       } catch (e) {
@@ -391,8 +360,8 @@ export default function LoginScreen() {
   const t = (en: string, kn: string) => lang === 'en' ? en : kn;
 
   // ── Progress dots ─────
-  const stepIndex = { phone: 0, otp: 1, name: 2, location: 3, land: 4, crops: 5 }[step];
-  const totalSteps = 6;
+  const stepIndex = { phone: 0, otp: 1, name: 2, location: 3, land: 4 }[step];
+  const totalSteps = 5;
 
   return (
     <View style={s.root}>
@@ -511,15 +480,9 @@ export default function LoginScreen() {
               {step === 'land' && (
                 <LandStep
                   t={t} landHa={landHa} setLandHa={setLandHa}
-                  onBack={() => goToStep('location', 'back')} onNext={handleLandNext}
-                />
-              )}
-              {step === 'crops' && (
-                <CropsStep
-                  t={t} crops={crops} totalLand={totalLand} remaining={remaining}
-                  onAdd={addCropPreset} onUpdate={updateCropHa} onRemove={removeCrop}
                   saving={savingProfile}
-                  onBack={() => goToStep('land', 'back')} onFinish={handleFinishOnboarding}
+                  onBack={() => goToStep('location', 'back')}
+                  onNext={handleFinishOnboarding}
                 />
               )}
             </Animated.View>
@@ -595,6 +558,18 @@ function PhoneStep({ t, phoneNumber, setPhoneNumber, phoneError, sending, onSend
                  <Ionicons name="arrow-forward" size={15} color="#FFF" /></>)}
         </LinearGradient>
       </TouchableOpacity>
+
+      {/* Play Store review notes require an explicit consent line beside
+          any button that creates or resumes an account. Tapping either link
+          opens the full policy screen. */}
+      <Text style={{ marginTop: 14, fontSize: 11, color: '#6B7280', textAlign: 'center', lineHeight: 16 }}>
+        By continuing you agree to our{' '}
+        <Text style={{ color: C.primaryDark, fontWeight: '700', textDecorationLine: 'underline' }}
+              onPress={() => router.push('/legal/terms')}>Terms</Text>
+        {' '}and{' '}
+        <Text style={{ color: C.primaryDark, fontWeight: '700', textDecorationLine: 'underline' }}
+              onPress={() => router.push('/legal/privacy')}>Privacy Policy</Text>.
+      </Text>
     </View>
   );
 }
@@ -741,8 +716,10 @@ function LocationStep({ t, locName, setLocName, fetching, onAutoFetch, onBack, o
   );
 }
 
-// ═══ STEP: Land ════════════════════════════════════════════════════════════
-function LandStep({ t, landHa, setLandHa, onBack, onNext }: any) {
+// ═══ STEP: Land (final step) ═══════════════════════════════════════════════
+// This is now the last step in the wizard — no more "crops" step after it.
+// The button label reflects that: "Finish" instead of "Next".
+function LandStep({ t, landHa, setLandHa, saving, onBack, onNext }: any) {
   return (
     <View>
       <View style={s.stepHeaderRow}>
@@ -763,96 +740,32 @@ function LandStep({ t, landHa, setLandHa, onBack, onNext }: any) {
           placeholder="e.g. 2.5" placeholderTextColor="#9CA8A1"
           value={landHa} onChangeText={setLandHa}
           keyboardType="decimal-pad" returnKeyType="done" autoFocus
-          onSubmitEditing={onNext}
+          onSubmitEditing={saving ? undefined : onNext}
         />
         <Text style={s.unitLabel}>ha</Text>
       </View>
 
-      <TouchableOpacity onPress={onNext} activeOpacity={0.9} style={{ marginTop: 18 }}>
+      {/* Hint: crops are collected later from Business tab, not here. */}
+      <View style={{ marginTop: 10, flexDirection: 'row', gap: 6, alignItems: 'flex-start' }}>
+        <Ionicons name="information-circle-outline" size={13} color={C.textMuted} style={{ marginTop: 1 }} />
+        <Text style={{ fontSize: 11, color: C.textMuted, flex: 1, lineHeight: 15 }}>
+          {t(
+            "You'll add crops later from the Business tab as you log each season.",
+            'ಪ್ರತಿ ಋತು ದಾಖಲಿಸುವಾಗ ವ್ಯಾಪಾರ ಟ್ಯಾಬ್‌ನಿಂದ ಬೆಳೆಗಳನ್ನು ಸೇರಿಸುತ್ತೀರಿ.'
+          )}
+        </Text>
+      </View>
+
+      <TouchableOpacity onPress={onNext} disabled={saving} activeOpacity={0.9} style={{ marginTop: 18 }}>
         <LinearGradient colors={[C.primaryBright, C.primaryDark]} style={s.primaryBtn}>
-          <Text style={s.primaryBtnText}>{t('Next', 'ಮುಂದೆ')}</Text>
-          <Ionicons name="arrow-forward" size={15} color="#FFF" />
-        </LinearGradient>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-// ═══ STEP: Crops ═══════════════════════════════════════════════════════════
-function CropsStep({ t, crops, totalLand, remaining, onAdd, onUpdate, onRemove,
-                     saving, onBack, onFinish }: any) {
-  return (
-    <View>
-      <View style={s.stepHeaderRow}>
-        <TouchableOpacity style={s.backBtnSmall} onPress={onBack}>
-          <Feather name="chevron-left" size={14} color={C.textDark} />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={s.stepTitle}>{t('What crops do you grow?', 'ನೀವು ಯಾವ ಬೆಳೆಗಳನ್ನು ಬೆಳೆಯುತ್ತೀರಿ?')}</Text>
-          <Text style={s.stepSub}>
-            {totalLand.toFixed(1)} ha {t('total', 'ಒಟ್ಟು')} · {remaining.toFixed(1)} ha {t('remaining', 'ಉಳಿದಿದೆ')}
-          </Text>
-        </View>
-      </View>
-
-      {/* Preset chips */}
-      <Text style={s.fieldLabel}>{t('Tap to add', 'ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ')}</Text>
-      <View style={s.presetsRow}>
-        {CROP_PRESETS.map((p) => {
-          const added = crops.find((c: any) => c.name === p.name);
-          return (
-            <TouchableOpacity
-              key={p.name}
-              style={[s.presetChip, added && s.presetChipAdded]}
-              onPress={() => onAdd(p)} activeOpacity={0.8}
-              disabled={!!added}
-            >
-              <Text style={{ fontSize: 13 }}>{p.emoji}</Text>
-              <Text style={[s.presetText, added && s.presetTextAdded]}>{p.name}</Text>
-              {added && <Ionicons name="checkmark-circle" size={11} color={C.primary} />}
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {/* Added crops with hectare inputs */}
-      {crops.length > 0 && (
-        <>
-          <Text style={[s.fieldLabel, { marginTop: 14 }]}>{t('Set hectares per crop', 'ಪ್ರತಿ ಬೆಳೆಗೆ ಹೆಕ್ಟೇರ್ ಹೊಂದಿಸಿ')}</Text>
-          <View style={{ gap: 6 }}>
-            {crops.map((c: any, i: number) => (
-              <View key={c.name} style={s.cropRow}>
-                <Text style={s.cropRowKn}>{c.kn}</Text>
-                <View style={s.cropRowMain}>
-                  <Text style={s.cropRowName}>{c.name}</Text>
-                  <View style={s.cropHaWrap}>
-                    <TextInput
-                      style={s.cropHaInput}
-                      placeholder="0" placeholderTextColor="#9CA8A1"
-                      keyboardType="decimal-pad"
-                      value={c.land_ha ? String(c.land_ha) : ''}
-                      onChangeText={(v) => onUpdate(i, v)}
-                    />
-                    <Text style={s.cropHaUnit}>ha</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => onRemove(i)} style={s.cropRemove}>
-                    <Ionicons name="close" size={13} color={C.textMuted} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </View>
-        </>
-      )}
-
-      <TouchableOpacity onPress={onFinish} disabled={saving} activeOpacity={0.9} style={{ marginTop: 18 }}>
-        <LinearGradient
-          colors={saving ? ['#889690', '#6B7A73'] : [C.primaryBright, C.primaryDark]}
-          style={s.primaryBtn}
-        >
-          {saving ? <ActivityIndicator color="#FFF" />
-            : (<><Text style={s.primaryBtnText}>{t('Complete Setup', 'ಸೆಟಪ್ ಪೂರ್ಣಗೊಳಿಸಿ')}</Text>
-                 <Ionicons name="checkmark-circle" size={15} color="#FFF" /></>)}
+          {saving ? (
+            <ActivityIndicator size="small" color="#FFF" />
+          ) : (
+            <>
+              <Text style={s.primaryBtnText}>{t('Finish', 'ಮುಗಿಸಿ')}</Text>
+              <Ionicons name="checkmark-circle" size={15} color="#FFF" />
+            </>
+          )}
         </LinearGradient>
       </TouchableOpacity>
     </View>

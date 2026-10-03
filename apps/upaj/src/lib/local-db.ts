@@ -10,7 +10,7 @@
 import * as SQLite from 'expo-sqlite';
 
 const DB_NAME = 'kisanshakti_local.db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let _db: SQLite.SQLiteDatabase | null = null;
 
@@ -33,6 +33,7 @@ const SCHEMA = `
     latitude       REAL,
     longitude      REAL,
     total_land_ha  REAL DEFAULT 0,
+    cattle_count   INTEGER DEFAULT 0,
     auth_token     TEXT,
     onboarded      INTEGER NOT NULL DEFAULT 0,
     created_at     INTEGER NOT NULL,
@@ -75,6 +76,7 @@ export interface FarmerProfile {
   latitude: number | null;
   longitude: number | null;
   total_land_ha: number;
+  cattle_count: number;
   auth_token: string | null;
   onboarded: boolean;
   created_at: number;
@@ -106,6 +108,18 @@ export async function getDB(): Promise<SQLite.SQLiteDatabase> {
   if (_db) return _db;
   const db = await SQLite.openDatabaseAsync(DB_NAME);
   await db.execAsync(SCHEMA);
+  // Idempotent column adds — safe on older DBs missing newer columns.
+  try {
+    const cols = await db.getAllAsync<{ name: string }>(
+      `PRAGMA table_info(farmer_profile)`
+    );
+    const have = new Set(cols.map(c => c.name));
+    if (!have.has('cattle_count')) {
+      await db.execAsync(`ALTER TABLE farmer_profile ADD COLUMN cattle_count INTEGER DEFAULT 0`);
+    }
+  } catch (e) {
+    console.warn('[local-db] column migration skipped:', e);
+  }
   await db.runAsync(
     `INSERT OR REPLACE INTO meta (key, value) VALUES ('schema_version', ?)`,
     [String(DB_VERSION)]
@@ -156,6 +170,7 @@ export async function upsertFarmerProfile(input: {
   latitude?: number | null;
   longitude?: number | null;
   total_land_ha?: number;
+  cattle_count?: number;
   auth_token?: string | null;
   onboarded?: boolean;
 }): Promise<FarmerProfile> {
@@ -178,28 +193,29 @@ export async function upsertFarmerProfile(input: {
       latitude:      input.latitude ?? existing.latitude,
       longitude:     input.longitude ?? existing.longitude,
       total_land_ha: input.total_land_ha ?? existing.total_land_ha,
+      cattle_count:  input.cattle_count  ?? existing.cattle_count ?? 0,
       auth_token:    keep(input.auth_token, existing.auth_token),
       onboarded:     input.onboarded === undefined ? existing.onboarded : (input.onboarded ? 1 : 0),
     };
     await db.runAsync(
       `UPDATE farmer_profile
        SET server_id=?, name=?, location_name=?, latitude=?, longitude=?,
-           total_land_ha=?, auth_token=?, onboarded=?, updated_at=?
+           total_land_ha=?, cattle_count=?, auth_token=?, onboarded=?, updated_at=?
        WHERE id=?`,
       [merged.server_id, merged.name, merged.location_name, merged.latitude,
-       merged.longitude, merged.total_land_ha, merged.auth_token, merged.onboarded,
-       now(), existing.id]
+       merged.longitude, merged.total_land_ha, merged.cattle_count, merged.auth_token,
+       merged.onboarded, now(), existing.id]
     );
   } else {
     const id = input.id ?? uuid();
     await db.runAsync(
       `INSERT INTO farmer_profile
        (id, server_id, phone, name, location_name, latitude, longitude,
-        total_land_ha, auth_token, onboarded, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        total_land_ha, cattle_count, auth_token, onboarded, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, input.server_id ?? null, input.phone, input.name ?? '',
        input.location_name ?? null, input.latitude ?? null, input.longitude ?? null,
-       input.total_land_ha ?? 0, input.auth_token ?? null,
+       input.total_land_ha ?? 0, input.cattle_count ?? 0, input.auth_token ?? null,
        input.onboarded ? 1 : 0, now(), now()]
     );
   }

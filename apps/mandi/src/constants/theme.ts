@@ -1,18 +1,21 @@
 /**
  * KisanShakti Mandi — Design System
  * ─────────────────────────────────
- * Clean, high-contrast, modern agricultural design system
- * matching the official UI mockups.
+ * Buyer-side commerce app. Palette is AMBER-PRIMARY (Amazon/Zomato/Swiggy
+ * family) to differentiate from Upaj's all-green farmer voice. The two
+ * apps read as siblings with distinct personalities:
+ *   Upaj  = calm forest green (agriculture, nurture, patience)
+ *   Mandi = warm amber gold   (commerce, energy, transaction)
  */
 
 export const COLORS = {
-  // Brand Greens
-  primaryDark:      '#1B4332',
-  primary:          '#2D6A4F',
-  primaryLight:     '#40916C',
-  primaryBright:    '#52B788',
-  primaryTint:      '#D8F3DC',
-  primaryLightBg:   '#E8F5E9',
+  // Brand Ambers — the new "primary" color family for Mandi
+  primaryDark:      '#B45309',
+  primary:          '#D97706',      // commerce amber — used on CTAs everywhere
+  primaryLight:     '#F59E0B',
+  primaryBright:    '#FBBF24',
+  primaryTint:      '#FEF3C7',
+  primaryLightBg:   '#FFFBEB',      // barely-there amber tint — card highlights
 
   // Accent Colors
   accentAmber:      '#D97706',
@@ -21,6 +24,8 @@ export const COLORS = {
   accentRedBg:      '#FEE2E2',
   accentBlue:       '#2563EB',
   accentBlueBg:     '#DBEAFE',
+  accentGreen:      '#059669',      // reserved for success/verified badges only
+  accentGreenBg:    '#D1FAE5',
 
   // Backgrounds & Card Surfaces
   bgApp:            '#F8F9FA',

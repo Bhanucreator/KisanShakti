@@ -20,11 +20,12 @@ REPO_ROOT  = SCRIPT_DIR.parent.parent
 DB_PATH    = REPO_ROOT / "apps" / "upaj" / "assets" / "disease_treatments.db"
 
 CREATE_SQL = """
-CREATE TABLE IF NOT EXISTS diseases (
+DROP TABLE IF EXISTS diseases;
+CREATE TABLE diseases (
     id                  INTEGER PRIMARY KEY,
-    class_index         INTEGER NOT NULL UNIQUE,
+    class_id            INTEGER NOT NULL UNIQUE,
     class_label         TEXT    NOT NULL,
-    disease_name        TEXT    NOT NULL,
+    name                TEXT    NOT NULL,
     scientific_name     TEXT,
     severity            TEXT    NOT NULL,
     affected_crop       TEXT    NOT NULL,
@@ -34,6 +35,8 @@ CREATE TABLE IF NOT EXISTS diseases (
     chemical_dosage     TEXT,
     store_product       TEXT,
     kannada_name        TEXT,
+    kannada_organic     TEXT,
+    kannada_chemical    TEXT,
     prevention          TEXT
 );
 """
@@ -41,9 +44,9 @@ CREATE TABLE IF NOT EXISTS diseases (
 
 @dataclass
 class Disease:
-    class_index:        int
+    class_id:           int
     class_label:        str
-    disease_name:       str
+    name:               str
     scientific_name:    Optional[str]
     severity:           str   # Low | Medium | High | Critical
     affected_crop:      str
@@ -53,14 +56,16 @@ class Disease:
     chemical_dosage:    Optional[str]  = field(default=None)
     store_product:      Optional[str]  = field(default=None)
     kannada_name:       Optional[str]  = field(default=None)
+    kannada_organic:    Optional[str]  = field(default=None)
+    kannada_chemical:   Optional[str]  = field(default=None)
     prevention:         Optional[str]  = field(default=None)
 
 
 # ── Disease Data (all 38 PlantVillage classes) ────────────────────────────────
 DISEASES: list[Disease] = [
     Disease(
-        class_index=0, class_label="Apple_scab",
-        disease_name="Apple Scab", scientific_name="Venturia inaequalis",
+        class_id=0, class_label="Apple_scab",
+        name="Apple Scab", scientific_name="Venturia inaequalis",
         severity="Medium", affected_crop="Apple",
         organic_treatment="Neem oil spray",
         organic_dosage="5 ml per litre of water, spray every 7 days",
@@ -70,8 +75,8 @@ DISEASES: list[Disease] = [
         prevention="Prune infected branches; rake fallen leaves; ensure good air circulation.",
     ),
     Disease(
-        class_index=1, class_label="Apple_black_rot",
-        disease_name="Apple Black Rot", scientific_name="Botryosphaeria obtusa",
+        class_id=1, class_label="Apple_black_rot",
+        name="Apple Black Rot", scientific_name="Botryosphaeria obtusa",
         severity="High", affected_crop="Apple",
         organic_treatment="Bordeaux mixture (1%)",
         organic_dosage="Apply 10 litres per tree at bud break",
@@ -81,8 +86,8 @@ DISEASES: list[Disease] = [
         prevention="Remove mummified fruits and dead wood; disinfect pruning tools.",
     ),
     Disease(
-        class_index=2, class_label="Apple_cedar_apple_rust",
-        disease_name="Cedar Apple Rust", scientific_name="Gymnosporangium juniperi-virginianae",
+        class_id=2, class_label="Apple_cedar_apple_rust",
+        name="Cedar Apple Rust", scientific_name="Gymnosporangium juniperi-virginianae",
         severity="Medium", affected_crop="Apple",
         organic_treatment="Sulfur-based fungicide",
         organic_dosage="Spray at bud break, repeat every 10 days for 4 applications",
@@ -92,8 +97,8 @@ DISEASES: list[Disease] = [
         prevention="Remove nearby cedar/juniper trees; plant resistant apple varieties.",
     ),
     Disease(
-        class_index=3, class_label="Apple_healthy",
-        disease_name="Healthy Apple Plant", scientific_name=None,
+        class_id=3, class_label="Apple_healthy",
+        name="Healthy Apple Plant", scientific_name=None,
         severity="Low", affected_crop="Apple",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -102,8 +107,8 @@ DISEASES: list[Disease] = [
         prevention="Maintain regular watering and balanced fertilisation.",
     ),
     Disease(
-        class_index=4, class_label="Blueberry_healthy",
-        disease_name="Healthy Blueberry Plant", scientific_name=None,
+        class_id=4, class_label="Blueberry_healthy",
+        name="Healthy Blueberry Plant", scientific_name=None,
         severity="Low", affected_crop="Blueberry",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -111,8 +116,8 @@ DISEASES: list[Disease] = [
         prevention="Ensure acidic soil pH (4.5–5.5); mulch to retain moisture.",
     ),
     Disease(
-        class_index=5, class_label="Cherry_powdery_mildew",
-        disease_name="Cherry Powdery Mildew", scientific_name="Podosphaera clandestina",
+        class_id=5, class_label="Cherry_powdery_mildew",
+        name="Cherry Powdery Mildew", scientific_name="Podosphaera clandestina",
         severity="Medium", affected_crop="Cherry",
         organic_treatment="Potassium bicarbonate spray",
         organic_dosage="5 g per litre of water; spray weekly",
@@ -122,8 +127,8 @@ DISEASES: list[Disease] = [
         prevention="Avoid overhead irrigation; prune to improve air circulation.",
     ),
     Disease(
-        class_index=6, class_label="Cherry_healthy",
-        disease_name="Healthy Cherry Plant", scientific_name=None,
+        class_id=6, class_label="Cherry_healthy",
+        name="Healthy Cherry Plant", scientific_name=None,
         severity="Low", affected_crop="Cherry",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -131,8 +136,8 @@ DISEASES: list[Disease] = [
         prevention="Regular pruning after harvest; balanced NPK fertilisation.",
     ),
     Disease(
-        class_index=7, class_label="Corn_cercospora_leaf_spot",
-        disease_name="Cercospora Leaf Spot / Gray Leaf Spot", scientific_name="Cercospora zeae-maydis",
+        class_id=7, class_label="Corn_cercospora_leaf_spot",
+        name="Cercospora Leaf Spot / Gray Leaf Spot", scientific_name="Cercospora zeae-maydis",
         severity="High", affected_crop="Corn (Maize)",
         organic_treatment="Trichoderma viride biocontrol",
         organic_dosage="4 g per litre; drench and foliar spray",
@@ -143,8 +148,8 @@ DISEASES: list[Disease] = [
         prevention="Use resistant hybrids; rotate with non-host crops; avoid dense planting.",
     ),
     Disease(
-        class_index=8, class_label="Corn_common_rust",
-        disease_name="Corn Common Rust", scientific_name="Puccinia sorghi",
+        class_id=8, class_label="Corn_common_rust",
+        name="Corn Common Rust", scientific_name="Puccinia sorghi",
         severity="Medium", affected_crop="Corn (Maize)",
         organic_treatment="Neem seed kernel extract (NSKE) 5%",
         organic_dosage="50 ml per litre of water; spray at disease onset",
@@ -155,8 +160,8 @@ DISEASES: list[Disease] = [
         prevention="Plant early; use rust-resistant hybrids; avoid late planting.",
     ),
     Disease(
-        class_index=9, class_label="Corn_northern_leaf_blight",
-        disease_name="Northern Leaf Blight", scientific_name="Exserohilum turcicum",
+        class_id=9, class_label="Corn_northern_leaf_blight",
+        name="Northern Leaf Blight", scientific_name="Exserohilum turcicum",
         severity="High", affected_crop="Corn (Maize)",
         organic_treatment="Pseudomonas fluorescens spray",
         organic_dosage="10 g per litre of water; spray at early disease sign",
@@ -167,8 +172,8 @@ DISEASES: list[Disease] = [
         prevention="Use certified disease-free seed; practice crop rotation; remove crop debris.",
     ),
     Disease(
-        class_index=10, class_label="Corn_healthy",
-        disease_name="Healthy Corn Plant", scientific_name=None,
+        class_id=10, class_label="Corn_healthy",
+        name="Healthy Corn Plant", scientific_name=None,
         severity="Low", affected_crop="Corn (Maize)",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -177,8 +182,8 @@ DISEASES: list[Disease] = [
         prevention="Balanced fertilisation; adequate spacing; timely weeding.",
     ),
     Disease(
-        class_index=11, class_label="Grape_black_rot",
-        disease_name="Grape Black Rot", scientific_name="Guignardia bidwellii",
+        class_id=11, class_label="Grape_black_rot",
+        name="Grape Black Rot", scientific_name="Guignardia bidwellii",
         severity="High", affected_crop="Grape",
         organic_treatment="Bordeaux mixture (1%)",
         organic_dosage="Spray before bloom and after petal fall",
@@ -188,8 +193,8 @@ DISEASES: list[Disease] = [
         prevention="Remove mummified berries; ensure good canopy air flow.",
     ),
     Disease(
-        class_index=12, class_label="Grape_esca",
-        disease_name="Grape Esca (Black Measles)", scientific_name="Phaeomoniella chlamydospora",
+        class_id=12, class_label="Grape_esca",
+        name="Grape Esca (Black Measles)", scientific_name="Phaeomoniella chlamydospora",
         severity="Critical", affected_crop="Grape",
         organic_treatment="Potassium silicate foliar spray",
         organic_dosage="5 g per litre; spray monthly during growing season",
@@ -199,8 +204,8 @@ DISEASES: list[Disease] = [
         prevention="Protect pruning wounds with fungicidal paste; avoid water stress.",
     ),
     Disease(
-        class_index=13, class_label="Grape_leaf_blight",
-        disease_name="Grape Leaf Blight", scientific_name="Isariopsis clavispora",
+        class_id=13, class_label="Grape_leaf_blight",
+        name="Grape Leaf Blight", scientific_name="Isariopsis clavispora",
         severity="Medium", affected_crop="Grape",
         organic_treatment="Sulfur dust (3%)",
         organic_dosage="Apply 15 kg per hectare",
@@ -210,8 +215,8 @@ DISEASES: list[Disease] = [
         prevention="Remove infected leaves promptly; maintain open canopy.",
     ),
     Disease(
-        class_index=14, class_label="Grape_healthy",
-        disease_name="Healthy Grape Vine", scientific_name=None,
+        class_id=14, class_label="Grape_healthy",
+        name="Healthy Grape Vine", scientific_name=None,
         severity="Low", affected_crop="Grape",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -219,8 +224,8 @@ DISEASES: list[Disease] = [
         prevention="Annual pruning; balanced irrigation; proper trellising.",
     ),
     Disease(
-        class_index=15, class_label="Orange_haunglongbing",
-        disease_name="Citrus Greening (Huanglongbing)", scientific_name="Candidatus Liberibacter asiaticus",
+        class_id=15, class_label="Orange_haunglongbing",
+        name="Citrus Greening (Huanglongbing)", scientific_name="Candidatus Liberibacter asiaticus",
         severity="Critical", affected_crop="Orange (Citrus)",
         organic_treatment="Neem oil + garlic extract spray",
         organic_dosage="5 ml neem oil + 10 g garlic per litre; spray to control psyllid vector",
@@ -230,8 +235,8 @@ DISEASES: list[Disease] = [
         prevention="Use certified disease-free nursery plants; remove infected trees immediately.",
     ),
     Disease(
-        class_index=16, class_label="Peach_bacterial_spot",
-        disease_name="Peach Bacterial Spot", scientific_name="Xanthomonas arboricola pv. pruni",
+        class_id=16, class_label="Peach_bacterial_spot",
+        name="Peach Bacterial Spot", scientific_name="Xanthomonas arboricola pv. pruni",
         severity="High", affected_crop="Peach",
         organic_treatment="Copper hydroxide (50%)",
         organic_dosage="2 g per litre; spray at dormancy break",
@@ -241,8 +246,8 @@ DISEASES: list[Disease] = [
         prevention="Plant resistant varieties; avoid overhead irrigation.",
     ),
     Disease(
-        class_index=17, class_label="Peach_healthy",
-        disease_name="Healthy Peach Tree", scientific_name=None,
+        class_id=17, class_label="Peach_healthy",
+        name="Healthy Peach Tree", scientific_name=None,
         severity="Low", affected_crop="Peach",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -250,8 +255,8 @@ DISEASES: list[Disease] = [
         prevention="Prune to open canopy; balanced potassium application for resistance.",
     ),
     Disease(
-        class_index=18, class_label="Pepper_bacterial_spot",
-        disease_name="Pepper Bacterial Spot", scientific_name="Xanthomonas euvesicatoria",
+        class_id=18, class_label="Pepper_bacterial_spot",
+        name="Pepper Bacterial Spot", scientific_name="Xanthomonas euvesicatoria",
         severity="High", affected_crop="Bell Pepper",
         organic_treatment="Copper oxychloride 50% WP",
         organic_dosage="3 g per litre; spray every 7 days during wet weather",
@@ -261,8 +266,8 @@ DISEASES: list[Disease] = [
         prevention="Use disease-free seed; avoid overhead watering; practice crop rotation.",
     ),
     Disease(
-        class_index=19, class_label="Pepper_healthy",
-        disease_name="Healthy Bell Pepper Plant", scientific_name=None,
+        class_id=19, class_label="Pepper_healthy",
+        name="Healthy Bell Pepper Plant", scientific_name=None,
         severity="Low", affected_crop="Bell Pepper",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -270,32 +275,32 @@ DISEASES: list[Disease] = [
         prevention="Balanced NPK; stake plants to avoid soil contact; regular scouting.",
     ),
     Disease(
-        class_index=20, class_label="Potato_early_blight",
-        disease_name="Potato Early Blight", scientific_name="Alternaria solani",
+        class_id=20, class_label="Potato_early_blight",
+        name="Potato Early Blight", scientific_name="Alternaria solani",
         severity="Medium", affected_crop="Potato",
         organic_treatment="Neem oil spray (3%)",
         organic_dosage="30 ml per litre; spray every 10 days from first signs",
         chemical_treatment="Mancozeb 75% WP",
         chemical_dosage="2.5 g per litre of water",
-        store_product="Dithane M-45 (UPL) — available at Raju Agro Store, Kolar",
+        store_product="Dithane M-45 (UPL)",
         kannada_name="ಆಲೂಗಡ್ಡೆ ಆರಂಭಿಕ ಸುಳಿ ರೋಗ",
         prevention="Avoid overhead irrigation; remove infected leaves; ensure proper spacing.",
     ),
     Disease(
-        class_index=21, class_label="Potato_late_blight",
-        disease_name="Potato Late Blight", scientific_name="Phytophthora infestans",
+        class_id=21, class_label="Potato_late_blight",
+        name="Potato Late Blight", scientific_name="Phytophthora infestans",
         severity="Critical", affected_crop="Potato",
         organic_treatment="Trichoderma viride (biocontrol)",
         organic_dosage="4 g per litre; spray at first sign of disease",
         chemical_treatment="Metalaxyl 8% + Mancozeb 64% WP",
         chemical_dosage="2.5 g per litre of water; repeat every 7 days",
-        store_product="Ridomil Gold (Syngenta) — available at Krishna Agro, Chintamani",
+        store_product="Ridomil Gold (Syngenta)",
         kannada_name="ಆಲೂಗಡ್ಡೆ ತಡ ಸುಳಿ ರೋಗ (ಫೈಟೋಫ್ತೋರಾ)",
         prevention="Use certified disease-free seed tubers; destroy crop debris after harvest; avoid waterlogging.",
     ),
     Disease(
-        class_index=22, class_label="Potato_healthy",
-        disease_name="Healthy Potato Plant", scientific_name=None,
+        class_id=22, class_label="Potato_healthy",
+        name="Healthy Potato Plant", scientific_name=None,
         severity="Low", affected_crop="Potato",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -304,8 +309,8 @@ DISEASES: list[Disease] = [
         prevention="Use certified seed tubers; earthing up; balanced fertilisation.",
     ),
     Disease(
-        class_index=23, class_label="Raspberry_healthy",
-        disease_name="Healthy Raspberry Plant", scientific_name=None,
+        class_id=23, class_label="Raspberry_healthy",
+        name="Healthy Raspberry Plant", scientific_name=None,
         severity="Low", affected_crop="Raspberry",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -313,8 +318,8 @@ DISEASES: list[Disease] = [
         prevention="Regular pruning of old canes; mulching; well-drained soil.",
     ),
     Disease(
-        class_index=24, class_label="Soybean_healthy",
-        disease_name="Healthy Soybean Plant", scientific_name=None,
+        class_id=24, class_label="Soybean_healthy",
+        name="Healthy Soybean Plant", scientific_name=None,
         severity="Low", affected_crop="Soybean",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -322,8 +327,8 @@ DISEASES: list[Disease] = [
         prevention="Use Rhizobium inoculant on seed; balanced K and P fertilisation.",
     ),
     Disease(
-        class_index=25, class_label="Squash_powdery_mildew",
-        disease_name="Squash Powdery Mildew", scientific_name="Podosphaera xanthii",
+        class_id=25, class_label="Squash_powdery_mildew",
+        name="Squash Powdery Mildew", scientific_name="Podosphaera xanthii",
         severity="Medium", affected_crop="Squash",
         organic_treatment="Potassium bicarbonate (5 g/L) or baking soda (10 g/L)",
         organic_dosage="Spray every 7 days from first signs",
@@ -333,8 +338,8 @@ DISEASES: list[Disease] = [
         prevention="Avoid overhead watering; ensure adequate plant spacing.",
     ),
     Disease(
-        class_index=26, class_label="Strawberry_leaf_scorch",
-        disease_name="Strawberry Leaf Scorch", scientific_name="Diplocarpon earlianum",
+        class_id=26, class_label="Strawberry_leaf_scorch",
+        name="Strawberry Leaf Scorch", scientific_name="Diplocarpon earlianum",
         severity="Medium", affected_crop="Strawberry",
         organic_treatment="Copper sulfate (Bordeaux 1%)",
         organic_dosage="Apply 2 sprays 10 days apart at start of symptoms",
@@ -344,8 +349,8 @@ DISEASES: list[Disease] = [
         prevention="Remove infected leaves; plant on raised beds; ensure good drainage.",
     ),
     Disease(
-        class_index=27, class_label="Strawberry_healthy",
-        disease_name="Healthy Strawberry Plant", scientific_name=None,
+        class_id=27, class_label="Strawberry_healthy",
+        name="Healthy Strawberry Plant", scientific_name=None,
         severity="Low", affected_crop="Strawberry",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -353,8 +358,8 @@ DISEASES: list[Disease] = [
         prevention="Mulch with straw; drip irrigation; remove runners to improve fruiting.",
     ),
     Disease(
-        class_index=28, class_label="Tomato_bacterial_spot",
-        disease_name="Tomato Bacterial Spot", scientific_name="Xanthomonas vesicatoria",
+        class_id=28, class_label="Tomato_bacterial_spot",
+        name="Tomato Bacterial Spot", scientific_name="Xanthomonas vesicatoria",
         severity="High", affected_crop="Tomato",
         organic_treatment="Copper oxychloride 50% WP",
         organic_dosage="3 g per litre; spray every 7 days",
@@ -365,32 +370,32 @@ DISEASES: list[Disease] = [
         prevention="Use disease-free transplants; avoid overhead irrigation; crop rotation.",
     ),
     Disease(
-        class_index=29, class_label="Tomato_early_blight",
-        disease_name="Tomato Early Blight", scientific_name="Alternaria solani",
+        class_id=29, class_label="Tomato_early_blight",
+        name="Tomato Early Blight", scientific_name="Alternaria solani",
         severity="Medium", affected_crop="Tomato",
         organic_treatment="Neem oil spray (5 ml/L)",
         organic_dosage="5 ml neem oil per litre; spray every 10 days",
         chemical_treatment="Mancozeb 75% WP",
         chemical_dosage="2 g per litre of water",
-        store_product="Dithane M-45 (UPL) — ರಾಜು ಕೃಷಿ ಅಂಗಡಿ, ಕೋಲಾರ",
+        store_product="Dithane M-45 (UPL)",
         kannada_name="ಟೊಮ್ಯಾಟೊ ಆರಂಭಿಕ ಬೂದು ರೋಗ",
         prevention="Stake plants; remove lower infected leaves; avoid wetting foliage.",
     ),
     Disease(
-        class_index=30, class_label="Tomato_late_blight",
-        disease_name="Tomato Late Blight", scientific_name="Phytophthora infestans",
+        class_id=30, class_label="Tomato_late_blight",
+        name="Tomato Late Blight", scientific_name="Phytophthora infestans",
         severity="Critical", affected_crop="Tomato",
         organic_treatment="Trichoderma viride 1% WP biocontrol",
         organic_dosage="4 g per litre; spray at onset of disease",
         chemical_treatment="Metalaxyl 8% + Mancozeb 64% WP",
         chemical_dosage="2.5 g per litre; spray every 7 days",
-        store_product="Ridomil Gold MZ (Syngenta) — ಕೃಷ್ಣ ಕೃಷಿ ಕೇಂದ್ರ, ಚಿಂತಾಮಣಿ",
+        store_product="Ridomil Gold MZ (Syngenta)",
         kannada_name="ಟೊಮ್ಯಾಟೊ ತಡ ಬೂದು ರೋಗ",
         prevention="Destroy infected plants; avoid excessive nitrogen; ensure good drainage.",
     ),
     Disease(
-        class_index=31, class_label="Tomato_leaf_mold",
-        disease_name="Tomato Leaf Mold", scientific_name="Passalora fulva",
+        class_id=31, class_label="Tomato_leaf_mold",
+        name="Tomato Leaf Mold", scientific_name="Passalora fulva",
         severity="Medium", affected_crop="Tomato",
         organic_treatment="Neem oil + garlic extract",
         organic_dosage="5 ml neem oil + 2 g garlic extract per litre",
@@ -401,8 +406,8 @@ DISEASES: list[Disease] = [
         prevention="Reduce greenhouse humidity; improve ventilation; avoid leaf wetting.",
     ),
     Disease(
-        class_index=32, class_label="Tomato_septoria_leaf_spot",
-        disease_name="Tomato Septoria Leaf Spot", scientific_name="Septoria lycopersici",
+        class_id=32, class_label="Tomato_septoria_leaf_spot",
+        name="Tomato Septoria Leaf Spot", scientific_name="Septoria lycopersici",
         severity="Medium", affected_crop="Tomato",
         organic_treatment="Copper-based fungicide (Bordeaux 1%)",
         organic_dosage="Spray every 10 days during wet weather",
@@ -413,8 +418,8 @@ DISEASES: list[Disease] = [
         prevention="Remove and destroy infected leaves; avoid overhead irrigation; stake plants.",
     ),
     Disease(
-        class_index=33, class_label="Tomato_spider_mites",
-        disease_name="Tomato Spider Mites (Two-spotted)", scientific_name="Tetranychus urticae",
+        class_id=33, class_label="Tomato_spider_mites",
+        name="Tomato Spider Mites (Two-spotted)", scientific_name="Tetranychus urticae",
         severity="High", affected_crop="Tomato",
         organic_treatment="Neem oil spray + water jet",
         organic_dosage="5 ml neem oil per litre; forceful water spray to dislodge mites",
@@ -425,8 +430,8 @@ DISEASES: list[Disease] = [
         prevention="Maintain soil moisture; avoid dusty conditions; release predatory mites.",
     ),
     Disease(
-        class_index=34, class_label="Tomato_target_spot",
-        disease_name="Tomato Target Spot", scientific_name="Corynespora cassiicola",
+        class_id=34, class_label="Tomato_target_spot",
+        name="Tomato Target Spot", scientific_name="Corynespora cassiicola",
         severity="Medium", affected_crop="Tomato",
         organic_treatment="Trichoderma viride",
         organic_dosage="4 g per litre; foliar spray at disease onset",
@@ -437,20 +442,20 @@ DISEASES: list[Disease] = [
         prevention="Stake plants; avoid overhead irrigation; remove infected plant debris.",
     ),
     Disease(
-        class_index=35, class_label="Tomato_yellow_leaf_curl_virus",
-        disease_name="Tomato Yellow Leaf Curl Virus (TYLCV)", scientific_name="Tomato yellow leaf curl virus",
+        class_id=35, class_label="Tomato_yellow_leaf_curl_virus",
+        name="Tomato Yellow Leaf Curl Virus (TYLCV)", scientific_name="Tomato yellow leaf curl virus",
         severity="Critical", affected_crop="Tomato",
         organic_treatment="Neem oil + sticky yellow traps for whitefly control",
         organic_dosage="5 ml neem oil per litre; replace traps every 2 weeks",
         chemical_treatment="Imidacloprid 17.8% SL (whitefly vector control)",
         chemical_dosage="0.3 ml per litre; drench at transplanting",
-        store_product="Confidor (BAYER) — ಶ್ರೀ ರಾಮ ಕೃಷಿ ಕೇಂದ್ರ, ಮಾಲೂರು",
+        store_product="Confidor (BAYER)",
         kannada_name="ಟೊಮ್ಯಾಟೊ ಹಳದಿ ಎಲೆ ಸುರುಳಿ ವೈರಸ್",
         prevention="Remove infected plants immediately; control whitefly population; use virus-resistant varieties.",
     ),
     Disease(
-        class_index=36, class_label="Tomato_mosaic_virus",
-        disease_name="Tomato Mosaic Virus (ToMV)", scientific_name="Tomato mosaic virus",
+        class_id=36, class_label="Tomato_mosaic_virus",
+        name="Tomato Mosaic Virus (ToMV)", scientific_name="Tomato mosaic virus",
         severity="High", affected_crop="Tomato",
         organic_treatment="Milk spray (10%) as antiviral",
         organic_dosage="100 ml fresh milk per 900 ml water; spray weekly",
@@ -461,8 +466,8 @@ DISEASES: list[Disease] = [
         prevention="Use virus-free seed; control aphid vectors; wash hands before handling plants.",
     ),
     Disease(
-        class_index=37, class_label="Tomato_healthy",
-        disease_name="Healthy Tomato Plant", scientific_name=None,
+        class_id=37, class_label="Tomato_healthy",
+        name="Healthy Tomato Plant", scientific_name=None,
         severity="Low", affected_crop="Tomato",
         organic_treatment=None, organic_dosage=None,
         chemical_treatment=None, chemical_dosage=None,
@@ -492,39 +497,27 @@ class TreatmentDBBuilder:
         print("  Schema created (or already exists).")
 
     def populate(self, conn: sqlite3.Connection) -> None:
-        """Insert all 38 disease records (upsert by class_index)."""
+        """Insert all 38 disease records (fresh — table was dropped in create_schema)."""
         sql = """
         INSERT INTO diseases (
-            class_index, class_label, disease_name, scientific_name,
+            class_id, class_label, name, scientific_name,
             severity, affected_crop,
             organic_treatment, organic_dosage,
             chemical_treatment, chemical_dosage,
-            store_product, kannada_name, prevention
+            store_product, kannada_name, kannada_organic, kannada_chemical, prevention
         ) VALUES (
-            :class_index, :class_label, :disease_name, :scientific_name,
+            :class_id, :class_label, :name, :scientific_name,
             :severity, :affected_crop,
             :organic_treatment, :organic_dosage,
             :chemical_treatment, :chemical_dosage,
-            :store_product, :kannada_name, :prevention
-        ) ON CONFLICT(class_index) DO UPDATE SET
-            class_label        = excluded.class_label,
-            disease_name       = excluded.disease_name,
-            scientific_name    = excluded.scientific_name,
-            severity           = excluded.severity,
-            affected_crop      = excluded.affected_crop,
-            organic_treatment  = excluded.organic_treatment,
-            organic_dosage     = excluded.organic_dosage,
-            chemical_treatment = excluded.chemical_treatment,
-            chemical_dosage    = excluded.chemical_dosage,
-            store_product      = excluded.store_product,
-            kannada_name       = excluded.kannada_name,
-            prevention         = excluded.prevention
+            :store_product, :kannada_name, :kannada_organic, :kannada_chemical, :prevention
+        )
         """
         rows = [
             {
-                "class_index":        d.class_index,
+                "class_id":           d.class_id,
                 "class_label":        d.class_label,
-                "disease_name":       d.disease_name,
+                "name":               d.name,
                 "scientific_name":    d.scientific_name,
                 "severity":           d.severity,
                 "affected_crop":      d.affected_crop,
@@ -534,20 +527,22 @@ class TreatmentDBBuilder:
                 "chemical_dosage":    d.chemical_dosage,
                 "store_product":      d.store_product,
                 "kannada_name":       d.kannada_name,
+                "kannada_organic":    d.kannada_organic,
+                "kannada_chemical":   d.kannada_chemical,
                 "prevention":         d.prevention,
             }
             for d in DISEASES
         ]
         conn.executemany(sql, rows)
         conn.commit()
-        print(f"  Inserted / updated {len(DISEASES)} disease records.")
+        print(f"  Inserted {len(DISEASES)} disease records.")
 
     def verify(self, conn: sqlite3.Connection) -> None:
         """Print a summary of the database contents."""
         cursor = conn.execute("SELECT COUNT(*) FROM diseases")
         count = cursor.fetchone()[0]
         cursor2 = conn.execute(
-            "SELECT class_index, class_label, severity FROM diseases ORDER BY class_index"
+            "SELECT class_id, class_label, severity FROM diseases ORDER BY class_id"
         )
         print(f"\n  {'Idx':>3}  {'Label':<40}  Severity")
         print(f"  {'-'*3}  {'-'*40}  --------")

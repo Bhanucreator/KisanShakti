@@ -1,4 +1,8 @@
-import '../global.css';
+// NOTE: global.css (Tailwind/NativeWind) import was removed — Mandi does
+// not use `className=` anywhere on native. Importing it in an APK without
+// the required Babel+Metro NativeWind setup crashes the app synchronously
+// at boot (that was the "icon does nothing" symptom on install). Every
+// screen uses StyleSheet.create, so no visual regression.
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {
@@ -51,6 +55,9 @@ export default function MandiRootLayout() {
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="chat" />
       <Stack.Screen name="crop-detail" />
+      {/* Legal screens — Play Store review requires these to be in-app. */}
+      <Stack.Screen name="legal/terms" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="legal/privacy" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }

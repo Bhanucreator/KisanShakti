@@ -1,30 +1,32 @@
 /**
- * Bottom tab layout — floating pill navbar per uisample/Navbar.png reference.
- * Dark rounded container floating above content with a raised primary FAB
- * for the Disease scan (center action).
+ * Bottom tab layout — floating glassmorphic navbar.
+ * Frosted-glass pill floating above content with a raised primary FAB
+ * for the Disease scan (center action). Icons only, no labels.
  */
 
 import { Tabs } from 'expo-router';
-import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import { SafeBlur as BlurView } from '../../components/safe-gradient';
 
-// ── Palette ─────────────────────────────────────────────────────────────────
+// ── Palette ────────────────────────────────────────────────────────────────
 const C = {
-  navBg: '#0F1F17',
-  navBgActive: '#1B4332',
   primary: '#2D6A4F',
-  primaryBright: '#52B788',
-  active: '#FFFFFF',
-  inactive: '#7A8B85',
-  fabPrimary: '#40916C',
-  fabPrimaryTop: '#52B788',
-  card: '#FFFFFF',
+  primaryBright: '#40916C',
+  primaryNeon: '#52B788',
+  primaryDark: '#1B4332',
+  active: '#1B4332',
+  inactive: '#6B7A73',
+  glassBg: 'rgba(255,255,255,0.55)',
+  glassBorder: 'rgba(255,255,255,0.75)',
+  activePillBg: 'rgba(45,106,79,0.18)',
+  activePillBorder: 'rgba(45,106,79,0.45)',
 };
 
 export default function TabsLayout() {
   return (
     <Tabs
-      tabBar={(props) => <FloatingTabBar {...props} />}
+      tabBar={(props) => <GlassTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="index"   options={{ title: 'Home' }} />
@@ -36,17 +38,17 @@ export default function TabsLayout() {
   );
 }
 
-// ── Icon per route ──────────────────────────────────────────────────────────
+// ── Icon per route ─────────────────────────────────────────────────────────
 function TabIcon({ name, active }: { name: string; active: boolean }) {
   const color = active ? C.active : C.inactive;
-  const size = 20;
+  const size = 22;
   switch (name) {
     case 'index':
       return <Ionicons name={active ? 'home' : 'home-outline'} size={size} color={color} />;
     case 'market':
       return <Feather name="shopping-bag" size={size} color={color} />;
     case 'disease':
-      return <MaterialCommunityIcons name="line-scan" size={26} color="#FFFFFF" />;
+      return <MaterialCommunityIcons name="line-scan" size={28} color="#FFFFFF" />;
     case 'weather':
       return <Ionicons name={active ? 'partly-sunny' : 'partly-sunny-outline'} size={size} color={color} />;
     case 'ledger':
@@ -56,139 +58,153 @@ function TabIcon({ name, active }: { name: string; active: boolean }) {
   }
 }
 
-// ── Floating Tab Bar ────────────────────────────────────────────────────────
-function FloatingTabBar({ state, navigation }: any) {
+// ── Glass Tab Bar ──────────────────────────────────────────────────────────
+function GlassTabBar({ state, navigation }: any) {
   const routes = state.routes;
   const activeIndex = state.index;
 
   return (
     <View pointerEvents="box-none" style={s.wrap}>
-      <View style={s.pill}>
-        {routes.map((route: any, i: number) => {
-          const isActive = i === activeIndex;
-          const isFab = route.name === 'disease';
+      {/*
+        Frosted-glass backdrop is its own clipped layer. FAB sits in a
+        SEPARATE overlay layer above it, so its -22 marginTop is no longer
+        cut by the pill's overflow:hidden.
+      */}
+      <View style={s.pillShell} pointerEvents="box-none">
+        <BlurView intensity={40} tint="light" style={s.pillBackdrop}>
+          <View style={s.pillOverlay} pointerEvents="none" />
+        </BlurView>
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress', target: route.key, canPreventDefault: true,
-            });
-            if (!isActive && !event.defaultPrevented) {
-              navigation.navigate(route.name as never);
-            }
-          };
+        <View style={s.pillContent}>
+          {routes.map((route: any, i: number) => {
+            const isActive = i === activeIndex;
+            const isFab = route.name === 'disease';
 
-          // Center FAB (scan)
-          if (isFab) {
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress', target: route.key, canPreventDefault: true,
+              });
+              if (!isActive && !event.defaultPrevented) {
+                navigation.navigate(route.name as never);
+              }
+            };
+
+            // FAB slot — reserve the space but render the actual FAB
+            // outside the clipped shell, so it can pop above the navbar.
+            if (isFab) return <View key={route.key} style={s.fabSlot} />;
+
             return (
-              <Pressable key={route.key} onPress={onPress} style={s.fabWrap}>
-                <View style={s.fabRing}>
-                  <View style={s.fab}>
-                    <TabIcon name={route.name} active={isActive} />
-                  </View>
+              <Pressable key={route.key} onPress={onPress} style={s.tab}>
+                <View style={isActive ? s.activePill : s.inactiveIconWrap}>
+                  <TabIcon name={route.name} active={isActive} />
                 </View>
               </Pressable>
             );
-          }
-
-          // Regular tab
-          return (
-            <Pressable key={route.key} onPress={onPress} style={s.tab}>
-              {isActive ? (
-                <View style={s.activePill}>
-                  <TabIcon name={route.name} active />
-                  <Text style={s.activeLabel} numberOfLines={1}>
-                    {getLabel(route.name)}
-                  </Text>
-                </View>
-              ) : (
-                <TabIcon name={route.name} active={false} />
-              )}
-            </Pressable>
-          );
-        })}
+          })}
+        </View>
       </View>
+
+      {/* FAB — floats above the shell, un-clipped */}
+      <Pressable
+        onPress={() => {
+          const fab = routes.find((r: any) => r.name === 'disease');
+          if (fab) navigation.navigate('disease' as never);
+        }}
+        style={s.fabWrap}
+      >
+        <View style={s.fabRing}>
+          <View style={s.fab}>
+            <TabIcon name="disease" active={false} />
+          </View>
+        </View>
+      </Pressable>
     </View>
   );
 }
 
-function getLabel(name: string): string {
-  switch (name) {
-    case 'index':   return 'Home';
-    case 'market':  return 'Market';
-    case 'weather': return 'Weather';
-    case 'ledger':  return 'Ledger';
-    default:        return '';
-  }
-}
+// ── Styles ─────────────────────────────────────────────────────────────────
+const NAV_H = 62;
+const FAB_SIZE = 56;
 
-// ── Styles ──────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   wrap: {
     position: 'absolute',
     left: 16, right: 16,
     bottom: Platform.OS === 'ios' ? 24 : 14,
     alignItems: 'center',
+    height: NAV_H + 16,      // just enough headroom for the FAB to peek
+    justifyContent: 'flex-end',
   },
-  pill: {
+
+  // Outer shell — hosts the frosted backdrop (clipped) + content row.
+  pillShell: {
+    width: '100%', maxWidth: 380, height: NAV_H,
+    borderRadius: NAV_H / 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15, shadowRadius: 20, elevation: 12,
+  },
+  pillBackdrop: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    borderRadius: NAV_H / 2, overflow: 'hidden',
+    borderWidth: 1, borderColor: C.glassBorder,
+    backgroundColor: C.glassBg,   // no-blur fallback
+  },
+  pillOverlay: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.35)',
+  },
+  pillContent: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: C.navBg,
-    borderRadius: 32,
     paddingHorizontal: 8,
-    paddingVertical: 10,
-    width: '100%',
-    maxWidth: 380,
-    // shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 14,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 42,
-    minWidth: 40,
+    height: 44, minWidth: 44,
   },
   activePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: C.navBgActive,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: C.activePillBg,
+    borderWidth: 1, borderColor: C.activePillBorder,
+    alignItems: 'center', justifyContent: 'center',
   },
-  activeLabel: {
-    color: '#FFF',
-    fontFamily: 'Inter_700Bold',
-    fontSize: 12,
-    letterSpacing: 0.2,
+  inactiveIconWrap: {
+    width: 44, height: 44,
+    alignItems: 'center', justifyContent: 'center',
   },
+
+  // FAB placeholder in the row (keeps the icon layout symmetric)
+  fabSlot: { width: FAB_SIZE + 8, height: 44 },
+
+  // Real FAB — rendered outside the clipped shell so nothing gets cut
   fabWrap: {
-    width: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute',
+    // Sit the FAB so only ~12 px pokes above the pill — matches reference
+    bottom: NAV_H - FAB_SIZE + 10,
+    alignSelf: 'center',
+    width: FAB_SIZE + 12, height: FAB_SIZE + 12,
+    alignItems: 'center', justifyContent: 'center',
   },
   fabRing: {
-    width: 56, height: 56,
-    borderRadius: 28,
-    backgroundColor: C.navBg,
+    width: FAB_SIZE + 8, height: FAB_SIZE + 8,
+    borderRadius: (FAB_SIZE + 8) / 2,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     alignItems: 'center', justifyContent: 'center',
-    marginTop: -22,
-    borderWidth: 3, borderColor: C.navBg,
+    borderWidth: 2, borderColor: 'rgba(255,255,255,0.95)',
+    shadowColor: C.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4, shadowRadius: 12,
+    elevation: 12,
   },
   fab: {
-    width: 48, height: 48,
-    borderRadius: 24,
-    backgroundColor: C.fabPrimary,
+    width: FAB_SIZE, height: FAB_SIZE,
+    borderRadius: FAB_SIZE / 2,
+    backgroundColor: C.primary,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: C.fabPrimary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5, shadowRadius: 10,
-    elevation: 8,
   },
 });

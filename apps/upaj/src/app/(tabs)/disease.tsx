@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Alert,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, ImageBackground, Alert,
   ActivityIndicator, Animated, Easing, Dimensions, Modal, Linking, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,7 +16,136 @@ try {
   ImagePicker = null;
 }
 import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/vector-icons';
-import { useDiseaseDetection, InferenceResult } from '../../hooks/use-disease-detection';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDiseaseDetection, InferenceResult, recordScanFeedback, getLastLoadError } from '../../hooks/use-disease-detection';
+
+// expo-file-system is optional — try/catch so older APKs without it still run.
+// We use it to copy the scanned photo into the app's documents directory so
+// the "last diagnosis" survives the OS clearing the camera cache on restart.
+//
+// IMPORTANT: import the legacy subpath. In Expo SDK 54+ the top-level module
+// switched to a new File/Directory class API and the function-style methods
+// (getInfoAsync, copyAsync, deleteAsync, documentDirectory) are deprecated
+// there — calling them throws instead of just warning, which was silently
+// wiping our restored diagnosis on every boot. The legacy subpath keeps the
+// old function API alive and stable.
+let FileSystem: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  FileSystem = require('expo-file-system/legacy');
+} catch {
+  // Fall back to the top-level import if the legacy subpath isn't shipped
+  // in an older SDK. The deprecated warning is preferable to no persistence.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    FileSystem = require('expo-file-system');
+  } catch { FileSystem = null; }
+}
+
+// ── Persistence for last diagnosis ───────────────────────────────────────────
+// The farmer scans a leaf, then closes the app and comes back later — the
+// scan card should still be there. Camera/gallery URIs live in the OS cache,
+// which gets purged, so we (a) copy the photo into documentDirectory and
+// (b) store the metadata blob in AsyncStorage. On mount we read it back and
+// hydrate state before render, so the card shows immediately.
+const LAST_SCAN_KEY = 'disease:last_scan_v1';
+
+type PersistedScan = {
+  uri:        string;       // absolute path to the copied image on disk
+  diagnosis:  InferenceResult;
+  at:         string;       // ISO timestamp of the scan
+};
+
+async function saveLastScan(uri: string, diagnosis: InferenceResult): Promise<PersistedScan | null> {
+  try {
+    let durableUri = uri;
+    // Prefer a durable copy in documents dir. Fall back to the original URI
+    // if expo-file-system isn't available — the diagnosis text still restores
+    // correctly, only the image may become blank later.
+    //
+    // IMPORTANT: use a UNIQUE filename per scan (timestamp suffix). If we
+    // always wrote to "last_scan.jpg", the file bytes would change but the
+    // URI string stays byte-identical → React Native's <Image> in-memory
+    // decoder cache keeps serving the OLD bitmap while the diagnosis JSON
+    // shows the new disease/confidence. Unique filenames give <Image> a
+    // fresh source and force a re-decode.
+    if (FileSystem?.documentDirectory && FileSystem?.copyAsync) {
+      const dest = `${FileSystem.documentDirectory}scan_${Date.now()}.jpg`;
+      await FileSystem.copyAsync({ from: uri, to: dest });
+      durableUri = dest;
+
+      // Delete the previous scan file so we don't leak storage.
+      // Read what was saved before we overwrite AsyncStorage below.
+      try {
+        const prevRaw = await AsyncStorage.getItem(LAST_SCAN_KEY);
+        if (prevRaw) {
+          const prev = JSON.parse(prevRaw) as PersistedScan;
+          if (prev.uri && prev.uri !== dest
+              && prev.uri.startsWith(FileSystem.documentDirectory)) {
+            await FileSystem.deleteAsync(prev.uri, { idempotent: true });
+          }
+        }
+      } catch { /* best-effort cleanup — never block a save on it */ }
+    }
+    const record: PersistedScan = { uri: durableUri, diagnosis, at: new Date().toISOString() };
+    await AsyncStorage.setItem(LAST_SCAN_KEY, JSON.stringify(record));
+    return record;
+  } catch (e) {
+    console.warn('[Disease] persist last scan failed:', e);
+    return null;
+  }
+}
+
+async function loadLastScan(): Promise<PersistedScan | null> {
+  try {
+    const raw = await AsyncStorage.getItem(LAST_SCAN_KEY);
+    if (!raw) return null;
+    const rec = JSON.parse(raw) as PersistedScan;
+    // Sanity check: image file still there? If not, keep the diagnosis text
+    // but blank the URI so the Image component doesn't error.
+    if (FileSystem?.getInfoAsync && rec.uri?.startsWith(FileSystem.documentDirectory ?? '')) {
+      const info = await FileSystem.getInfoAsync(rec.uri);
+      if (!info?.exists) rec.uri = '';
+    }
+    return rec;
+  } catch (e) {
+    console.warn('[Disease] load last scan failed:', e);
+    return null;
+  }
+}
+
+async function clearLastScan(): Promise<void> {
+  try {
+    // Read the currently-persisted URI BEFORE we clear AsyncStorage so we
+    // know which file to delete. Filenames are now timestamped per-scan.
+    let toDelete: string | null = null;
+    const raw = await AsyncStorage.getItem(LAST_SCAN_KEY);
+    if (raw) {
+      try { toDelete = (JSON.parse(raw) as PersistedScan).uri || null; } catch {}
+    }
+    await AsyncStorage.removeItem(LAST_SCAN_KEY);
+    if (toDelete && FileSystem?.deleteAsync
+        && FileSystem?.documentDirectory
+        && toDelete.startsWith(FileSystem.documentDirectory)) {
+      await FileSystem.deleteAsync(toDelete, { idempotent: true });
+    }
+    // Legacy cleanup: older builds wrote a fixed "last_scan.jpg" — remove it
+    // if it still exists so it doesn't sit around forever.
+    if (FileSystem?.documentDirectory && FileSystem?.deleteAsync) {
+      await FileSystem.deleteAsync(`${FileSystem.documentDirectory}last_scan.jpg`, { idempotent: true });
+    }
+  } catch {}
+}
+
+// Bilingual "N ago" for the restored badge.
+function ageLabel(iso: string): { en: string; kn: string } {
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60)    return { en: 'just now',              kn: 'ಈಗಷ್ಟೇ' };
+  if (s < 3600)  { const m = Math.round(s / 60);   return { en: `${m} min ago`,  kn: `${m} ನಿಮಿಷ ಹಿಂದೆ` }; }
+  if (s < 86400) { const h = Math.round(s / 3600); return { en: `${h} h ago`,    kn: `${h} ಗಂಟೆ ಹಿಂದೆ` }; }
+  const d = Math.round(s / 86400);
+  return { en: `${d} d ago`, kn: `${d} ದಿನ ಹಿಂದೆ` };
+}
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -55,6 +184,11 @@ function sevColor(sev: string) {
 
 // ── Confidence gauge ────────────────────────────────────────────────────────
 function ConfidenceBar({ value }: { value: number }) {
+  // Width interpolation forces useNativeDriver: false. That's OK here:
+  // this animation fires exactly ONCE per scan (900 ms), not on every
+  // frame — so keeping it on the JS driver has no smoothness cost.
+  // A scaleX + transform-origin rewrite would break the left-anchored
+  // fill visual on Android (RN doesn't support transformOrigin uniformly).
   const anim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(anim, {
@@ -161,9 +295,26 @@ export default function DiseaseScreen() {
   const [diagnosis, setDiagnosis] = useState<InferenceResult | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
+  // When we restore from disk on mount, `scanAt` holds the original scan
+  // time so we can show a "N ago" badge — makes it obvious this is the
+  // previous scan, not a fresh one. Set to null after a new scan runs.
+  const [scanAt, setScanAt] = useState<string | null>(null);
+
+  // Hydrate last diagnosis from AsyncStorage + documents dir on mount.
+  // Runs once — no dep array item, so a re-render doesn't stomp a new scan.
+  useEffect(() => {
+    (async () => {
+      const rec = await loadLastScan();
+      if (rec) {
+        if (rec.uri) setCapturedUri(rec.uri);
+        setDiagnosis(rec.diagnosis);
+        setScanAt(rec.at);
+      }
+    })();
+  }, []);
 
   const cameraRef = useRef<CameraView>(null);
-  const { isModelLoaded, isRunning, runInference } = useDiseaseDetection();
+  const { isModelLoaded, isRunning, runInference, runtimeBroken, retryLoad } = useDiseaseDetection();
 
   const sheetSlide = useRef(new Animated.Value(SCREEN_H)).current;
   useEffect(() => {
@@ -174,15 +325,42 @@ export default function DiseaseScreen() {
   }, [showResult]);
 
   async function analyseUri(uri: string) {
-    setCapturedUri(uri);
     const result = await runInference(uri);
     setShowCamera(false);
-    if (result) {
+    if (!result) {
+      Alert.alert('Detection Failed', 'Could not analyse the image. Try a clearer photo.');
+      return;
+    }
+    if (result.status === 'ok') {
+      // Only commit the image + diagnosis together, so the "Last Diagnosis"
+      // card can never show a new image against a stale disease label.
+      setCapturedUri(uri);
       setDiagnosis(result);
       setShowResult(true);
-    } else {
-      Alert.alert('Detection Failed', 'Could not analyse the image. Try a clearer photo.');
+      // Persist to disk so the card survives an app kill/restart. The
+      // saved URI is a copy inside documentDirectory (see saveLastScan),
+      // not the original camera-cache URI which the OS can purge.
+      const rec = await saveLastScan(uri, result);
+      if (rec) {
+        setCapturedUri(rec.uri);
+        setScanAt(rec.at);
+      } else {
+        setScanAt(new Date().toISOString());
+      }
+      return;
     }
+    // Honest empty state — never guess a disease. Do NOT touch capturedUri
+    // or diagnosis: leaving the previous good scan intact is fine; clobbering
+    // one with the other is the bug.
+    const title =
+      result.status === 'not_a_leaf'   ? 'Not a Leaf'          :
+      result.status === 'low_confidence' ? 'Not Sure Enough'   :
+                                           'Detection Failed';
+    Alert.alert(
+      title,
+      `${result.reason ?? ''}\n\n${result.hint ?? ''}`.trim(),
+      [{ text: 'Try Again' }]
+    );
   }
 
   async function handleSnap() {
@@ -227,10 +405,16 @@ export default function DiseaseScreen() {
     }
   }
 
-  // ── Camera view ─────────────────────────
-  if (showCamera) {
-    if (!permission?.granted) {
-      return (
+  // ── Camera overlay (fullscreen Modal — covers the tab bar, handles Android back) ──
+  const cameraOverlay = (
+    <Modal
+      visible={showCamera}
+      animationType="fade"
+      presentationStyle="fullScreen"
+      statusBarTranslucent
+      onRequestClose={() => setShowCamera(false)}
+    >
+      {!permission?.granted ? (
         <SafeAreaView style={m.permSafe}>
           <View style={m.permBox}>
             <View style={m.permIconRing}>
@@ -246,57 +430,107 @@ export default function DiseaseScreen() {
             </TouchableOpacity>
           </View>
         </SafeAreaView>
-      );
-    }
-    return (
-      <View style={{ flex: 1, backgroundColor: '#000' }}>
-        <CameraView ref={cameraRef} style={{ flex: 1 }} facing={'back' as CameraType} />
-        <LinearGradient
-          colors={['rgba(0,0,0,0.7)', 'transparent']}
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 140 }}
-        />
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.8)']}
-          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 220 }}
-        />
-        <CropFrame isScanning={isRunning} />
+      ) : (
+        <View style={{ flex: 1, backgroundColor: '#000' }}>
+          {showCamera && (
+            <CameraView ref={cameraRef} style={{ flex: 1 }} facing={'back' as CameraType} />
+          )}
+          <LinearGradient
+            colors={['rgba(0,0,0,0.7)', 'transparent']}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 140 }}
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.8)']}
+            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 220 }}
+          />
+          <CropFrame isScanning={isRunning} />
 
-        <SafeAreaView style={m.camUI} edges={['top']}>
-          <View style={m.camTopBar}>
-            <TouchableOpacity style={m.camCloseBtn} onPress={() => setShowCamera(false)}>
-              <Ionicons name="close" size={18} color="#FFF" />
-            </TouchableOpacity>
-            <View style={m.camPill}>
-              <View style={[m.dot, { backgroundColor: isModelLoaded ? '#52B788' : '#F59E0B' }]} />
-              <Text style={m.camPillText}>{isModelLoaded ? 'Model Ready' : 'Loading…'}</Text>
+          <SafeAreaView style={m.camUI} edges={['top']}>
+            <View style={m.camTopBar}>
+              <TouchableOpacity style={m.camCloseBtn} onPress={() => setShowCamera(false)}>
+                <Ionicons name="arrow-back" size={20} color="#FFF" />
+              </TouchableOpacity>
+              <View style={m.camPill}>
+                <View style={[m.dot, { backgroundColor: isModelLoaded ? '#52B788' : '#F59E0B' }]} />
+                <Text style={m.camPillText}>{isModelLoaded ? 'Model Ready' : 'Loading…'}</Text>
+              </View>
+              <TouchableOpacity style={m.camCloseBtn} onPress={pickFromGallery}>
+                <Ionicons name="images" size={16} color="#FFF" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={m.camCloseBtn} onPress={pickFromGallery}>
-              <Ionicons name="images" size={16} color="#FFF" />
-            </TouchableOpacity>
-          </View>
-          <Text style={m.camHint}>Fill the frame with one leaf</Text>
-        </SafeAreaView>
+            <Text style={m.camHint}>Fill the frame with ONE close-up leaf</Text>
+            <Text style={[m.camHint, { fontSize: 10, opacity: 0.7, marginTop: 2 }]}>
+              Whole-plant / canopy shots cannot be diagnosed
+            </Text>
+          </SafeAreaView>
 
-        {isRunning && (
-          <View style={m.scanBanner}>
-            <ActivityIndicator color="#52B788" size="small" />
-            <Text style={m.scanBannerText}>Analysing with AI…</Text>
-          </View>
-        )}
+          {isRunning && (
+            <View style={m.scanBanner}>
+              <ActivityIndicator color="#52B788" size="small" />
+              <Text style={m.scanBannerText}>Analysing with AI…</Text>
+            </View>
+          )}
 
-        <SnapButton onPress={handleSnap} isRunning={isRunning} />
-      </View>
-    );
-  }
+          <SnapButton onPress={handleSnap} isRunning={isRunning} />
+        </View>
+      )}
+    </Modal>
+  );
 
   // ── Home view ─────────────────────────────
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
-      {!isModelLoaded && (
+      {cameraOverlay}
+      {!isModelLoaded && !runtimeBroken && (
         <View style={m.loadingOverlay}>
           <View style={m.loadingBox}>
             <ActivityIndicator color={C.green} />
             <Text style={m.loadingText}>Loading AI…</Text>
+          </View>
+        </View>
+      )}
+      {runtimeBroken && (
+        <View style={m.loadingOverlay}>
+          <View style={[m.loadingBox, { maxWidth: 340 }]}>
+            <Text style={[m.loadingText, { color: '#B91C1C', fontWeight: '700', textAlign: 'center' }]}>
+              AI model failed to load
+            </Text>
+            {/* Show the ACTUAL error message on-screen so we can diagnose
+                without needing adb logcat access. Farmer can screenshot
+                this and send it if the retry doesn't clear things. */}
+            {(() => {
+              const err = getLastLoadError();
+              return err ? (
+                <Text
+                  selectable
+                  style={{
+                    fontSize: 10, color: '#7F1D1D',
+                    marginTop: 8, textAlign: 'left',
+                    fontFamily: 'monospace',
+                    backgroundColor: '#FEF2F2',
+                    padding: 8, borderRadius: 6,
+                    maxHeight: 120,
+                  }}
+                  numberOfLines={6}
+                >
+                  {err}
+                </Text>
+              ) : null;
+            })()}
+            <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 10, textAlign: 'center' }}>
+              Tap Retry to try loading again.
+            </Text>
+            <TouchableOpacity
+              onPress={retryLoad}
+              activeOpacity={0.85}
+              style={{
+                marginTop: 12,
+                backgroundColor: C.green, paddingHorizontal: 20, paddingVertical: 10,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: '#FFF', fontWeight: '700' }}>Retry</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -315,36 +549,57 @@ export default function DiseaseScreen() {
             </View>
           </View>
 
+          {/* ── AI unavailable notice (only when TFLite runtime can't run on this device) ── */}
+          {runtimeBroken && (
+            <View style={m.unavailCard}>
+              <View style={m.unavailIconWrap}>
+                <MaterialCommunityIcons name="cpu-64-bit" size={18} color="#B45309" />
+                <View style={m.unavailDot} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={m.unavailTitle}>On-device AI unavailable</Text>
+                <Text style={m.unavailBody}>
+                  We won&apos;t show a guessed diagnosis. Browse the Disease Library below to
+                  identify symptoms by crop and appearance.
+                </Text>
+              </View>
+            </View>
+          )}
+
           {/* ── Hero Scan Card ── */}
           <TouchableOpacity
             activeOpacity={0.95}
             onPress={() => setShowCamera(true)}
-            disabled={!isModelLoaded}
-            style={m.heroWrap}
+            disabled={!isModelLoaded || runtimeBroken}
+            style={[m.heroWrap, runtimeBroken && { opacity: 0.55 }]}
           >
-            <LinearGradient
-              colors={['#1A2E23', '#0F1F17']}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            <ImageBackground
+              source={require('../../../assets/images/hero/diseasecardbgpic.png')}
               style={m.hero}
+              imageStyle={{ borderRadius: 20 }}
+              resizeMode="cover"
             >
-              <View style={[m.heroOrbit, { width: 220, height: 220, right: -80, top: -80 }]} />
-              <View style={[m.heroOrbit, { width: 160, height: 160, right: -40, top: -40, opacity: 0.5 }]} />
-
-              <View style={m.heroBadge}>
-                <Ionicons name="flash" size={9} color="#95D5B2" />
-                <Text style={m.heroBadgeText}>Offline · Private · Instant</Text>
-              </View>
-              <Text style={m.heroTitle}>Scan a crop leaf</Text>
-              <Text style={m.heroSub}>Get diagnosis + treatment in seconds</Text>
-
-              <View style={m.heroBtn}>
-                <View style={m.heroBtnIcon}>
-                  <Ionicons name="camera" size={18} color={C.dark} />
+              <LinearGradient
+                colors={['rgba(15,31,23,0.85)', 'rgba(15,31,23,0.55)', 'rgba(15,31,23,0.25)']}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={m.heroOverlay}
+              />
+              <View style={{ maxWidth: '65%' }}>
+                <View style={m.heroBadge}>
+                  <Ionicons name="flash" size={9} color="#95D5B2" />
+                  <Text style={m.heroBadgeText}>Offline · Private · Instant</Text>
                 </View>
-                <Text style={m.heroBtnText}>Open Camera</Text>
-                <Ionicons name="arrow-forward" size={16} color="#FFF" />
+                <Text style={m.heroTitle}>Scan a crop leaf</Text>
+                <Text style={m.heroSub}>Get accurate diagnosis and treatment in seconds</Text>
+
+                <View style={m.heroBtn}>
+                  <View style={m.heroBtnIcon}>
+                    <Ionicons name="camera" size={16} color="#FFF" />
+                  </View>
+                  <Text style={m.heroBtnText}>Open Camera</Text>
+                </View>
               </View>
-            </LinearGradient>
+            </ImageBackground>
           </TouchableOpacity>
 
           {/* ── Action Row: Gallery + Library ── */}
@@ -374,21 +629,53 @@ export default function DiseaseScreen() {
           {/* ── How it works ── */}
           <Text style={m.sectionTitle}>How it works</Text>
           <View style={m.stepsCard}>
-            <Step n="1" title="Take a clear photo" sub="Fill the frame with one leaf" />
-            <Step n="2" title="AI analyses instantly" sub="MobileNetV2 · 38 disease classes" />
+            <Step n="1" title="Take a clear photo" sub="ONE leaf, close-up, filling the frame. Not a whole-plant shot." />
+            <Step n="2" title="AI analyses instantly" sub="MobileNetV2 · Tomato & Potato blights + Healthy" />
             <Step n="3" title="Get treatment advice" sub="Organic + Chemical + Nearest store" last />
           </View>
 
-          {/* ── Last scan ── */}
-          {diagnosis && capturedUri && (
+          {/* ── Last scan ── survives app restart via AsyncStorage +
+               a copy in documentDirectory (see loadLastScan / saveLastScan).
+               Renders even if the image file went missing — the diagnosis
+               text is still valuable on its own. */}
+          {diagnosis && diagnosis.status === 'ok' && (
             <>
-              <Text style={m.sectionTitle}>Last Diagnosis</Text>
+              <View style={m.lastHeaderRow}>
+                <Text style={[m.sectionTitle, { marginTop: 0, marginBottom: 0 }]}>Last Diagnosis</Text>
+                {scanAt && (
+                  <View style={m.lastAgePill}>
+                    <Ionicons name="time-outline" size={10} color={C.textMuted} />
+                    <Text style={m.lastAgeText}>{ageLabel(scanAt).en}</Text>
+                  </View>
+                )}
+                <View style={{ flex: 1 }} />
+                <TouchableOpacity
+                  onPress={async () => {
+                    await clearLastScan();
+                    setDiagnosis(null);
+                    setCapturedUri(null);
+                    setScanAt(null);
+                  }}
+                  activeOpacity={0.7}
+                  style={m.lastClearBtn}
+                >
+                  <Ionicons name="close" size={12} color={C.textMuted} />
+                  <Text style={m.lastClearText}>Clear</Text>
+                </TouchableOpacity>
+              </View>
+
               <TouchableOpacity
                 onPress={() => setShowResult(true)}
                 activeOpacity={0.9}
                 style={m.lastCard}
               >
-                <Image source={{ uri: capturedUri }} style={m.lastThumb} />
+                {capturedUri ? (
+                  <Image source={{ uri: capturedUri }} style={m.lastThumb} />
+                ) : (
+                  <View style={[m.lastThumb, m.lastThumbPlaceholder]}>
+                    <Ionicons name="leaf-outline" size={22} color={C.textLight} />
+                  </View>
+                )}
                 <View style={{ flex: 1, marginLeft: 10 }}>
                   <Text style={m.lastCrop}>{diagnosis.affected_crop}</Text>
                   <Text style={m.lastDisease}>{diagnosis.disease_name}</Text>
@@ -431,8 +718,24 @@ export default function DiseaseScreen() {
 
 // ── Result Sheet ────────────────────────────────────────────────────────────
 function ResultSheet({ visible, onClose, diagnosis, capturedUri, slide, onRescan }: any) {
+  const [feedback, setFeedback] = React.useState<null | 'correct' | 'wrong'>(null);
+  React.useEffect(() => { setFeedback(null); }, [diagnosis?.classIndex, capturedUri]);
   if (!diagnosis || !capturedUri) return null;
   const sev = sevColor(diagnosis.severity);
+
+  async function markFeedback(kind: 'correct' | 'wrong') {
+    if (feedback) return;
+    setFeedback(kind);
+    try {
+      await recordScanFeedback(
+        capturedUri,
+        diagnosis.classIndex,
+        diagnosis.classLabel || diagnosis.disease_name,
+        (diagnosis.confidence ?? 0) / 100,
+        kind === 'correct',
+      );
+    } catch { /* non-fatal */ }
+  }
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
@@ -479,6 +782,28 @@ function ResultSheet({ visible, onClose, diagnosis, capturedUri, slide, onRescan
                 <Text style={m.confPct}>%</Text>
               </View>
             </View>
+          </View>
+
+          {/* Top-3 alternatives — never hide what the model was uncertain about */}
+          {Array.isArray(diagnosis.topProbs) && diagnosis.topProbs.length > 1 && (
+            <View style={m.top3Box}>
+              <Text style={m.top3Label}>Also considered</Text>
+              {diagnosis.topProbs.slice(1, 3).map((tp: any, i: number) => (
+                <View key={i} style={m.top3Row}>
+                  <Text style={m.top3Name}>{tp.label}</Text>
+                  <Text style={m.top3Pct}>{Math.round(tp.prob * 100)}%</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Consult-officer disclaimer — every result, non-dismissable */}
+          <View style={m.disclaimer}>
+            <MaterialCommunityIcons name="alert-circle-outline" size={14} color="#B45309" />
+            <Text style={m.disclaimerText}>
+              AI suggestion only. Confirm with your local Krishi Vigyan Kendra or
+              extension officer before spraying chemicals.
+            </Text>
           </View>
 
           {/* Both treatments shown together */}
@@ -537,7 +862,11 @@ function ResultSheet({ visible, onClose, diagnosis, capturedUri, slide, onRescan
                 <TouchableOpacity
                   activeOpacity={0.85}
                   onPress={() => {
-                    const q = encodeURIComponent(`${diagnosis.store_product} agri store Kolar Karnataka`);
+                    // Search Google Maps for the actual product name near the
+                    // farmer's current location. Google's map app uses device
+                    // GPS to bias results — the farmer sees real nearby
+                    // agri-stores, not fabricated names we can't verify.
+                    const q = encodeURIComponent(`${diagnosis.store_product} agri store near me`);
                     Linking.openURL(`https://www.google.com/maps/search/${q}`);
                   }}
                   style={m.storeBtn}
@@ -545,7 +874,7 @@ function ResultSheet({ visible, onClose, diagnosis, capturedUri, slide, onRescan
                   <View style={m.storeLeft}>
                     <FontAwesome5 name="store" size={11} color={C.amber} />
                     <View style={{ marginLeft: 8, flex: 1 }}>
-                      <Text style={m.storeLabel}>Nearest agri-store</Text>
+                      <Text style={m.storeLabel}>Find nearby store</Text>
                       <Text style={m.storeProduct}>{diagnosis.store_product}</Text>
                     </View>
                   </View>
@@ -570,6 +899,42 @@ function ResultSheet({ visible, onClose, diagnosis, capturedUri, slide, onRescan
               </View>
             </View>
           )}
+
+          {/* Farmer feedback — one tap feeds the next model training */}
+          <View style={m.fbBox}>
+            <Text style={m.fbTitle}>Was this correct?</Text>
+            <View style={m.fbRow}>
+              <TouchableOpacity
+                onPress={() => markFeedback('correct')}
+                disabled={!!feedback}
+                activeOpacity={0.85}
+                style={[m.fbBtn, feedback === 'correct' && m.fbBtnCorrect]}
+              >
+                <Ionicons name="checkmark-circle" size={14}
+                  color={feedback === 'correct' ? '#FFF' : C.green} />
+                <Text style={[m.fbBtnText, feedback === 'correct' && { color: '#FFF' }]}>
+                  Yes, correct
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => markFeedback('wrong')}
+                disabled={!!feedback}
+                activeOpacity={0.85}
+                style={[m.fbBtn, feedback === 'wrong' && m.fbBtnWrong]}
+              >
+                <Ionicons name="close-circle" size={14}
+                  color={feedback === 'wrong' ? '#FFF' : C.red} />
+                <Text style={[m.fbBtnText, feedback === 'wrong' && { color: '#FFF' }]}>
+                  No, wrong
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {feedback && (
+              <Text style={m.fbThanks}>
+                Thanks — your feedback helps improve future predictions.
+              </Text>
+            )}
+          </View>
 
           {/* Actions */}
           <View style={m.sheetBtnRow}>
@@ -681,11 +1046,32 @@ const m = StyleSheet.create({
   },
   aiPillText: { fontFamily: 'Inter_700Bold', fontSize: 10, color: C.green },
 
+  unavailCard: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+    backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A',
+    borderRadius: 14, padding: 14, marginBottom: 12,
+  },
+  unavailIconWrap: {
+    width: 36, height: 36, borderRadius: 12, backgroundColor: '#FEF3C7',
+    alignItems: 'center', justifyContent: 'center', position: 'relative',
+  },
+  unavailDot: {
+    position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: 4,
+    backgroundColor: '#DC2626', borderWidth: 1.5, borderColor: '#FFFBEB',
+  },
+  unavailTitle: { color: '#78350F', fontFamily: 'Inter_700Bold', fontSize: 13.5 },
+  unavailBody: {
+    color: '#92400E', fontFamily: 'Inter_400Regular', fontSize: 12,
+    marginTop: 3, lineHeight: 17,
+  },
+
+
   heroWrap: {
     borderRadius: 20, overflow: 'hidden',
     shadowColor: C.dark, shadowOpacity: 0.22, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 10,
   },
-  hero: { padding: 18, minHeight: 200, justifyContent: 'space-between' },
+  hero: { padding: 18, minHeight: 180, justifyContent: 'center', overflow: 'hidden' },
+  heroOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   heroOrbit: { position: 'absolute', borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(82, 183, 136, 0.15)' },
   heroBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start',
@@ -694,14 +1080,13 @@ const m = StyleSheet.create({
   },
   heroBadgeText: { color: '#95D5B2', fontFamily: 'Inter_700Bold', fontSize: 10 },
   heroTitle: { color: '#FFF', fontFamily: 'Inter_800ExtraBold', fontSize: 22, marginTop: 10, letterSpacing: -0.5 },
-  heroSub: { color: 'rgba(255,255,255,0.65)', fontFamily: 'Inter_400Regular', fontSize: 12, marginTop: 3 },
+  heroSub: { color: 'rgba(255,255,255,0.85)', fontFamily: 'Inter_400Regular', fontSize: 12, marginTop: 4, lineHeight: 17 },
   heroBtn: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 14, padding: 10, marginTop: 16,
+    flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start',
+    backgroundColor: C.green, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginTop: 14,
   },
-  heroBtnIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' },
-  heroBtnText: { flex: 1, marginLeft: 10, color: '#FFF', fontFamily: 'Inter_700Bold', fontSize: 13 },
+  heroBtnIcon: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
+  heroBtnText: { marginLeft: 8, color: '#FFF', fontFamily: 'Inter_700Bold', fontSize: 13 },
 
   actionRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   actionCard: {
@@ -732,6 +1117,23 @@ const m = StyleSheet.create({
     borderWidth: 1, borderColor: C.border,
   },
   lastThumb: { width: 46, height: 46, borderRadius: 10, backgroundColor: C.greenPale },
+  lastThumbPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: C.greenPale },
+  lastHeaderRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    marginTop: 20, marginBottom: 8,
+  },
+  lastAgePill: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    backgroundColor: C.bg, borderRadius: 10,
+    paddingHorizontal: 7, paddingVertical: 2,
+    borderWidth: 1, borderColor: C.border,
+  },
+  lastAgeText: { fontFamily: 'Inter_600SemiBold', fontSize: 10, color: C.textMuted },
+  lastClearBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    paddingHorizontal: 8, paddingVertical: 4,
+  },
+  lastClearText: { fontFamily: 'Inter_600SemiBold', fontSize: 11, color: C.textMuted },
   lastCrop: { fontFamily: 'Inter_600SemiBold', fontSize: 9, color: C.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 },
   lastDisease: { fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textDark, marginTop: 1 },
   lastMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
@@ -793,6 +1195,56 @@ const m = StyleSheet.create({
   confBox: { flexDirection: 'row', alignItems: 'flex-end' },
   confValue: { fontFamily: 'Inter_800ExtraBold', fontSize: 24, color: C.textDark, letterSpacing: -0.5, lineHeight: 26 },
   confPct: { fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textMuted, marginLeft: 1, marginBottom: 3 },
+
+  top3Box: {
+    marginHorizontal: 16, marginTop: 10, padding: 10,
+    backgroundColor: '#F7FBF8', borderRadius: 10,
+    borderWidth: 1, borderColor: C.border,
+  },
+  top3Label: {
+    fontFamily: 'Inter_700Bold', fontSize: 10, color: C.textMuted,
+    textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 4,
+  },
+  top3Row: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    paddingVertical: 3,
+  },
+  top3Name: { fontFamily: 'Inter_500Medium', fontSize: 11.5, color: C.textBody },
+  top3Pct: { fontFamily: 'Inter_700Bold', fontSize: 11.5, color: C.textMuted },
+
+  disclaimer: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
+    marginHorizontal: 16, marginTop: 10, padding: 10,
+    backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A',
+    borderRadius: 10,
+  },
+  disclaimerText: {
+    flex: 1, fontFamily: 'Inter_500Medium', fontSize: 10.5,
+    color: '#78350F', lineHeight: 15,
+  },
+
+  fbBox: {
+    marginHorizontal: 16, marginTop: 16, padding: 12,
+    backgroundColor: '#F7FBF8', borderRadius: 12,
+    borderWidth: 1, borderColor: C.border,
+  },
+  fbTitle: {
+    fontFamily: 'Inter_700Bold', fontSize: 12, color: C.textDark,
+    marginBottom: 8,
+  },
+  fbRow: { flexDirection: 'row', gap: 8 },
+  fbBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 5, paddingVertical: 10, borderRadius: 10,
+    backgroundColor: C.card, borderWidth: 1, borderColor: C.border,
+  },
+  fbBtnCorrect: { backgroundColor: C.green, borderColor: C.green },
+  fbBtnWrong:   { backgroundColor: C.red,   borderColor: C.red   },
+  fbBtnText: { fontFamily: 'Inter_700Bold', fontSize: 11.5, color: C.textDark },
+  fbThanks: {
+    marginTop: 6, fontFamily: 'Inter_500Medium', fontSize: 10.5,
+    color: C.textMuted, textAlign: 'center',
+  },
 
   tSectionLabel: {
     fontFamily: 'Inter_700Bold', fontSize: 11, color: C.textMuted,

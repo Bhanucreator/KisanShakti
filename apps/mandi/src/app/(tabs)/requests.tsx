@@ -1,221 +1,231 @@
-import React, { useState } from 'react';
+/**
+ * Requests / Offers tab — Mandi buyer app.
+ *
+ * All counter-offers the buyer has submitted, grouped by status. Pending
+ * offers can be withdrawn while they're still open. Auto-expires after 48h
+ * are surfaced as EXPIRED without any buyer action needed.
+ */
+
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet,
-  ScrollView, Alert,
+  View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator,
+  RefreshControl, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, FontAwesome5, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { COLORS, SPACING, RADII, SHADOWS, FONT_SIZES } from '../../constants/theme';
-import { router } from 'expo-router';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { COLORS, SPACING, RADII, SHADOWS } from '../../constants/theme';
+import { fetchMyOffers, withdrawOffer, hideOfferFromBuyer, ageLabel, type CommerceOffer, type OfferStatus } from '../../lib/api';
 
-type BuyerRequest = {
-  id: string;
-  crop: string;
-  farmer: string;
-  status: 'PENDING' | 'COUNTERED' | 'ACCEPTED';
-  yourOffer: number;
-  farmerAsk: number;
-  gap: number;
-  timeAgo: string;
+const fmtIN    = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
+const fmtPrice = (n: number) => `₹${n.toFixed(2)}`;
+
+const STATUS_META: Record<OfferStatus, { label: string; kn: string; color: string; bg: string }> = {
+  PENDING:     { label: 'Pending',      kn: 'ಬಾಕಿ',           color: '#B45309', bg: '#FEF3C7' },
+  ACCEPTED:    { label: 'Accepted',     kn: 'ಸ್ವೀಕರಿಸಿದೆ',    color: '#166534', bg: '#DCFCE7' },
+  IN_DELIVERY: { label: 'In delivery',  kn: 'ದಾರಿಯಲ್ಲಿ',      color: '#1D4ED8', bg: '#DBEAFE' },
+  COMPLETED:   { label: 'Delivered',    kn: 'ತಲುಪಿದೆ',        color: '#166534', bg: '#DCFCE7' },
+  REJECTED:    { label: 'Rejected',     kn: 'ತಿರಸ್ಕರಿಸಿದೆ',   color: COLORS.accentRed, bg: COLORS.accentRedBg },
+  WITHDRAWN:   { label: 'Withdrawn',    kn: 'ಹಿಂಪಡೆದಿದೆ',    color: COLORS.textMuted, bg: COLORS.bgSubtle },
+  EXPIRED:     { label: 'Expired',      kn: 'ಅವಧಿ ಮುಗಿದಿದೆ', color: COLORS.textMuted, bg: COLORS.bgSubtle },
+  CANCELLED:   { label: 'Cancelled',    kn: 'ರದ್ದು',          color: COLORS.accentRed, bg: COLORS.accentRedBg },
 };
 
-const MOCK_REQUESTS: BuyerRequest[] = [
-  {
-    id: '1', crop: '50 kg Tomato', farmer: 'from Raju S.',
-    status: 'PENDING', yourOffer: 18, farmerAsk: 20, gap: 2,
-    timeAgo: '5m ago',
-  },
-  {
-    id: '2', crop: '30 kg Ragi', farmer: 'from Lakshmi P.',
-    status: 'COUNTERED', yourOffer: 32, farmerAsk: 34, gap: 2,
-    timeAgo: '1h ago',
-  },
-];
+export default function OffersScreen() {
+  const [offers, setOffers] = useState<CommerceOffer[] | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
 
-export default function RequestsScreen() {
-  const [activeTab, setActiveTab] = useState<'Sent' | 'Received' | 'Negotiating'>('Sent');
+  const load = useCallback(async () => {
+    const r = await fetchMyOffers();
+    setOffers(r ?? []);
+  }, []);
 
-  const renderItem = ({ item }: { item: BuyerRequest }) => (
-    <View style={styles.requestCard}>
-      {/* Top Header */}
-      <View style={styles.cardHeader}>
-        <View>
-          <Text style={styles.cropTitle}>{item.crop}</Text>
-          <Text style={styles.farmerSub}>{item.farmer}</Text>
-        </View>
-        <View style={[
-          styles.statusBadge,
-          item.status === 'PENDING' && { backgroundColor: '#FEF3C7' },
-          item.status === 'COUNTERED' && { backgroundColor: '#FEE2E2' },
-          item.status === 'ACCEPTED' && { backgroundColor: '#E8F5E9' },
-        ]}>
-          <Text style={[
-            styles.statusText,
-            item.status === 'PENDING' && { color: COLORS.accentAmber },
-            item.status === 'COUNTERED' && { color: COLORS.accentRed },
-            item.status === 'ACCEPTED' && { color: COLORS.primaryDark },
-          ]}>
-            {item.status}
-          </Text>
-        </View>
-      </View>
+  useEffect(() => { load(); }, [load]);
+  // Reload when the buyer navigates back so an offer that just flipped
+  // status (farmer accepted → moves to Orders, or rejected → moves to
+  // Closed) is reflected without waiting for a manual pull-to-refresh.
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true); await load(); setRefreshing(false);
+  }, [load]);
 
-      {/* 3 Metric Blocks Row */}
-      <View style={styles.metricsRow}>
-        <View style={styles.metricBlock}>
-          <Text style={styles.metricLabel}>Your Offer</Text>
-          <Text style={[styles.metricVal, { color: COLORS.primaryDark }]}>₹{item.yourOffer}</Text>
-        </View>
-        <View style={styles.metricBlock}>
-          <Text style={styles.metricLabel}>Farmer Ask</Text>
-          <Text style={styles.metricVal}>₹{item.farmerAsk}</Text>
-        </View>
-        <View style={styles.metricBlock}>
-          <Text style={styles.metricLabel}>Gap</Text>
-          <Text style={[styles.metricVal, { color: COLORS.accentRed }]}>₹{item.gap}</Text>
-        </View>
-      </View>
+  const dismissClosed = async (id: string) => {
+    // Optimistic — drop it locally, then reconcile against the backend.
+    setOffers(prev => (prev ?? []).filter(o => o.id !== id));
+    try { await hideOfferFromBuyer(id); }
+    catch { /* if it fails, next load will bring it back honestly */ }
+  };
 
-      {/* Bottom Footer & Action Circles */}
-      <View style={styles.cardFooter}>
-        <View style={styles.timeRow}>
-          <Ionicons name="time-outline" size={14} color={COLORS.textMuted} />
-          <Text style={styles.timeText}>{item.timeAgo}</Text>
-        </View>
+  const withdraw = async (id: string) => {
+    setBusy(id);
+    const r = await withdrawOffer(id);
+    setBusy(null);
+    if (r) load();
+    else Alert.alert('Could not withdraw', 'The offer may have already been answered.');
+  };
 
-        <View style={styles.actionCirclesRow}>
-          {/* Cancel Button */}
-          <TouchableOpacity
-            style={styles.cancelCircle}
-            onPress={() => Alert.alert('Cancel Request', 'Are you sure you want to cancel?')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="close" size={18} color={COLORS.accentRed} />
-          </TouchableOpacity>
-
-          {/* Chat Button */}
-          <TouchableOpacity
-            style={styles.chatCircle}
-            onPress={() => router.push('/chat')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="chatbubble-ellipses-outline" size={18} color={COLORS.primaryDark} />
-          </TouchableOpacity>
-
-          {/* Accept Button */}
-          <TouchableOpacity
-            style={styles.acceptCircle}
-            onPress={() => Alert.alert('Accepted ✅', `Offer of ₹${item.farmerAsk}/kg accepted.`)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="checkmark" size={18} color={COLORS.textWhite} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
+  const pending  = (offers ?? []).filter(o => o.status === 'PENDING');
+  const closed   = (offers ?? []).filter(o => o.status !== 'PENDING');
 
   return (
-    <SafeAreaView style={styles.safe}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <Ionicons name="arrow-back" size={22} color={COLORS.textDark} />
-        <View style={{ marginLeft: 12, flex: 1 }}>
-          <Text style={styles.title}>Buyer Requests</Text>
-          <Text style={styles.subtitle}>ಖರೀದಿದಾರರ ವಿನಂತಿಗಳು</Text>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <TouchableOpacity activeOpacity={0.7}>
-            <Ionicons name="share-social-outline" size={20} color={COLORS.textDark} />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.7}>
-            <Ionicons name="heart-outline" size={20} color={COLORS.textDark} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Segmented Controls */}
-      <View style={styles.segContainer}>
-        {(['Sent', 'Received', 'Negotiating'] as const).map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.segBtn, activeTab === tab && styles.segBtnActive]}
-            onPress={() => setActiveTab(tab)}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.segBtnText, activeTab === tab && styles.segBtnTextActive]}>
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <FlatList
-        data={MOCK_REQUESTS}
-        keyExtractor={(i) => i.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
+    <SafeAreaView style={s.safe}>
+      <ScrollView
+        contentContainerStyle={s.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
         showsVerticalScrollIndicator={false}
-      />
+      >
+        <View style={s.header}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.title}>My Offers</Text>
+            <Text style={s.titleKn}>ನನ್ನ ಬಿಡ್‌ಗಳು</Text>
+            <Text style={s.subtitle}>Counter-offers you've submitted · 48h expiry</Text>
+          </View>
+        </View>
+
+        {offers == null && <ActivityIndicator style={{ marginVertical: 24 }} color={COLORS.primary} />}
+
+        {offers && offers.length === 0 && (
+          <View style={s.empty}>
+            <MaterialCommunityIcons name="handshake-outline" size={48} color={COLORS.textMuted} />
+            <Text style={s.emptyTitle}>No offers yet</Text>
+            <Text style={s.emptyTitleKn}>ಇನ್ನೂ ಯಾವ ಬಿಡ್ ಇಲ್ಲ</Text>
+            <Text style={s.emptyMsg}>
+              Go to Discover to find nearby crops, then make an offer.
+            </Text>
+          </View>
+        )}
+
+        {pending.length > 0 && (
+          <>
+            <SectionHeader en="Pending" kn="ಬಾಕಿ" count={pending.length} />
+            {pending.map(o => (
+              <OfferCard key={o.id} offer={o}
+                onWithdraw={() => withdraw(o.id)}
+                busy={busy === o.id} />
+            ))}
+          </>
+        )}
+
+        {closed.length > 0 && (
+          <>
+            <SectionHeader en="Closed" kn="ಮುಚ್ಚಿದೆ" count={closed.length} />
+            {closed.map(o => (
+              <OfferCard key={o.id} offer={o} onDismiss={() => dismissClosed(o.id)} />
+            ))}
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.bgApp },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.xl, paddingTop: 16, paddingBottom: 12 },
-  title: { fontSize: 20, fontWeight: '800', color: COLORS.textDark },
-  subtitle: { fontSize: 11, color: COLORS.textMuted, marginTop: 1 },
+function SectionHeader({ en, kn, count }: { en: string; kn: string; count: number }) {
+  return (
+    <View style={s.sectionHeader}>
+      <View>
+        <Text style={s.sectionTitle}>{en}</Text>
+        <Text style={s.sectionKn}>{kn}</Text>
+      </View>
+      <View style={s.countPill}><Text style={s.countText}>{count}</Text></View>
+    </View>
+  );
+}
 
-  // Segmented Controls
-  segContainer: {
-    flexDirection: 'row', backgroundColor: COLORS.bgSubtle,
-    borderRadius: RADII.pill, padding: 4, marginHorizontal: SPACING.xl, marginBottom: SPACING.lg,
-  },
-  segBtn: { flex: 1, paddingVertical: 10, borderRadius: RADII.pill, alignItems: 'center' },
-  segBtnActive: { backgroundColor: COLORS.primaryDark },
-  segBtnText: { fontSize: 12, fontWeight: '600', color: COLORS.textMuted },
-  segBtnTextActive: { color: COLORS.textWhite, fontWeight: '700' },
+function OfferCard({
+  offer, onWithdraw, onDismiss, busy = false,
+}: { offer: CommerceOffer; onWithdraw?: () => void; onDismiss?: () => void; busy?: boolean }) {
+  const meta = STATUS_META[offer.status];
+  const total = offer.offered_price_per_kg * offer.quantity_kg;
+  const age = ageLabel(offer.created_at).en;
 
-  list: { paddingHorizontal: SPACING.xl, paddingBottom: 40 },
+  return (
+    <View style={s.card}>
+      {onDismiss && (
+        <TouchableOpacity
+          style={s.dismissBtn}
+          onPress={onDismiss}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="close" size={14} color={COLORS.textMuted} />
+        </TouchableOpacity>
+      )}
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+        <View style={{ flex: 1 }}>
+          <Text style={s.cardCrop}>{offer.listing_crop || 'Listing'}</Text>
+          <Text style={s.cardMeta}>{offer.quantity_kg} kg × {fmtPrice(offer.offered_price_per_kg)}</Text>
+          <Text style={s.cardTotal}>{fmtIN(total)}</Text>
+          <Text style={s.cardAge}>Sent {age}</Text>
+        </View>
+        <View style={[s.statusPill, { backgroundColor: meta.bg, marginRight: onDismiss ? 24 : 0 }]}>
+          <Text style={[s.statusText, { color: meta.color }]}>{meta.label}</Text>
+        </View>
+      </View>
 
-  // Request Card
-  requestCard: {
-    backgroundColor: COLORS.bgCard, borderRadius: RADII.xl,
-    padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.border,
-    marginBottom: SPACING.md, ...SHADOWS.card,
-  },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: SPACING.md },
-  cropTitle: { fontSize: 16, fontWeight: '800', color: COLORS.textDark },
-  farmerSub: { fontSize: 11, color: COLORS.textMuted, marginTop: 2 },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADII.pill },
-  statusText: { fontSize: 10, fontWeight: '800' },
+      {offer.note && (
+        <Text style={s.cardNote}>"{offer.note}"</Text>
+      )}
 
-  // 3 Metric Blocks
-  metricsRow: {
-    flexDirection: 'row', backgroundColor: COLORS.bgSubtle,
-    borderRadius: RADII.lg, padding: SPACING.md, gap: 8, marginBottom: SPACING.md,
-  },
-  metricBlock: { flex: 1, alignItems: 'center' },
-  metricLabel: { fontSize: 10, color: COLORS.textMuted, fontWeight: '600' },
-  metricVal: { fontSize: 16, fontWeight: '800', marginTop: 2 },
+      {offer.status === 'PENDING' && onWithdraw && (
+        <TouchableOpacity
+          style={[s.withdrawBtn, busy && { opacity: 0.5 }]}
+          onPress={onWithdraw}
+          disabled={busy}
+          activeOpacity={0.85}
+        >
+          {busy
+            ? <ActivityIndicator size="small" color={COLORS.accentRed} />
+            : <>
+                <Ionicons name="close-circle-outline" size={13} color={COLORS.accentRed} />
+                <Text style={s.withdrawText}>Withdraw · ಹಿಂಪಡೆ</Text>
+              </>}
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
 
-  // Footer & Action Circles
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  timeText: { fontSize: 11, color: COLORS.textMuted, fontWeight: '600' },
-  actionCirclesRow: { flexDirection: 'row', gap: 10 },
-  cancelCircle: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center',
-  },
-  chatCircle: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#C8E6C9',
+const s = StyleSheet.create({
+  safe:   { flex: 1, backgroundColor: COLORS.bgApp },
+  scroll: { padding: SPACING.lg, paddingBottom: 100 },
+
+  header: { marginBottom: SPACING.lg },
+  title:  { fontSize: 22, fontWeight: '800', color: COLORS.textDark },
+  titleKn:{ fontSize: 14, fontWeight: '700', color: COLORS.textBody, marginTop: 1 },
+  subtitle:{ fontSize: 11, color: COLORS.textMuted, marginTop: 4 },
+
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                   marginTop: SPACING.md, marginBottom: SPACING.sm },
+  sectionTitle:  { fontSize: 14, fontWeight: '800', color: COLORS.textDark },
+  sectionKn:     { fontSize: 11, fontWeight: '700', color: COLORS.textBody, marginTop: 1 },
+  countPill:     { backgroundColor: COLORS.bgSubtle, paddingHorizontal: 8, paddingVertical: 2, borderRadius: RADII.pill },
+  countText:     { fontSize: 11, fontWeight: '800', color: COLORS.textDark },
+
+  empty: { alignItems: 'center', padding: SPACING.xxl, backgroundColor: COLORS.bgCard,
+           borderRadius: RADII.lg, borderWidth: 1, borderColor: COLORS.border, gap: 6 },
+  emptyTitle:   { fontSize: 15, fontWeight: '800', color: COLORS.textDark, marginTop: 8 },
+  emptyTitleKn: { fontSize: 12, fontWeight: '700', color: COLORS.textBody },
+  emptyMsg:     { fontSize: 12, color: COLORS.textMuted, textAlign: 'center', lineHeight: 17, marginTop: 6 },
+
+  card: { backgroundColor: COLORS.bgCard, borderRadius: RADII.lg, padding: SPACING.md, marginBottom: 10,
+          borderWidth: 1, borderColor: COLORS.border, position: 'relative', ...SHADOWS.card },
+  dismissBtn: {
+    position: 'absolute', top: 6, right: 6, zIndex: 2,
+    width: 24, height: 24, borderRadius: 12,
     alignItems: 'center', justifyContent: 'center',
+    backgroundColor: COLORS.bgSubtle,
   },
-  acceptCircle: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.primaryDark, alignItems: 'center', justifyContent: 'center',
-  },
+  cardCrop:  { fontSize: 15, fontWeight: '800', color: COLORS.textDark },
+  cardMeta:  { fontSize: 11, color: COLORS.textMuted, marginTop: 3 },
+  cardTotal: { fontSize: 17, fontWeight: '800', color: COLORS.primary, marginTop: 4 },
+  cardAge:   { fontSize: 10, color: COLORS.textMuted, marginTop: 3 },
+  cardNote:  { fontSize: 11, color: COLORS.textBody, marginTop: 8, fontStyle: 'italic' },
+  statusPill:{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADII.pill },
+  statusText:{ fontSize: 10, fontWeight: '800' },
+
+  withdrawBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+                 marginTop: 10, paddingVertical: 9, borderRadius: RADII.pill,
+                 backgroundColor: COLORS.accentRedBg, borderWidth: 1, borderColor: '#FCA5A5' },
+  withdrawText:{ fontSize: 12, fontWeight: '700', color: COLORS.accentRed },
 });
