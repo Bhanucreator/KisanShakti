@@ -170,6 +170,15 @@ def create_tables():
 
             conn.commit()
 
+    # Seed KMV baseline price cache if table is empty (e.g. fresh DB on Render)
+    try:
+        from sources import kmv_cache
+        with database.SessionLocal() as _db:
+            kmv_cache.seed_cache_if_empty(_db)
+    except Exception as _e:
+        import logging as _log
+        _log.getLogger(__name__).warning("[startup] KMV cache seed check failed: %s", _e)
+
     # KMV price scheduler — refreshes Karnataka APMC data at 05:00 & 20:00 IST
     # daily, with a cold-start kick if the cache is empty. See scheduler.py.
     try:

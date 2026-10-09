@@ -411,6 +411,10 @@ def market_prices(
     if scope == "all_india":
         source = "data_gov"
 
+    # If district was supplied as state name or generic filter, normalize to None
+    if district and district.strip().lower() in {"karnataka", "india", "all", "state"}:
+        district = None
+
     if source == "kmv" and (state or "").strip().lower() == "karnataka":
         payload = _serve_kmv_prices(
             db=db, background=background, state=state, district=district,
@@ -608,6 +612,14 @@ def _serve_kmv_prices(
     (still Karnataka-scoped) if KMV has nothing — the response's `source`
     field always tells the app which system provided the numbers.
     """
+    # Ensure baseline is seeded if database cache is completely empty
+    if db.query(models.KmvPriceCache.id).first() is None:
+        try:
+            from sources import kmv_cache
+            kmv_cache.seed_cache_if_empty(db)
+        except Exception:
+            pass
+
     base = db.query(models.KmvPriceCache)
     if commodity:
         base = base.filter(models.KmvPriceCache.commodity.ilike(f"%{commodity.strip()}%"))

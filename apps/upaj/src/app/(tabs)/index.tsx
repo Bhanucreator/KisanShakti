@@ -191,17 +191,10 @@ export default function HomeScreen() {
     const loc = auth.profile?.location_name?.trim();
     if (!loc) return 'Kolar';                    // sensible default
     const parts = loc.split(',').map(p => p.trim()).filter(Boolean);
-    if (parts.length === 0) return 'Kolar';
-    if (parts.length === 1) return parts[0];     // let backend resolve
-    // Drop a trailing "Karnataka" / any state so we don't ship the state as the district.
     const KA_LIKE = /^(karnataka|kar|ka|india)$/i;
-    const trimmed = KA_LIKE.test(parts[parts.length - 1])
-      ? parts.slice(0, -1)
-      : parts;
-    if (trimmed.length === 0) return 'Kolar';
-    if (trimmed.length === 1) return trimmed[0];
-    // 2+ parts: the LAST of what remains is the district (e.g. "Bangarpet, Kolar" → Kolar).
-    return trimmed[trimmed.length - 1];
+    const meaningful = parts.filter(p => !KA_LIKE.test(p));
+    if (meaningful.length === 0) return 'Kolar';
+    return meaningful[meaningful.length - 1];
   }, [auth.profile?.location_name]);
 
   const loadServerData = useCallback(async () => {

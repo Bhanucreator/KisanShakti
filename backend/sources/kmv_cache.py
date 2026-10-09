@@ -114,3 +114,49 @@ def refresh_commodity(db: Session, comm_name: str, on_date: Optional[date] = Non
             return n
     log.warning("[kmv-cache] commodity %r not found in KMV catalogue", comm_name)
     return 0
+
+
+def seed_cache_if_empty(db: Session) -> int:
+    """
+    If kmv_price_cache table is empty (e.g. freshly created production database
+    on Render where scraping the live portal from cloud data centers times out),
+    seed it from the packaged baseline snapshot in backend/data/kmv_seed.json.
+    """
+    if db.query(models.KmvPriceCache.id).first() is not None:
+        return 0
+
+    import json
+    import uuid
+    from pathlib import Path
+    seed_file = Path(__file__).resolve().parent.parent / "data" / "kmv_seed.json"
+    if not seed_file.exists():
+        log.warning("[kmv-cache] Seed file %s not found", seed_file)
+        return 0
+
+    try:
+        with open(seed_file, "r", encoding="utf-8") as f:
+            records = json.load(f)
+        objects = []
+        now = datetime.utcnow()
+        for r in records:
+            arr_d = datetime.strptime(r["arrival_date"], "%Y-%m-%d").date()
+            objects.append(models.KmvPriceCache(
+                id             = str(uuid.uuid4()),
+                market         = r["market"],
+                commodity      = r["commodity"],
+                variety        = r.get("variety"),
+                arrival_date   = arr_d,
+                arrivals_qtl   = Decimal(str(r["arrivals_qtl"])) if r.get("arrivals_qtl") is not None else None,
+                min_price_kg   = Decimal(str(r["min_price_kg"])),
+                max_price_kg   = Decimal(str(r["max_price_kg"])),
+                modal_price_kg = Decimal(str(r["modal_price_kg"])),
+                fetched_at     = now,
+            ))
+        db.bulk_save_objects(objects)
+        db.commit()
+        log.info("[kmv-cache] Seeded %d KMV price rows into kmv_price_cache from %s", len(objects), seed_file.name)
+        return len(objects)
+    except Exception as e:
+        db.rollback()
+        log.error("[kmv-cache] Failed seeding kmv_price_cache: %s", e)
+        return 0
