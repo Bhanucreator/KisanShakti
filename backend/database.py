@@ -8,7 +8,9 @@ load_dotenv()
 # Default to SQLite for local dev — no PostgreSQL installation needed.
 # Set DATABASE_URL=postgresql://... in .env for production.
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./kisanshakti_dev.db")
-if DATABASE_URL.startswith("postgresql://"):
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 _is_sqlite = DATABASE_URL.startswith("sqlite")

@@ -57,117 +57,118 @@ app.mount("/uploads", StaticFiles(directory=str(_uploads_dir)), name="uploads")
 @app.on_event("startup")
 def create_tables():
     database.Base.metadata.create_all(bind=database.engine)
-    # Auto-migrate: add any columns missing from an older DB
-    with database.engine.connect() as conn:
-        existing = {row[1] for row in conn.exec_driver_sql(
-            "PRAGMA table_info(farmer_profiles)"
-        ).fetchall()}
-        for col_ddl in [
-            ("location_name", "ALTER TABLE farmer_profiles ADD COLUMN location_name TEXT"),
-            ("latitude",      "ALTER TABLE farmer_profiles ADD COLUMN latitude NUMERIC"),
-            ("longitude",     "ALTER TABLE farmer_profiles ADD COLUMN longitude NUMERIC"),
-            ("cattle_count",  "ALTER TABLE farmer_profiles ADD COLUMN cattle_count INTEGER DEFAULT 0"),
-        ]:
-            if col_ddl[0] not in existing:
-                conn.exec_driver_sql(col_ddl[1])
+    # Auto-migrate: add any columns missing from an older DB (SQLite-only)
+    if database._is_sqlite:
+        with database.engine.connect() as conn:
+            existing = {row[1] for row in conn.exec_driver_sql(
+                "PRAGMA table_info(farmer_profiles)"
+            ).fetchall()}
+            for col_ddl in [
+                ("location_name", "ALTER TABLE farmer_profiles ADD COLUMN location_name TEXT"),
+                ("latitude",      "ALTER TABLE farmer_profiles ADD COLUMN latitude NUMERIC"),
+                ("longitude",     "ALTER TABLE farmer_profiles ADD COLUMN longitude NUMERIC"),
+                ("cattle_count",  "ALTER TABLE farmer_profiles ADD COLUMN cattle_count INTEGER DEFAULT 0"),
+            ]:
+                if col_ddl[0] not in existing:
+                    conn.exec_driver_sql(col_ddl[1])
 
-        # farm_ledger: cycle_id + subcategory (Farm Business feature)
-        ledger_cols = {row[1] for row in conn.exec_driver_sql(
-            "PRAGMA table_info(farm_ledger)"
-        ).fetchall()}
-        for col_name, ddl in [
-            ("cycle_id",    "ALTER TABLE farm_ledger ADD COLUMN cycle_id TEXT"),
-            ("subcategory", "ALTER TABLE farm_ledger ADD COLUMN subcategory TEXT"),
-        ]:
-            if col_name not in ledger_cols:
-                conn.exec_driver_sql(ddl)
+            # farm_ledger: cycle_id + subcategory (Farm Business feature)
+            ledger_cols = {row[1] for row in conn.exec_driver_sql(
+                "PRAGMA table_info(farm_ledger)"
+            ).fetchall()}
+            for col_name, ddl in [
+                ("cycle_id",    "ALTER TABLE farm_ledger ADD COLUMN cycle_id TEXT"),
+                ("subcategory", "ALTER TABLE farm_ledger ADD COLUMN subcategory TEXT"),
+            ]:
+                if col_name not in ledger_cols:
+                    conn.exec_driver_sql(ddl)
 
-        # crop_listings: Hyperlocal Commerce Engine extensions
-        listing_cols = {row[1] for row in conn.exec_driver_sql(
-            "PRAGMA table_info(crop_listings)"
-        ).fetchall()}
-        for col_name, ddl in [
-            ("plot_id",                    "ALTER TABLE crop_listings ADD COLUMN plot_id TEXT"),
-            ("cycle_id",                   "ALTER TABLE crop_listings ADD COLUMN cycle_id TEXT"),
-            ("crop_name_kn",               "ALTER TABLE crop_listings ADD COLUMN crop_name_kn TEXT"),
-            ("latitude",                   "ALTER TABLE crop_listings ADD COLUMN latitude NUMERIC"),
-            ("longitude",                  "ALTER TABLE crop_listings ADD COLUMN longitude NUMERIC"),
-            ("benchmark_price_at_listing", "ALTER TABLE crop_listings ADD COLUMN benchmark_price_at_listing NUMERIC"),
-            ("photo_path",                 "ALTER TABLE crop_listings ADD COLUMN photo_path TEXT"),
-            ("village",                    "ALTER TABLE crop_listings ADD COLUMN village TEXT"),
-            ("created_at",                 "ALTER TABLE crop_listings ADD COLUMN created_at DATETIME"),
-            ("expires_at",                 "ALTER TABLE crop_listings ADD COLUMN expires_at DATETIME"),
-            ("market_source_apmc",         "ALTER TABLE crop_listings ADD COLUMN market_source_apmc TEXT"),
-            ("market_source_district",     "ALTER TABLE crop_listings ADD COLUMN market_source_district TEXT"),
-            ("market_source_price_kg",     "ALTER TABLE crop_listings ADD COLUMN market_source_price_kg NUMERIC"),
-            ("market_source_distance_km",  "ALTER TABLE crop_listings ADD COLUMN market_source_distance_km NUMERIC"),
-            ("market_source_date",         "ALTER TABLE crop_listings ADD COLUMN market_source_date TEXT"),
-        ]:
-            if col_name not in listing_cols:
-                conn.exec_driver_sql(ddl)
-        # Backfill: SQLite's `server_default=func.now()` fires only on
-        # CREATE TABLE, so any existing rows have created_at NULL after
-        # the ALTER above. A NULL there breaks the Pydantic response model.
-        conn.exec_driver_sql(
-            "UPDATE crop_listings SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
-        )
-
-        # trade_offers: delivery OTP + completion + cancellation fields
-        offer_cols = {row[1] for row in conn.exec_driver_sql(
-            "PRAGMA table_info(trade_offers)"
-        ).fetchall()}
-        for col_name, ddl in [
-            ("delivery_otp",     "ALTER TABLE trade_offers ADD COLUMN delivery_otp TEXT"),
-            ("completed_at",     "ALTER TABLE trade_offers ADD COLUMN completed_at DATETIME"),
-            ("cancelled_reason", "ALTER TABLE trade_offers ADD COLUMN cancelled_reason TEXT"),
-            ("hidden_from_buyer","ALTER TABLE trade_offers ADD COLUMN hidden_from_buyer INTEGER DEFAULT 0"),
-        ]:
-            if col_name not in offer_cols:
-                conn.exec_driver_sql(ddl)
-
-        # Backfill: for every listing that has a legacy photo_path but no row
-        # in listing_photos, seed a row as the primary (sort_order=0). Idempotent.
-        conn.exec_driver_sql("""
-            INSERT INTO listing_photos (id, listing_id, photo_path, sort_order, created_at)
-            SELECT lower(hex(randomblob(16))), cl.id, cl.photo_path, 0, CURRENT_TIMESTAMP
-            FROM crop_listings cl
-            WHERE cl.photo_path IS NOT NULL
-              AND NOT EXISTS (
-                SELECT 1 FROM listing_photos lp WHERE lp.listing_id = cl.id
-              )
-        """)
-        # Backfill: an older verify-otp flow saved shop_name = phone_number
-        # whenever the buyer signed up without entering a shop name. Blank
-        # those out (empty string — the column has a NOT NULL constraint from
-        # the original schema, and SQLite can't drop that without rebuilding
-        # the table) so the app re-prompts for a real name via PATCH /buyers/me.
-        # A row matches when shop_name equals its own phone_number, or when
-        # shop_name is a pure-digit / +-digit string (i.e. clearly a phone).
-        conn.exec_driver_sql("""
-            UPDATE buyer_profiles
-            SET shop_name = ''
-            WHERE shop_name IS NOT NULL AND shop_name != '' AND (
-                shop_name = phone_number
-                OR (
-                    length(replace(replace(shop_name, '+', ''), ' ', '')) >= 10
-                    AND replace(replace(shop_name, '+', ''), ' ', '')
-                        GLOB '[0-9]*'
-                )
+            # crop_listings: Hyperlocal Commerce Engine extensions
+            listing_cols = {row[1] for row in conn.exec_driver_sql(
+                "PRAGMA table_info(crop_listings)"
+            ).fetchall()}
+            for col_name, ddl in [
+                ("plot_id",                    "ALTER TABLE crop_listings ADD COLUMN plot_id TEXT"),
+                ("cycle_id",                   "ALTER TABLE crop_listings ADD COLUMN cycle_id TEXT"),
+                ("crop_name_kn",               "ALTER TABLE crop_listings ADD COLUMN crop_name_kn TEXT"),
+                ("latitude",                   "ALTER TABLE crop_listings ADD COLUMN latitude NUMERIC"),
+                ("longitude",                  "ALTER TABLE crop_listings ADD COLUMN longitude NUMERIC"),
+                ("benchmark_price_at_listing", "ALTER TABLE crop_listings ADD COLUMN benchmark_price_at_listing NUMERIC"),
+                ("photo_path",                 "ALTER TABLE crop_listings ADD COLUMN photo_path TEXT"),
+                ("village",                    "ALTER TABLE crop_listings ADD COLUMN village TEXT"),
+                ("created_at",                 "ALTER TABLE crop_listings ADD COLUMN created_at DATETIME"),
+                ("expires_at",                 "ALTER TABLE crop_listings ADD COLUMN expires_at DATETIME"),
+                ("market_source_apmc",         "ALTER TABLE crop_listings ADD COLUMN market_source_apmc TEXT"),
+                ("market_source_district",     "ALTER TABLE crop_listings ADD COLUMN market_source_district TEXT"),
+                ("market_source_price_kg",     "ALTER TABLE crop_listings ADD COLUMN market_source_price_kg NUMERIC"),
+                ("market_source_distance_km",  "ALTER TABLE crop_listings ADD COLUMN market_source_distance_km NUMERIC"),
+                ("market_source_date",         "ALTER TABLE crop_listings ADD COLUMN market_source_date TEXT"),
+            ]:
+                if col_name not in listing_cols:
+                    conn.exec_driver_sql(ddl)
+            # Backfill: SQLite's `server_default=func.now()` fires only on
+            # CREATE TABLE, so any existing rows have created_at NULL after
+            # the ALTER above. A NULL there breaks the Pydantic response model.
+            conn.exec_driver_sql(
+                "UPDATE crop_listings SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
             )
-        """)
 
-        # sensor_readings: battery telemetry columns (added Sep 2026)
-        sensor_cols = {row[1] for row in conn.exec_driver_sql(
-            "PRAGMA table_info(sensor_readings)"
-        ).fetchall()}
-        for col_name, ddl in [
-            ("battery_v",   "ALTER TABLE sensor_readings ADD COLUMN battery_v NUMERIC"),
-            ("battery_pct", "ALTER TABLE sensor_readings ADD COLUMN battery_pct INTEGER"),
-        ]:
-            if col_name not in sensor_cols:
-                conn.exec_driver_sql(ddl)
+            # trade_offers: delivery OTP + completion + cancellation fields
+            offer_cols = {row[1] for row in conn.exec_driver_sql(
+                "PRAGMA table_info(trade_offers)"
+            ).fetchall()}
+            for col_name, ddl in [
+                ("delivery_otp",     "ALTER TABLE trade_offers ADD COLUMN delivery_otp TEXT"),
+                ("completed_at",     "ALTER TABLE trade_offers ADD COLUMN completed_at DATETIME"),
+                ("cancelled_reason", "ALTER TABLE trade_offers ADD COLUMN cancelled_reason TEXT"),
+                ("hidden_from_buyer","ALTER TABLE trade_offers ADD COLUMN hidden_from_buyer INTEGER DEFAULT 0"),
+            ]:
+                if col_name not in offer_cols:
+                    conn.exec_driver_sql(ddl)
 
-        conn.commit()
+            # Backfill: for every listing that has a legacy photo_path but no row
+            # in listing_photos, seed a row as the primary (sort_order=0). Idempotent.
+            conn.exec_driver_sql("""
+                INSERT INTO listing_photos (id, listing_id, photo_path, sort_order, created_at)
+                SELECT lower(hex(randomblob(16))), cl.id, cl.photo_path, 0, CURRENT_TIMESTAMP
+                FROM crop_listings cl
+                WHERE cl.photo_path IS NOT NULL
+                  AND NOT EXISTS (
+                    SELECT 1 FROM listing_photos lp WHERE lp.listing_id = cl.id
+                  )
+            """)
+            # Backfill: an older verify-otp flow saved shop_name = phone_number
+            # whenever the buyer signed up without entering a shop name. Blank
+            # those out (empty string — the column has a NOT NULL constraint from
+            # the original schema, and SQLite can't drop that without rebuilding
+            # the table) so the app re-prompts for a real name via PATCH /buyers/me.
+            # A row matches when shop_name equals its own phone_number, or when
+            # shop_name is a pure-digit / +-digit string (i.e. clearly a phone).
+            conn.exec_driver_sql("""
+                UPDATE buyer_profiles
+                SET shop_name = ''
+                WHERE shop_name IS NOT NULL AND shop_name != '' AND (
+                    shop_name = phone_number
+                    OR (
+                        length(replace(replace(shop_name, '+', ''), ' ', '')) >= 10
+                        AND replace(replace(shop_name, '+', ''), ' ', '')
+                            GLOB '[0-9]*'
+                    )
+                )
+            """)
+
+            # sensor_readings: battery telemetry columns (added Sep 2026)
+            sensor_cols = {row[1] for row in conn.exec_driver_sql(
+                "PRAGMA table_info(sensor_readings)"
+            ).fetchall()}
+            for col_name, ddl in [
+                ("battery_v",   "ALTER TABLE sensor_readings ADD COLUMN battery_v NUMERIC"),
+                ("battery_pct", "ALTER TABLE sensor_readings ADD COLUMN battery_pct INTEGER"),
+            ]:
+                if col_name not in sensor_cols:
+                    conn.exec_driver_sql(ddl)
+
+            conn.commit()
 
     # KMV price scheduler — refreshes Karnataka APMC data at 05:00 & 20:00 IST
     # daily, with a cold-start kick if the cache is empty. See scheduler.py.

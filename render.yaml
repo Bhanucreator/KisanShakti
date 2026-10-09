@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: kisanshakti-backend
+    env: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: alembic upgrade head
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kisanshakti-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WEATHER_API_KEY
+        value: test_key
+      - key: AGMARKNET_API_KEY
+        value: test_key
+
+databases:
+  - name: kisanshakti-db
+    region: singapore
+    plan: free
+    databaseName: kisanshakti
+    user: kisanshakti_user
