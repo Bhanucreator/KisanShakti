@@ -27,7 +27,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://interfraternally-nonoptical-marcus.ngrok-free.dev"
+        "EXPO_PUBLIC_API_URL": "https://kisanshakti-backend.onrender.com"
       }
     },
     "production": {
@@ -36,7 +36,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.kisanshakti.in"
+        "EXPO_PUBLIC_API_URL": "https://kisanshakti-backend.onrender.com"
       }
     }
   },

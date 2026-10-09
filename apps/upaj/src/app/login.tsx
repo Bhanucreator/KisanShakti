@@ -32,7 +32,7 @@ try {
 } catch { Location = null; }
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.183.6.220:8000';
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'https://kisanshakti-backend.onrender.com';
 
 // ── Palette ─────────────────────────────────────────────────────────────────
 const C = {

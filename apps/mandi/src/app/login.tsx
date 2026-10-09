@@ -29,7 +29,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Reads from EXPO_PUBLIC_API_URL at bundle time — set it in eas.json's env
 // per profile, or before `expo start` for dev. Falls back to the Android
 // emulator loopback (10.0.2.2) so an emulator user still gets a valid URL.
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:8000';
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'https://kisanshakti-backend.onrender.com';
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 

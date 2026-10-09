@@ -8,7 +8,7 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:8000';
+export const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'https://kisanshakti-backend.onrender.com';
 
 async function authHeader(): Promise<Record<string, string>> {
   try {
