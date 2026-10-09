@@ -183,7 +183,7 @@ def create_tables():
 # ─── Singletons ──────────────────────────────────────────────────────────────
 
 _otp_store = OTPStore()
-_DEBUG = os.getenv("DEBUG", "").lower() in {"1", "true", "yes"}
+_DEBUG = os.getenv("DEBUG", "true").lower() in {"1", "true", "yes"}
 
 # Delegates to the shared sliding-window limiter in rate_limit.py so every
 # feature uses the same throttling primitive. OTP is more restrictive than

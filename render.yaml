@@ -20,6 +20,8 @@ services:
         value: test_key
       - key: AGMARKNET_API_KEY
         value: test_key
+      - key: DEBUG
+        value: "true"
 
 databases:
   - name: kisanshakti-db
