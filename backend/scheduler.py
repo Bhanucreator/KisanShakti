@@ -51,7 +51,7 @@ def _run_snapshot() -> None:
         finally:
             db.close()
     except Exception as e:
-        log.exception("[scheduler] kmv snapshot failed: %s", e)
+        log.warning("[scheduler] KMV government portal unreachable or timed out (%s) — continuing with fallback pricing", e)
 
 
 def _cold_start_check() -> bool:

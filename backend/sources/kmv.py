@@ -85,7 +85,7 @@ class KmvRow:
     def modal_kg(self) -> float: return self.modal_qtl / 100.0
 
 
-def _get(url: str, params: Optional[dict] = None, timeout: float = 20.0) -> str:
+def _get(url: str, params: Optional[dict] = None, timeout: float = 8.0) -> str:
     """
     Throttled GET with retry-on-timeout. Raises on final failure so caller
     can decide fallback strategy (usually: skip this commodity, keep the
@@ -93,7 +93,7 @@ def _get(url: str, params: Optional[dict] = None, timeout: float = 20.0) -> str:
     """
     _throttle()
     last_err: Optional[Exception] = None
-    for attempt in range(3):
+    for attempt in range(2):
         try:
             with httpx.Client(timeout=timeout, headers=_HEADERS) as c:
                 r = c.get(url, params=params, follow_redirects=True)
