@@ -16,8 +16,10 @@ import httpx
 import time
 import logging
 import threading
-from datetime import date as date_cls
-from fastapi import APIRouter, Query, Depends, BackgroundTasks
+import uuid
+from decimal import Decimal
+from pydantic import BaseModel
+from fastapi import APIRouter, Query, Depends, BackgroundTasks, Header, HTTPException
 from sqlalchemy.orm import Session
 
 import database
@@ -365,6 +367,78 @@ def market_districts(state: Optional[str] = Query(None)):
         states = [s for s in states if s["name"].lower() == state.strip().lower()]
 
     return {"states": states}
+
+
+class KmvPushItem(BaseModel):
+    market: str
+    commodity: str
+    variety: Optional[str] = None
+    arrival_date: str
+    arrivals_qtl: Optional[float] = None
+    min_price_kg: float
+    max_price_kg: float
+    modal_price_kg: float
+
+
+class KmvPushPayload(BaseModel):
+    records: List[KmvPushItem]
+
+
+@router.post("/api/v1/market/push-kmv")
+def push_kmv_prices(
+    payload: KmvPushPayload,
+    db: Session = Depends(database.get_db),
+    x_sync_key: Optional[str] = Header(None, alias="X-Sync-Key"),
+):
+    """
+    Ingest price records from external sync worker (e.g. local runner in India).
+    Bypasses cloud datacenter IP geoblocks on government portals.
+    """
+    expected_key = os.getenv("SYNC_SECRET", "kisanshakti_sync_2026")
+    if x_sync_key != expected_key:
+        raise HTTPException(status_code=403, detail="Invalid sync key")
+
+    now = datetime.utcnow()
+    inserted = 0
+    updated = 0
+    for item in payload.records:
+        try:
+            arr_d = datetime.strptime(item.arrival_date, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+
+        existing = (
+            db.query(models.KmvPriceCache)
+            .filter(models.KmvPriceCache.market == item.market)
+            .filter(models.KmvPriceCache.commodity == item.commodity)
+            .filter(models.KmvPriceCache.arrival_date == arr_d)
+            .first()
+        )
+        if existing:
+            existing.min_price_kg = Decimal(str(item.min_price_kg))
+            existing.max_price_kg = Decimal(str(item.max_price_kg))
+            existing.modal_price_kg = Decimal(str(item.modal_price_kg))
+            if item.arrivals_qtl is not None:
+                existing.arrivals_qtl = Decimal(str(item.arrivals_qtl))
+            existing.fetched_at = now
+            updated += 1
+        else:
+            db.add(models.KmvPriceCache(
+                id=str(uuid.uuid4()),
+                market=item.market,
+                commodity=item.commodity,
+                variety=item.variety,
+                arrival_date=arr_d,
+                arrivals_qtl=Decimal(str(item.arrivals_qtl)) if item.arrivals_qtl is not None else None,
+                min_price_kg=Decimal(str(item.min_price_kg)),
+                max_price_kg=Decimal(str(item.max_price_kg)),
+                modal_price_kg=Decimal(str(item.modal_price_kg)),
+                fetched_at=now,
+            ))
+            inserted += 1
+
+    db.commit()
+    return {"status": "ok", "inserted": inserted, "updated": updated, "total": len(payload.records)}
 
 
 @router.get("/api/v1/market/prices")

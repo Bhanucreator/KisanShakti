@@ -752,6 +752,24 @@ function NewListingModal({
                         ? ` · range ₹${suggestion.min_price_kg}–₹${suggestion.max_price_kg}/kg`
                         : ''}
                     </Text>
+                    {(() => {
+                      if (!suggestion.arrival_date) return null;
+                      try {
+                        const parts = suggestion.arrival_date.split('/').map(Number);
+                        if (parts.length === 3) {
+                          const arrDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                          const diffDays = Math.floor((Date.now() - arrDate.getTime()) / (1000 * 60 * 60 * 24));
+                          if (diffDays >= 3) {
+                            return (
+                              <Text style={[s.hintTextKn, { color: COLORS.accentAmber, marginTop: 2, fontWeight: '600' }]}>
+                                ⚠️ Auction date {suggestion.arrival_date} · Verify with local mandi for today's shifts
+                              </Text>
+                            );
+                          }
+                        }
+                      } catch { /* ignore */ }
+                      return null;
+                    })()}
                     {benchmark && !priceOk && (
                       <Text style={s.hintTextError}>
                         Your price is outside the fair range ({fmtPrice(floor!)}–{fmtPrice(ceiling!)}/kg).

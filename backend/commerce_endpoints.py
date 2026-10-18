@@ -1815,28 +1815,34 @@ def suggest_price(
             ranked.append((d, key, loc))
     ranked.sort(key=lambda t: t[0])
 
-    # Walk KMV cache outward until we find one with this crop today.
+    # Walk KMV cache outward until we find one with this crop.
+    # Two-pass strategy so the screen is NEVER blank — consistent with
+    # the home-page market card which has no date cutoff.
+    #
+    # Pass 1 (fresh):      latest auction within the last 14 days.
+    #   Covers weekends (APMCs closed Sunday), government holidays,
+    #   and the daily auction lag (markets typically report by 2 PM IST).
+    # Pass 2 (best-known): if no recent hit, take the single most recent
+    #   cached row for this crop across all nearby markets — no cutoff.
+    #   The response always includes the exact auction date so the farmer
+    #   knows when the price was recorded. Never fabricated.
     crop_q = crop.strip()
-    hop = 0
-    for dist_km, market_key, loc in ranked:
-        hop += 1
-        # Look up any cached KMV row for this market + crop (allow last 7 days
-        # — a listing today can honestly be anchored to yesterday's auction).
-        cutoff = date.today() - timedelta(days=7)
-        row = (
+
+    def _kmv_row_for(market_key: str, cutoff_date=None):
+        q = (
             db.query(models.KmvPriceCache)
             .filter(models.KmvPriceCache.commodity.ilike(f"%{crop_q}%"))
-            .filter(models.KmvPriceCache.arrival_date >= cutoff)
-            # Match this specific market (KMV names are ALL CAPS; normalize)
             .filter(
-                func.replace(func.replace(func.lower(models.KmvPriceCache.market), ' ', ''), '.', '')
-                    .like(f"%{market_key}%")
+                func.replace(
+                    func.replace(func.lower(models.KmvPriceCache.market), ' ', ''), '.', ''
+                ).like(f"%{market_key}%")
             )
-            .order_by(desc(models.KmvPriceCache.arrival_date))
-            .first()
         )
-        if row is None:
-            continue
+        if cutoff_date is not None:
+            q = q.filter(models.KmvPriceCache.arrival_date >= cutoff_date)
+        return q.order_by(desc(models.KmvPriceCache.arrival_date)).first()
+
+    def _build_ok(row, dist_km, loc, hop):
         return {
             "status":              "ok",
             "crop":                crop_q,
@@ -1844,7 +1850,7 @@ def suggest_price(
             "min_price_kg":        round(float(row.min_price_kg),   2),
             "max_price_kg":        round(float(row.max_price_kg),   2),
             "apmc": {
-                "name":         market_key.title(),
+                "name":         (row.market or loc["district"]).title(),
                 "district":     loc["district"],
                 "state":        loc["state"],
                 "distance_km":  round(dist_km, 1),
@@ -1853,6 +1859,23 @@ def suggest_price(
             "arrival_date":        row.arrival_date.strftime("%d/%m/%Y") if row.arrival_date else None,
             "hop_count":           hop,
         }
+
+    # ── Pass 1: fresh (within last 14 days) ──────────────────────────────────
+    cutoff_recent = date.today() - timedelta(days=14)
+    hop = 0
+    for dist_km, market_key, loc in ranked:
+        hop += 1
+        row = _kmv_row_for(market_key, cutoff_date=cutoff_recent)
+        if row:
+            return _build_ok(row, dist_km, loc, hop)
+
+    # ── Pass 2: best-known (no date cutoff) ──────────────────────────────────
+    hop = 0
+    for dist_km, market_key, loc in ranked:
+        hop += 1
+        row = _kmv_row_for(market_key, cutoff_date=None)
+        if row:
+            return _build_ok(row, dist_km, loc, hop)
 
     # KMV exhausted. Fall back to data.gov.in for the farmer's state (derive
     # from nearest seeded APMC's state, since we don't have a reverse-geocoder).

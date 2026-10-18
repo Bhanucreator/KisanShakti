@@ -27,6 +27,8 @@ backend/.venv/
 **/coverage.xml
 
 # ─── Local SQLite dev databases (production uses managed DB) ────────────
+*.db
+*.sqlite
 backend/*.db
 backend/*.sqlite
 backend/*.db-journal
