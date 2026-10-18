@@ -25,7 +25,12 @@ load_dotenv()
 from models import Base
 target_metadata = Base.metadata
 
-db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/kisanshakti")
+db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/kisanshakti").strip()
+if db_url.startswith("psql "):
+    db_url = db_url[5:].strip()
+db_url = db_url.strip("'\"")
+db_url = db_url.replace("&channel_binding=require", "")
+
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
 elif db_url.startswith("postgresql://"):
