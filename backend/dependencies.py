@@ -23,6 +23,9 @@ def get_token_claims(
     return _jwt_service.decode_token(credentials.credentials)
 
 
+import uuid
+
+
 def get_current_farmer(
     claims: TokenClaims = Depends(get_token_claims),
     db: Session = Depends(get_db),
@@ -35,7 +38,17 @@ def get_current_farmer(
         .first()
     )
     if not farmer:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Farmer profile not found.")
+        # Auto-provision if user holds a valid signed JWT (e.g. after DB migration/switch)
+        farmer = models.FarmerProfile(
+            id=str(uuid.uuid4()),
+            phone_number=claims.phone,
+            full_name=claims.phone,
+            total_land_ha=0.0,
+            cattle_count=0,
+        )
+        db.add(farmer)
+        db.commit()
+        db.refresh(farmer)
     return farmer
 
 
@@ -51,7 +64,17 @@ def get_current_buyer(
         .first()
     )
     if not buyer:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Buyer profile not found.")
+        buyer = models.BuyerProfile(
+            id=str(uuid.uuid4()),
+            phone_number=claims.phone,
+            shop_name="",
+            shop_type=models.ShopType.KIRANA,
+            sourcing_radius_km=10,
+            shop_location="13.1367,78.1325",
+        )
+        db.add(buyer)
+        db.commit()
+        db.refresh(buyer)
     return buyer
 
 
