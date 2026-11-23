@@ -29468,5 +29468,5815 @@
     "min_price_kg": 30.0,
     "max_price_kg": 40.0,
     "modal_price_kg": 35.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2568.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "BALLARI",
+    "commodity": "Paddy",
+    "variety": "Paddy Sona",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3224.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 32.3,
+    "modal_price_kg": 29.5
+  },
+  {
+    "market": "BELTHANGADI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 80.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "BHADRAVATHI",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7772.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 35.87,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 330.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "CHALLAKERE",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 491.0,
+    "min_price_kg": 32.01,
+    "max_price_kg": 39.16,
+    "modal_price_kg": 38.73
+  },
+  {
+    "market": "CHANNAGIRI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 953.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 36.0,
+    "modal_price_kg": 32.33
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Paddy",
+    "variety": "Paddy Sona",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 1257.0,
+    "min_price_kg": 38.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 39.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 27929.0,
+    "min_price_kg": 26.07,
+    "max_price_kg": 40.28,
+    "modal_price_kg": 35.74
+  },
+  {
+    "market": "GANGAVATI",
+    "commodity": "Paddy",
+    "variety": "Paddy RNR New",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 5777.0,
+    "min_price_kg": 39.82,
+    "max_price_kg": 45.3,
+    "modal_price_kg": 41.33
+  },
+  {
+    "market": "GANGAVATI",
+    "commodity": "Paddy",
+    "variety": "Sona Masuri Old",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 340.0,
+    "min_price_kg": 48.0,
+    "max_price_kg": 55.53,
+    "modal_price_kg": 54.47
+  },
+  {
+    "market": "GANGAVATI",
+    "commodity": "Paddy",
+    "variety": "I.R. 64",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 1994.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 22.33
+  },
+  {
+    "market": "HAGARI BOMMANA HALLI",
+    "commodity": "Paddy",
+    "variety": "Sona Mahsuri",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1948.0,
+    "min_price_kg": 38.67,
+    "max_price_kg": 41.3,
+    "modal_price_kg": 39.06
+  },
+  {
+    "market": "HALIYALA",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 781.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 29.0,
+    "modal_price_kg": 29.0
+  },
+  {
+    "market": "HANGAL",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2157.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 34.3,
+    "modal_price_kg": 29.0
+  },
+  {
+    "market": "HARIHARA",
+    "commodity": "Paddy",
+    "variety": "Paddy RNR New",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7490.0,
+    "min_price_kg": 38.2,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 39.1
+  },
+  {
+    "market": "HARIHARA",
+    "commodity": "Paddy",
+    "variety": "Kaveri sona",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 1481.0,
+    "min_price_kg": 34.6,
+    "max_price_kg": 34.6,
+    "modal_price_kg": 34.6
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 28.8,
+    "max_price_kg": 28.8,
+    "modal_price_kg": 28.8
+  },
+  {
+    "market": "HAVERI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 201.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "HOLENARASIPUR",
+    "commodity": "Paddy",
+    "variety": "Paddy Dappa",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 93.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Paddy",
+    "variety": "Paddy Fine Variety",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 225.0,
+    "min_price_kg": 51.38,
+    "max_price_kg": 51.38,
+    "modal_price_kg": 51.38
+  },
+  {
+    "market": "HOOVINAHADAGALI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 13233.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 41.0,
+    "modal_price_kg": 37.77
+  },
+  {
+    "market": "HUNSUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 24.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "K.R.NAGAR",
+    "commodity": "Paddy",
+    "variety": "Paddy Dappa",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 929.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 44.0,
+    "modal_price_kg": 31.82
+  },
+  {
+    "market": "K.R.PET",
+    "commodity": "Paddy",
+    "variety": "Paddy Coarse Variety",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 1400.0,
+    "min_price_kg": 24.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "KALGHATGI",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 29.5,
+    "modal_price_kg": 29.5
+  },
+  {
+    "market": "KALGHATGI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 29.5,
+    "modal_price_kg": 29.5
+  },
+  {
+    "market": "KAMPLI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2588.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 38.6,
+    "modal_price_kg": 36.8
+  },
+  {
+    "market": "KARKALA",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 266.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "KARTAGI",
+    "commodity": "Paddy",
+    "variety": "Kaveri sona",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 2383.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 38.0,
+    "modal_price_kg": 34.37
+  },
+  {
+    "market": "KARTAGI",
+    "commodity": "Paddy",
+    "variety": "Paddy RNR Old",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 840.0,
+    "min_price_kg": 50.5,
+    "max_price_kg": 50.5,
+    "modal_price_kg": 50.5
+  },
+  {
+    "market": "KARWAR",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 160.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 22.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "KOLLEGAL",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1036.0,
+    "min_price_kg": 23.25,
+    "max_price_kg": 47.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "KOPPAL",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 259.0,
+    "min_price_kg": 38.67,
+    "max_price_kg": 38.67,
+    "modal_price_kg": 38.67
+  },
+  {
+    "market": "KUMTA",
+    "commodity": "Paddy",
+    "variety": "Paddy Dappa",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 90.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 26.0
+  },
+  {
+    "market": "LINGASARGUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 252.0,
+    "min_price_kg": 36.16,
+    "max_price_kg": 36.2,
+    "modal_price_kg": 36.16
+  },
+  {
+    "market": "MADDUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 1275.0,
+    "min_price_kg": 23.5,
+    "max_price_kg": 23.5,
+    "modal_price_kg": 23.5
+  },
+  {
+    "market": "MALAVALLI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 1568.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 22.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "MANDYA",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8768.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 26.5,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "MANVI",
+    "commodity": "Paddy",
+    "variety": "Sona Masuri Old",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3555.0,
+    "min_price_kg": 36.0,
+    "max_price_kg": 56.52,
+    "modal_price_kg": 49.25
+  },
+  {
+    "market": "MASKI",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2696.0,
+    "min_price_kg": 31.3,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 33.5
+  },
+  {
+    "market": "MUNDAGOD",
+    "commodity": "Paddy",
+    "variety": "Paddy Malnad Gidda",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 180.0,
+    "min_price_kg": 34.25,
+    "max_price_kg": 34.25,
+    "modal_price_kg": 34.25
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 35.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "NANDAGAD",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1770.0,
+    "min_price_kg": 26.5,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "NIPPANI",
+    "commodity": "Paddy",
+    "variety": "I.R. 50",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "PANDAVAPURA",
+    "commodity": "Paddy",
+    "variety": "Paddy Dappa",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 2105.0,
+    "min_price_kg": 18.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "PANDAVAPURA",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 105.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "PERIYAPATNA",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 750.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 22.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "RAICHUR",
+    "commodity": "Paddy",
+    "variety": "Sona Mahsuri",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 34761.0,
+    "min_price_kg": 23.06,
+    "max_price_kg": 39.99,
+    "modal_price_kg": 36.7
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1003.0,
+    "min_price_kg": 36.5,
+    "max_price_kg": 36.5,
+    "modal_price_kg": 36.5
+  },
+  {
+    "market": "SHAHAPUR",
+    "commodity": "Paddy",
+    "variety": "Paddy Sona",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 357.0,
+    "min_price_kg": 37.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 37.0
+  },
+  {
+    "market": "SHAHAPUR",
+    "commodity": "Paddy",
+    "variety": "I.R. 20",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 940.0,
+    "min_price_kg": 36.0,
+    "max_price_kg": 36.0,
+    "modal_price_kg": 36.0
+  },
+  {
+    "market": "SHIGGAON",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 300.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 27.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "SHIKARIPUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 60.0,
+    "min_price_kg": 23.2,
+    "max_price_kg": 23.2,
+    "modal_price_kg": 23.2
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Paddy",
+    "variety": "Paddy Fine Variety",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 505.0,
+    "min_price_kg": 34.0,
+    "max_price_kg": 34.0,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "SINDHANUR",
+    "commodity": "Paddy",
+    "variety": "Paddy RNR Old",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 11593.0,
+    "min_price_kg": 28.34,
+    "max_price_kg": 54.5,
+    "modal_price_kg": 37.0
+  },
+  {
+    "market": "SINDHANUR",
+    "commodity": "Paddy",
+    "variety": "Sona Masuri Old",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 2899.0,
+    "min_price_kg": 16.3,
+    "max_price_kg": 17.1,
+    "modal_price_kg": 16.3
+  },
+  {
+    "market": "SINDHANUR",
+    "commodity": "Paddy",
+    "variety": "Paddy RNR New",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 216.0,
+    "min_price_kg": 21.0,
+    "max_price_kg": 21.0,
+    "modal_price_kg": 21.0
+  },
+  {
+    "market": "SIRAGUPPA",
+    "commodity": "Paddy",
+    "variety": "Paddy RNR New",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2626.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "SIRAGUPPA",
+    "commodity": "Paddy",
+    "variety": "Kaveri sona",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 6787.0,
+    "min_price_kg": 28.98,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 29.0
+  },
+  {
+    "market": "SIRSI",
+    "commodity": "Paddy",
+    "variety": "Paddy Medium Variety",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 662.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 31.5,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "SORABHA",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 150.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SRIRANGAPATNA",
+    "commodity": "Paddy",
+    "variety": "Jaya",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 3032.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 34.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Paddy",
+    "variety": "Paddy",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2653.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "TUMAKURU",
+    "commodity": "Paddy",
+    "variety": "Paddy Sona",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 1948.0,
+    "min_price_kg": 27.0,
+    "max_price_kg": 36.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "YELLAPURA",
+    "commodity": "Paddy",
+    "variety": "Padma",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 160.0,
+    "min_price_kg": 27.5,
+    "max_price_kg": 27.5,
+    "modal_price_kg": 27.5
+  },
+  {
+    "market": "ANNIGERI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 528.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 947.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 32.79,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 14.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "ATHANI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 146.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BADAMI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 1459.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "BAGALKOT",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2046.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 32.3,
+    "modal_price_kg": 31.87
+  },
+  {
+    "market": "BALLARI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 425.0,
+    "min_price_kg": 26.51,
+    "max_price_kg": 34.59,
+    "modal_price_kg": 31.85
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 2877.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 32.8,
+    "modal_price_kg": 31.75
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 365.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 29.0
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Maize",
+    "variety": "Popcorn",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 65.0,
+    "min_price_kg": 65.0,
+    "max_price_kg": 75.0,
+    "modal_price_kg": 70.0
+  },
+  {
+    "market": "BHADRAVATHI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1853.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 34.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BILAGI",
+    "commodity": "Maize",
+    "variety": "Other",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 151.0,
+    "min_price_kg": 27.6,
+    "max_price_kg": 27.6,
+    "modal_price_kg": 27.6
+  },
+  {
+    "market": "BYADGI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 706.0,
+    "min_price_kg": 17.8,
+    "max_price_kg": 28.5,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "CHALLAKERE",
+    "commodity": "Maize",
+    "variety": "Yellow",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 650.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 31.5,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "CHANNAGIRI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 556.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 26.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Maize",
+    "variety": "Sweet Corn (For Biscuits)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 32.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "CHITRADURGA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 7891.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 33.96,
+    "modal_price_kg": 31.81
+  },
+  {
+    "market": "CHITRADURGA",
+    "commodity": "Maize",
+    "variety": "Popcorn",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 44.09,
+    "max_price_kg": 46.21,
+    "modal_price_kg": 45.88
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6150.0,
+    "min_price_kg": 27.86,
+    "max_price_kg": 33.25,
+    "modal_price_kg": 31.94
+  },
+  {
+    "market": "DHARWAR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 119.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "ENDI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 43.0,
+    "min_price_kg": 29.92,
+    "max_price_kg": 29.92,
+    "modal_price_kg": 29.92
+  },
+  {
+    "market": "GADAG",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 752.0,
+    "min_price_kg": 18.14,
+    "max_price_kg": 32.3,
+    "modal_price_kg": 31.33
+  },
+  {
+    "market": "GANGAVATI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 1995.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 30.22,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "GOKAK",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 533.0,
+    "min_price_kg": 28.71,
+    "max_price_kg": 28.71,
+    "modal_price_kg": 28.71
+  },
+  {
+    "market": "GUNDLUPET",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 36.0,
+    "min_price_kg": 38.0,
+    "max_price_kg": 38.0,
+    "modal_price_kg": 38.0
+  },
+  {
+    "market": "HAGARI BOMMANA HALLI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 344.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 29.5,
+    "modal_price_kg": 29.5
+  },
+  {
+    "market": "HALIYALA",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1890.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 32.2,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HANGAL",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 12710.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "HANUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HARAPANAHALLI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6710.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 30.88
+  },
+  {
+    "market": "HARIHARA",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2475.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2352.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "HAVERI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 579.0,
+    "min_price_kg": 26.3,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 30.5
+  },
+  {
+    "market": "HIREKERUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 1000.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "HIRIYUR",
+    "commodity": "Maize",
+    "variety": "Popcorn",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 927.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 42.0,
+    "modal_price_kg": 38.96
+  },
+  {
+    "market": "HOLALKERE",
+    "commodity": "Maize",
+    "variety": "Yellow",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 873.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 30.61
+  },
+  {
+    "market": "HOLENARASIPUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 280.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10998.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HOOVINAHADAGALI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 12067.0,
+    "min_price_kg": 24.8,
+    "max_price_kg": 34.8,
+    "modal_price_kg": 29.57
+  },
+  {
+    "market": "HOSADURGA",
+    "commodity": "Maize",
+    "variety": "Popcorn",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 281.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "HUBBALLI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 80.0,
+    "min_price_kg": 30.7,
+    "max_price_kg": 32.11,
+    "modal_price_kg": 31.51
+  },
+  {
+    "market": "HUNGUND",
+    "commodity": "Maize",
+    "variety": "Popcorn",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 157.0,
+    "min_price_kg": 49.0,
+    "max_price_kg": 49.0,
+    "modal_price_kg": 49.0
+  },
+  {
+    "market": "HUNGUND",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 69.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "JAGALUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 3500.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 29.0,
+    "modal_price_kg": 29.0
+  },
+  {
+    "market": "K.R.NAGAR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 1100.0,
+    "min_price_kg": 32.5,
+    "max_price_kg": 32.6,
+    "modal_price_kg": 32.58
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Maize",
+    "variety": "Other",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 49.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "KALGHATGI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 4804.0,
+    "min_price_kg": 26.5,
+    "max_price_kg": 31.3,
+    "modal_price_kg": 30.15
+  },
+  {
+    "market": "KANAKAGIRI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 351.0,
+    "min_price_kg": 31.5,
+    "max_price_kg": 31.5,
+    "modal_price_kg": 31.5
+  },
+  {
+    "market": "KOLLEGAL",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 80.0,
+    "min_price_kg": 21.0,
+    "max_price_kg": 21.0,
+    "modal_price_kg": 21.0
+  },
+  {
+    "market": "KOPPAL",
+    "commodity": "Maize",
+    "variety": "Yellow",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 71.0,
+    "min_price_kg": 25.3,
+    "max_price_kg": 31.7,
+    "modal_price_kg": 29.8
+  },
+  {
+    "market": "KOTTUR",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 5700.0,
+    "min_price_kg": 28.08,
+    "max_price_kg": 32.88,
+    "modal_price_kg": 31.82
+  },
+  {
+    "market": "KUDCHI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KUDLIGI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 1400.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KUNDGOL",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 737.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 31.2
+  },
+  {
+    "market": "KUSTAGI",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 875.0,
+    "min_price_kg": 27.5,
+    "max_price_kg": 31.5,
+    "modal_price_kg": 30.04
+  },
+  {
+    "market": "LAXMESHWAR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 19.0,
+    "min_price_kg": 28.9,
+    "max_price_kg": 29.9,
+    "modal_price_kg": 29.74
+  },
+  {
+    "market": "LINGASARGUR",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 200.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "MANDYA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 695.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "MUDHOL",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 1184.0,
+    "min_price_kg": 30.5,
+    "max_price_kg": 31.41,
+    "modal_price_kg": 30.94
+  },
+  {
+    "market": "MUNDAGOD",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 722.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 250.0,
+    "min_price_kg": 33.5,
+    "max_price_kg": 33.5,
+    "modal_price_kg": 33.5
+  },
+  {
+    "market": "NANDAGAD",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 683.0,
+    "min_price_kg": 32.8,
+    "max_price_kg": 32.8,
+    "modal_price_kg": 32.8
+  },
+  {
+    "market": "NARGUND",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 10006.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 31.02
+  },
+  {
+    "market": "PERIYAPATNA",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 689.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "RAMDURGA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 835.0,
+    "min_price_kg": 30.5,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 31.5
+  },
+  {
+    "market": "RAMPURA",
+    "commodity": "Maize",
+    "variety": "Other",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 615.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 26.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 11672.0,
+    "min_price_kg": 31.5,
+    "max_price_kg": 33.6,
+    "modal_price_kg": 32.52
+  },
+  {
+    "market": "RONA",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 788.0,
+    "min_price_kg": 27.0,
+    "max_price_kg": 33.33,
+    "modal_price_kg": 32.91
+  },
+  {
+    "market": "SANKESHWAR",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 134.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "SANTHESARGUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "SAVADATTI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 630.0,
+    "min_price_kg": 31.3,
+    "max_price_kg": 31.3,
+    "modal_price_kg": 31.3
+  },
+  {
+    "market": "SAVANUR",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 4000.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SHIGGAON",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 9034.0,
+    "min_price_kg": 29.5,
+    "max_price_kg": 31.8,
+    "modal_price_kg": 30.3
+  },
+  {
+    "market": "SHIKARIPUR",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 7324.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 29.96
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1312.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 34.1,
+    "modal_price_kg": 32.4
+  },
+  {
+    "market": "SIRA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 170.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SIRSI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 451.0,
+    "min_price_kg": 33.5,
+    "max_price_kg": 34.0,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "SORABHA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1962.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 29.32
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Maize",
+    "variety": "Yellow",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 188.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "TALIKOTE",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 75.0,
+    "min_price_kg": 28.5,
+    "max_price_kg": 32.09,
+    "modal_price_kg": 29.68
+  },
+  {
+    "market": "VIJAYAPURA",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 11639.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 31.56,
+    "modal_price_kg": 31.18
+  },
+  {
+    "market": "YARAGATTI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 156.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 31.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "YARAHALLI",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 150.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "YELBURGA",
+    "commodity": "Maize",
+    "variety": "Hybrid/Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 467.0,
+    "min_price_kg": 30.5,
+    "max_price_kg": 30.5,
+    "modal_price_kg": 30.5
+  },
+  {
+    "market": "YELLAPURA",
+    "commodity": "Maize",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 175.0,
+    "min_price_kg": 24.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 300.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 29.0,
+    "modal_price_kg": 29.0
+  },
+  {
+    "market": "BALLARI",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 182.0,
+    "min_price_kg": 32.13,
+    "max_price_kg": 32.89,
+    "modal_price_kg": 32.4
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 502.0,
+    "min_price_kg": 49.0,
+    "max_price_kg": 51.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "BHADRAVATHI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 160.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 26.0
+  },
+  {
+    "market": "C.R.PATNA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 34.0,
+    "max_price_kg": 34.0,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "CHALLAKERE",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 125.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "CHANNAGIRI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "CHITRADURGA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 808.0,
+    "min_price_kg": 28.75,
+    "max_price_kg": 37.9,
+    "modal_price_kg": 32.27
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1966.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 34.54,
+    "modal_price_kg": 32.77
+  },
+  {
+    "market": "GUBBI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "GUBBI",
+    "commodity": "Ragi",
+    "variety": "Feeds (Poultry Quality)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 48.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 42.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "GUNDLUPET",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 250.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "HAGARI BOMMANA HALLI",
+    "commodity": "Ragi",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 300.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "HANGAL",
+    "commodity": "Ragi",
+    "variety": "Medium",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 250.0,
+    "min_price_kg": 33.4,
+    "max_price_kg": 33.6,
+    "modal_price_kg": 33.6
+  },
+  {
+    "market": "HARAPANAHALLI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1019.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 33.9,
+    "modal_price_kg": 32.25
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Ragi",
+    "variety": "Other",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 298.0,
+    "min_price_kg": 36.5,
+    "max_price_kg": 36.5,
+    "modal_price_kg": 36.5
+  },
+  {
+    "market": "HAVERI",
+    "commodity": "Ragi",
+    "variety": "Medium",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "HIREKERUR",
+    "commodity": "Ragi",
+    "variety": "Red",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 328.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "HOLALKERE",
+    "commodity": "Ragi",
+    "variety": "Red",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 200.0,
+    "min_price_kg": 33.5,
+    "max_price_kg": 33.5,
+    "modal_price_kg": 33.5
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 335.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "HOSADURGA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 913.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 38.0,
+    "modal_price_kg": 36.0
+  },
+  {
+    "market": "JAGALUR",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "JAGALUR",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 241.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "K.R.NAGAR",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 105.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KANAKAPURA",
+    "commodity": "Ragi",
+    "variety": "Feeds (Poultry Quality)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 90.0,
+    "min_price_kg": 34.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 34.5
+  },
+  {
+    "market": "KOPPAL",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 259.0,
+    "min_price_kg": 28.9,
+    "max_price_kg": 30.75,
+    "modal_price_kg": 30.41
+  },
+  {
+    "market": "KOTTUR",
+    "commodity": "Ragi",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 214.0,
+    "min_price_kg": 29.16,
+    "max_price_kg": 34.36,
+    "modal_price_kg": 32.65
+  },
+  {
+    "market": "KUDLIGI",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 520.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "MANDYA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 328.0,
+    "min_price_kg": 34.95,
+    "max_price_kg": 35.8,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "MANDYA",
+    "commodity": "Ragi",
+    "variety": "Other",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 2023.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 35.25,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 378.0,
+    "min_price_kg": 33.75,
+    "max_price_kg": 34.39,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "NAGAMANGALA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 241.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 43.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "PANDAVAPURA",
+    "commodity": "Ragi",
+    "variety": "Other",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "PERIYAPATNA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 165.0,
+    "min_price_kg": 36.0,
+    "max_price_kg": 36.0,
+    "modal_price_kg": 36.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Ragi",
+    "variety": "Fine",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 300.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 36.0,
+    "modal_price_kg": 35.5
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 923.0,
+    "min_price_kg": 26.8,
+    "max_price_kg": 33.49,
+    "modal_price_kg": 30.14
+  },
+  {
+    "market": "SANTHESARGUR",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 34.0,
+    "max_price_kg": 34.0,
+    "modal_price_kg": 34.0
+  },
+  {
+    "market": "SAVANUR",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 200.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 450.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SIRA",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 47.0,
+    "min_price_kg": 43.57,
+    "max_price_kg": 43.57,
+    "modal_price_kg": 43.57
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 1000.0,
+    "min_price_kg": 33.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "TUMAKURU",
+    "commodity": "Ragi",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 529.0,
+    "min_price_kg": 31.0,
+    "max_price_kg": 46.0,
+    "modal_price_kg": 38.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Banana",
+    "variety": "Elakki Bale",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 577.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 85.0,
+    "modal_price_kg": 47.5
+  },
+  {
+    "market": "CHANNAPATNA",
+    "commodity": "Banana",
+    "variety": "Elakki Bale",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 65.0,
+    "min_price_kg": 45.0,
+    "max_price_kg": 76.0,
+    "modal_price_kg": 67.0
+  },
+  {
+    "market": "CHANNAPATNA",
+    "commodity": "Banana",
+    "variety": "Pachha Bale",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 14.0,
+    "min_price_kg": 9.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Banana",
+    "variety": "Elakki Bale",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 66.0,
+    "modal_price_kg": 54.0
+  },
+  {
+    "market": "UDIPI",
+    "commodity": "Banana",
+    "variety": "Medium",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 52.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "YELLAPURA",
+    "commodity": "Banana",
+    "variety": "Other",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 32.89,
+    "max_price_kg": 34.16,
+    "modal_price_kg": 34.16
+  },
+  {
+    "market": "BAGALKOT",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 105.0,
+    "min_price_kg": 60.0,
+    "max_price_kg": 62.0,
+    "modal_price_kg": 60.67
+  },
+  {
+    "market": "BALLARI",
+    "commodity": "Groundnut",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 373.0,
+    "min_price_kg": 46.19,
+    "max_price_kg": 108.09,
+    "modal_price_kg": 85.15
+  },
+  {
+    "market": "BALLARI",
+    "commodity": "Groundnut",
+    "variety": "Big (With Shell)",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 404.0,
+    "min_price_kg": 42.19,
+    "max_price_kg": 105.01,
+    "modal_price_kg": 87.69
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Groundnut",
+    "variety": "Big (With Shell)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 63.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "CHALLAKERE",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 404.0,
+    "min_price_kg": 50.09,
+    "max_price_kg": 111.89,
+    "modal_price_kg": 86.65
+  },
+  {
+    "market": "CHITRADURGA",
+    "commodity": "Groundnut",
+    "variety": "Natte",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 217.0,
+    "min_price_kg": 38.91,
+    "max_price_kg": 105.89,
+    "modal_price_kg": 84.74
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 55.6,
+    "max_price_kg": 55.6,
+    "modal_price_kg": 55.6
+  },
+  {
+    "market": "GADAG",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 71.0,
+    "min_price_kg": 40.09,
+    "max_price_kg": 106.59,
+    "modal_price_kg": 84.25
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Groundnut",
+    "variety": "Other",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 119.05,
+    "max_price_kg": 119.05,
+    "modal_price_kg": 119.05
+  },
+  {
+    "market": "HIRIYUR",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 49.0,
+    "min_price_kg": 51.89,
+    "max_price_kg": 101.69,
+    "modal_price_kg": 93.46
+  },
+  {
+    "market": "HUBBALLI",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 115.0,
+    "min_price_kg": 66.21,
+    "max_price_kg": 107.0,
+    "modal_price_kg": 88.75
+  },
+  {
+    "market": "KOPPAL",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 81.7,
+    "max_price_kg": 106.19,
+    "modal_price_kg": 98.2
+  },
+  {
+    "market": "KOTTUR",
+    "commodity": "Groundnut",
+    "variety": "Natte",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 85.0,
+    "min_price_kg": 52.7,
+    "max_price_kg": 110.1,
+    "modal_price_kg": 89.59
+  },
+  {
+    "market": "KUDLIGI",
+    "commodity": "Groundnut",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 81.0,
+    "max_price_kg": 81.0,
+    "modal_price_kg": 81.0
+  },
+  {
+    "market": "LAXMESHWAR",
+    "commodity": "Groundnut",
+    "variety": "Balli/Habbu",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 139.0,
+    "min_price_kg": 23.49,
+    "max_price_kg": 125.0,
+    "modal_price_kg": 74.16
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Groundnut",
+    "variety": "Big (With Shell)",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 1.0,
+    "min_price_kg": 58.5,
+    "max_price_kg": 58.5,
+    "modal_price_kg": 58.5
+  },
+  {
+    "market": "RAICHUR",
+    "commodity": "Groundnut",
+    "variety": "Gungri (With Shell)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 95.0,
+    "min_price_kg": 52.85,
+    "max_price_kg": 81.96,
+    "modal_price_kg": 74.15
+  },
+  {
+    "market": "RAMDURGA",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 55.0,
+    "max_price_kg": 75.9,
+    "modal_price_kg": 56.9
+  },
+  {
+    "market": "SAVANUR",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 33.0,
+    "min_price_kg": 45.11,
+    "max_price_kg": 94.95,
+    "modal_price_kg": 73.83
+  },
+  {
+    "market": "SIRA",
+    "commodity": "Groundnut",
+    "variety": "Other",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 91.64,
+    "max_price_kg": 91.64,
+    "modal_price_kg": 91.64
+  },
+  {
+    "market": "VIJAYAPURA",
+    "commodity": "Groundnut",
+    "variety": "Gejje",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 61.52,
+    "max_price_kg": 61.52,
+    "modal_price_kg": 61.52
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 317.0,
+    "min_price_kg": 160.0,
+    "max_price_kg": 180.0,
+    "modal_price_kg": 170.0
+  },
+  {
+    "market": "CHALLAKERE",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 150.0,
+    "min_price_kg": 138.0,
+    "max_price_kg": 138.0,
+    "modal_price_kg": 138.0
+  },
+  {
+    "market": "GADAG",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 174.0,
+    "min_price_kg": 120.0,
+    "max_price_kg": 136.18,
+    "modal_price_kg": 125.6
+  },
+  {
+    "market": "HIRIYUR",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 949.0,
+    "min_price_kg": 117.0,
+    "max_price_kg": 147.0,
+    "modal_price_kg": 134.04
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 350.0,
+    "min_price_kg": 80.0,
+    "max_price_kg": 80.0,
+    "modal_price_kg": 80.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1.0,
+    "min_price_kg": 75.7,
+    "max_price_kg": 75.7,
+    "modal_price_kg": 75.7
+  },
+  {
+    "market": "SIRA",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 150.0,
+    "min_price_kg": 103.0,
+    "max_price_kg": 103.0,
+    "modal_price_kg": 103.0
+  },
+  {
+    "market": "VIJAYAPURA",
+    "commodity": "Groundnut Seed",
+    "variety": "Ground Nut Seed",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 250.0,
+    "min_price_kg": 125.0,
+    "max_price_kg": 125.0,
+    "modal_price_kg": 125.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 13.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 16.0
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3919.0,
+    "min_price_kg": 90.0,
+    "max_price_kg": 250.0,
+    "modal_price_kg": 140.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 140.0,
+    "max_price_kg": 160.0,
+    "modal_price_kg": 150.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 130.0,
+    "max_price_kg": 168.0,
+    "modal_price_kg": 160.0
+  },
+  {
+    "market": "GANGAVATI",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 72.0,
+    "max_price_kg": 92.0,
+    "modal_price_kg": 72.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 164.0,
+    "min_price_kg": 102.51,
+    "max_price_kg": 122.28,
+    "modal_price_kg": 109.89
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 54.0,
+    "max_price_kg": 70.0,
+    "modal_price_kg": 70.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 119.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 180.0,
+    "modal_price_kg": 115.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 90.0,
+    "min_price_kg": 90.0,
+    "max_price_kg": 110.0,
+    "modal_price_kg": 100.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 110.0,
+    "max_price_kg": 280.0,
+    "modal_price_kg": 200.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Garlic",
+    "variety": "Garlic",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 80.0,
+    "max_price_kg": 90.0,
+    "modal_price_kg": 90.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 22.0,
+    "min_price_kg": 230.0,
+    "max_price_kg": 230.0,
+    "modal_price_kg": 230.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 31.0,
+    "min_price_kg": 180.0,
+    "max_price_kg": 180.0,
+    "modal_price_kg": 180.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 169.0,
+    "max_price_kg": 169.0,
+    "modal_price_kg": 169.0
+  },
+  {
+    "market": "BYADGI",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 184.0,
+    "min_price_kg": 183.0,
+    "max_price_kg": 183.0,
+    "modal_price_kg": 183.0
+  },
+  {
+    "market": "GUNDLUPET",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 17.0,
+    "min_price_kg": 250.0,
+    "max_price_kg": 250.0,
+    "modal_price_kg": 250.0
+  },
+  {
+    "market": "HUNSUR",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 180.0,
+    "max_price_kg": 180.0,
+    "modal_price_kg": 180.0
+  },
+  {
+    "market": "PERIYAPATNA",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 28.0,
+    "min_price_kg": 180.0,
+    "max_price_kg": 180.0,
+    "modal_price_kg": 180.0
+  },
+  {
+    "market": "SANTHESARGUR",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 65.0,
+    "min_price_kg": 185.0,
+    "max_price_kg": 185.0,
+    "modal_price_kg": 185.0
+  },
+  {
+    "market": "SHIKARIPUR",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 107.0,
+    "min_price_kg": 290.0,
+    "max_price_kg": 290.0,
+    "modal_price_kg": 290.0
+  },
+  {
+    "market": "TIRTHAHALLI",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 90.0,
+    "min_price_kg": 180.59,
+    "max_price_kg": 180.59,
+    "modal_price_kg": 180.59
+  },
+  {
+    "market": "YARAHALLI",
+    "commodity": "Ginger",
+    "variety": "Dry",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 82.0,
+    "min_price_kg": 162.0,
+    "max_price_kg": 162.0,
+    "modal_price_kg": 162.0
+  },
+  {
+    "market": "BALLARI",
+    "commodity": "Dry Chillies",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 109.0,
+    "min_price_kg": 150.0,
+    "max_price_kg": 700.0,
+    "modal_price_kg": 365.5
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Dry Chillies",
+    "variety": "Guntur",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 96.0,
+    "min_price_kg": 280.0,
+    "max_price_kg": 370.0,
+    "modal_price_kg": 325.0
+  },
+  {
+    "market": "BYADGI",
+    "commodity": "Dry Chillies",
+    "variety": "Dabbi",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2197.0,
+    "min_price_kg": 64.19,
+    "max_price_kg": 781.19,
+    "modal_price_kg": 628.09
+  },
+  {
+    "market": "CHALLAKERE",
+    "commodity": "Dry Chillies",
+    "variety": "Byadgi",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 190.0,
+    "min_price_kg": 60.0,
+    "max_price_kg": 85.0,
+    "modal_price_kg": 75.0
+  },
+  {
+    "market": "GADAG",
+    "commodity": "Dry Chillies",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 582.0,
+    "min_price_kg": 60.99,
+    "max_price_kg": 750.09,
+    "modal_price_kg": 293.06
+  },
+  {
+    "market": "HUBBALLI",
+    "commodity": "Dry Chillies",
+    "variety": "Kaddi",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 75.0,
+    "min_price_kg": 172.0,
+    "max_price_kg": 572.0,
+    "modal_price_kg": 377.75
+  },
+  {
+    "market": "MANDYA",
+    "commodity": "Dry Chillies",
+    "variety": "Other",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 157.0,
+    "min_price_kg": 90.0,
+    "max_price_kg": 101.09,
+    "modal_price_kg": 90.0
+  },
+  {
+    "market": "MANGALURU",
+    "commodity": "Dry Chillies",
+    "variety": "Other",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 200.0,
+    "max_price_kg": 300.0,
+    "modal_price_kg": 250.0
+  },
+  {
+    "market": "MANVI",
+    "commodity": "Dry Chillies",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 140.0,
+    "min_price_kg": 42.0,
+    "max_price_kg": 42.0,
+    "modal_price_kg": 42.0
+  },
+  {
+    "market": "SHAHAPUR",
+    "commodity": "Dry Chillies",
+    "variety": "Byadgi",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 109.0,
+    "min_price_kg": 185.0,
+    "max_price_kg": 190.0,
+    "modal_price_kg": 190.0
+  },
+  {
+    "market": "SHIGGAON",
+    "commodity": "Dry Chillies",
+    "variety": "Other",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 95.0,
+    "min_price_kg": 125.0,
+    "max_price_kg": 125.0,
+    "modal_price_kg": 125.0
+  },
+  {
+    "market": "SINDHANUR",
+    "commodity": "Dry Chillies",
+    "variety": "Byadgi",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 54.0,
+    "min_price_kg": 512.0,
+    "max_price_kg": 512.0,
+    "modal_price_kg": 512.0
+  },
+  {
+    "market": "SIRSI",
+    "commodity": "Dry Chillies",
+    "variety": "Other",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 62.0,
+    "min_price_kg": 219.29,
+    "max_price_kg": 263.25,
+    "modal_price_kg": 246.15
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 17.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "BAGALKOT",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 4343.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 38.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 12.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 43.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Onion",
+    "variety": "Pusa-Red",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1182.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 24.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Onion",
+    "variety": "Bangalore Small",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 18221.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Onion",
+    "variety": "Bellary Red",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 85.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 54.0,
+    "modal_price_kg": 52.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Onion",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Onion",
+    "variety": "Other",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 44.0,
+    "min_price_kg": 44.0,
+    "max_price_kg": 48.0,
+    "modal_price_kg": 46.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1650.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 49.0,
+    "modal_price_kg": 44.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 22.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "GADAG",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3935.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Onion",
+    "variety": "Other",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 11.0,
+    "max_price_kg": 11.0,
+    "modal_price_kg": 11.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Onion",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 130.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 35.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "HUBBALLI",
+    "commodity": "Onion",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 13800.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 52.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 47.0,
+    "min_price_kg": 33.32,
+    "max_price_kg": 36.21,
+    "modal_price_kg": 33.32
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 3205.0,
+    "min_price_kg": 5.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Onion",
+    "variety": "Other",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 2310.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 48.0,
+    "modal_price_kg": 42.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 18.0,
+    "min_price_kg": 44.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Onion",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 480.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 10.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 75.0,
+    "min_price_kg": 45.0,
+    "max_price_kg": 68.0,
+    "modal_price_kg": 55.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 45.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "UDIPI",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 171.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 43.0
+  },
+  {
+    "market": "VIJAYAPURA",
+    "commodity": "Onion",
+    "variety": "Bombay (U.P.)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 11805.0,
+    "min_price_kg": 5.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 39.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 17.0,
+    "max_price_kg": 22.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2809.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 11.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 4642.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 375.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 16.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Potato",
+    "variety": "Other",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 93.0,
+    "min_price_kg": 18.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 18.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 155.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 125.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 14.0,
+    "modal_price_kg": 14.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "HUBBALLI",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1440.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 250.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 14.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "MYSURU",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 890.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 14.0
+  },
+  {
+    "market": "NANJANGUD",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 23.8,
+    "max_price_kg": 33.33,
+    "modal_price_kg": 27.77
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 140.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Potato",
+    "variety": "Other",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 11.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 12.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "UDIPI",
+    "commodity": "Potato",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 333.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 14.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 29.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 70.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 80.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 29.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 24.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 12.0,
+    "modal_price_kg": 11.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 37.0,
+    "min_price_kg": 18.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 18.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 7.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 18.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 58.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 12.0,
+    "modal_price_kg": 11.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 20.82,
+    "max_price_kg": 20.82,
+    "modal_price_kg": 20.82
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 105.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Cauliflower",
+    "variety": "Local",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 33.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 12.5
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 28.5,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 17.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 27.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Brinjal",
+    "variety": "Other",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 113.0,
+    "min_price_kg": 26.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Brinjal",
+    "variety": "Other",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "CHANNAPATNA",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 43.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Brinjal",
+    "variety": "Round/Long",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 5.0,
+    "max_price_kg": 8.0,
+    "modal_price_kg": 6.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 16.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Brinjal",
+    "variety": "Other",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 18.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 20.82,
+    "max_price_kg": 27.76,
+    "modal_price_kg": 20.82
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 24.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "MULBAGAL",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "NANJANGUD",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 45.0,
+    "min_price_kg": 23.8,
+    "max_price_kg": 41.66,
+    "modal_price_kg": 37.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 90.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "YARAHALLI",
+    "commodity": "Brinjal",
+    "variety": "Round",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 13.83,
+    "max_price_kg": 13.83,
+    "modal_price_kg": 13.83
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 250.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 151.0,
+    "min_price_kg": 2.3,
+    "max_price_kg": 36.1,
+    "modal_price_kg": 21.5
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 36.0,
+    "min_price_kg": 13.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 60.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 21.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 498.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 27.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "CHANNAPATNA",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 19.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 379.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1177.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 33.33,
+    "modal_price_kg": 16.66
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 7.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 35.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 16.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "GUBBI",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 12.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 80.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "GUNDLUPET",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 37.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 36.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 89.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 12.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "K.R.PET",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 76.0,
+    "min_price_kg": 16.65,
+    "max_price_kg": 22.26,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 7.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 11.0
+  },
+  {
+    "market": "KANAKAPURA",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 44.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 8300.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 33.3,
+    "modal_price_kg": 16.0
+  },
+  {
+    "market": "MULBAGAL",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1615.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 26.66,
+    "modal_price_kg": 13.33
+  },
+  {
+    "market": "NAGAMANGALA",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "NANJANGUD",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 37.0,
+    "max_price_kg": 46.66,
+    "modal_price_kg": 41.66
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 36.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 44.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 7.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 487.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "SRINIVASPUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 846.0,
+    "min_price_kg": 13.33,
+    "max_price_kg": 43.33,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "TUMAKURU",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "YARAHALLI",
+    "commodity": "Tomato",
+    "variety": "Hybrid",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 16.6,
+    "max_price_kg": 16.6,
+    "modal_price_kg": 16.6
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Chilly Capsicum",
+    "variety": "Chilly Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 27.0,
+    "max_price_kg": 32.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Chilly Capsicum",
+    "variety": "Chilly Capsicum",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 26.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Chilly Capsicum",
+    "variety": "Chilly Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Chilly Capsicum",
+    "variety": "Chilly Capsicum",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 48.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Chilly Capsicum",
+    "variety": "Chilly Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 60.0,
+    "max_price_kg": 80.0,
+    "modal_price_kg": 72.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Banana Green",
+    "variety": "Banana - Green (Balekai)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 24.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Banana Green",
+    "variety": "Banana - Green (Balekai)",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 89.0,
+    "min_price_kg": 18.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "KUNDAPUR",
+    "commodity": "Banana Green",
+    "variety": "Banana - Green (Balekai)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 86.0,
+    "min_price_kg": 75.0,
+    "max_price_kg": 90.0,
+    "modal_price_kg": 80.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Banana Green",
+    "variety": "Banana - Green (Balekai)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 83.0,
+    "max_price_kg": 90.0,
+    "modal_price_kg": 86.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 111.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 27.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 22.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 13.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 174.0,
+    "min_price_kg": 45.0,
+    "max_price_kg": 55.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 21.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 100.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 57.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 55.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 11.0,
+    "max_price_kg": 48.0,
+    "modal_price_kg": 38.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "GUNDLUPET",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 57.0,
+    "max_price_kg": 57.0,
+    "modal_price_kg": 57.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 60.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 60.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 18.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 19.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 14.0,
+    "min_price_kg": 27.75,
+    "max_price_kg": 33.3,
+    "modal_price_kg": 27.76
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 32.5
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 35.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 52.0
+  },
+  {
+    "market": "MALUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 313.0,
+    "min_price_kg": 45.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "MULBAGAL",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 56.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 56.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 70.0,
+    "modal_price_kg": 55.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Beans",
+    "variety": "Beans (Whole)",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 520.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 180.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 14.0,
+    "modal_price_kg": 14.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 65.0,
+    "modal_price_kg": 60.0
+  },
+  {
+    "market": "BELUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 184.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "BENGALURU",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 130.0,
+    "min_price_kg": 41.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 54.0,
+    "min_price_kg": 120.0,
+    "max_price_kg": 130.0,
+    "modal_price_kg": 125.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 55.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 7250.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 24.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HUNSUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 710.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 110.0,
+    "min_price_kg": 100.0,
+    "max_price_kg": 150.0,
+    "modal_price_kg": 130.0
+  },
+  {
+    "market": "MUDIGERE",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 153.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "MUNDAGOD",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 210.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 10.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "NIPPANI",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 67.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "PERIYAPATNA",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1278.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 16.0,
+    "modal_price_kg": 16.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 44.0,
+    "max_price_kg": 100.0,
+    "modal_price_kg": 80.0
+  },
+  {
+    "market": "SAKLESHPUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 10.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "SANTHESARGUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 378.0,
+    "min_price_kg": 22.0,
+    "max_price_kg": 22.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "SHIKARIPUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 120.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 280.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SOMWARPET",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 1350.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 16.66,
+    "modal_price_kg": 16.66
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 50.0
+  },
+  {
+    "market": "TIRTHAHALLI",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 30.0,
+    "min_price_kg": 100.0,
+    "max_price_kg": 100.0,
+    "modal_price_kg": 100.0
+  },
+  {
+    "market": "YARAHALLI",
+    "commodity": "Green Ginger",
+    "variety": "Green Ginger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 320.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Sweet Potato",
+    "variety": "Sweet Potato",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 315.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 21.0,
+    "modal_price_kg": 18.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Sweet Potato",
+    "variety": "Sweet Potato",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 105.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 33.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Sweet Potato",
+    "variety": "Sweet Potato",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "UDIPI",
+    "commodity": "Sweet Potato",
+    "variety": "Sweet Potato",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 38.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 39.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 26.0,
+    "min_price_kg": 21.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 308.0,
+    "min_price_kg": 9.0,
+    "max_price_kg": 11.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 90.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Carrot",
+    "variety": "Others",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 22.0,
+    "min_price_kg": 38.0,
+    "max_price_kg": 38.0,
+    "modal_price_kg": 38.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 25.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 43.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Carrot",
+    "variety": "Others",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 38.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 108.0,
+    "min_price_kg": 29.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 13.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 41.65,
+    "max_price_kg": 41.65,
+    "modal_price_kg": 41.65
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 96.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "MALUR",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 721.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 42.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "MULBAGAL",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "NANJANGUD",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 23.8,
+    "max_price_kg": 33.33,
+    "modal_price_kg": 27.77
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 36.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 32.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Carrot",
+    "variety": "Pusakesar",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "ARAKALGUD",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 110.0,
+    "min_price_kg": 5.0,
+    "max_price_kg": 10.0,
+    "modal_price_kg": 5.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 28.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 10.0,
+    "modal_price_kg": 9.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 12.0,
+    "modal_price_kg": 8.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 70.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 338.0,
+    "min_price_kg": 9.0,
+    "max_price_kg": 11.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 10.0,
+    "modal_price_kg": 9.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 350.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 5.0,
+    "modal_price_kg": 4.5
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 60.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 14.0,
+    "modal_price_kg": 14.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 13.0,
+    "modal_price_kg": 11.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 38.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 7.0,
+    "modal_price_kg": 6.5
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 60.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 12.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 95.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 8.0,
+    "modal_price_kg": 7.0
+  },
+  {
+    "market": "MALUR",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 355.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 7.5,
+    "modal_price_kg": 7.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 17.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 75.0,
+    "min_price_kg": 4.0,
+    "max_price_kg": 6.0,
+    "modal_price_kg": 5.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "YARAHALLI",
+    "commodity": "Cabbage",
+    "variety": "Cabbage",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 18.0,
+    "min_price_kg": 13.83,
+    "max_price_kg": 13.83,
+    "modal_price_kg": 13.83
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 45.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 47.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 171.0,
+    "min_price_kg": 27.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 21.0
+  },
+  {
+    "market": "CHANNAPATNA",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 4.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 37.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 37.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 37.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 33.0,
+    "modal_price_kg": 31.5
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 49.0,
+    "min_price_kg": 34.0,
+    "max_price_kg": 36.0,
+    "modal_price_kg": 36.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 27.75,
+    "max_price_kg": 27.76,
+    "modal_price_kg": 27.75
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 2.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 27.5
+  },
+  {
+    "market": "MULBAGAL",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 8.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 10.0
+  },
+  {
+    "market": "NANJANGUD",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 45.0,
+    "min_price_kg": 23.8,
+    "max_price_kg": 41.66,
+    "modal_price_kg": 37.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 60.0,
+    "modal_price_kg": 55.0
+  },
+  {
+    "market": "RANIBENNUR",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Ladies Finger",
+    "variety": "Ladies Finger",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 33.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 11.0,
+    "min_price_kg": 18.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 19.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 212.0,
+    "min_price_kg": 27.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 28.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 22.0,
+    "modal_price_kg": 18.5
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 105.0,
+    "min_price_kg": 14.0,
+    "max_price_kg": 18.0,
+    "modal_price_kg": 16.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 17.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 7.0,
+    "max_price_kg": 23.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 23.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 14.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "HONNALI",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 5.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 13.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 1.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 95.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 18.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 32.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 46.0,
+    "min_price_kg": 16.0,
+    "max_price_kg": 26.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Beetroot",
+    "variety": "Beetroot",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 17.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 24.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 160.0,
+    "min_price_kg": 23.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 24.0
+  },
+  {
+    "market": "C.R.NAGAR",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 15.0,
+    "modal_price_kg": 12.0
+  },
+  {
+    "market": "CHIKKAMAGALURU",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 11.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 9.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 31.0
+  },
+  {
+    "market": "DODDABALLAPUR",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "GOWRIBIDNUR",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HASSAN",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 44.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "HOSKOTE",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-19",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 28.0,
+    "max_price_kg": 35.0,
+    "modal_price_kg": 32.0
+  },
+  {
+    "market": "KADUR",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 20.82,
+    "max_price_kg": 27.76,
+    "modal_price_kg": 20.82
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 0.2,
+    "max_price_kg": 0.3,
+    "modal_price_kg": 0.25
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 36.0,
+    "min_price_kg": 6.0,
+    "max_price_kg": 8.0,
+    "modal_price_kg": 7.0
+  },
+  {
+    "market": "NANJANGUD",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 40.0,
+    "min_price_kg": 23.8,
+    "max_price_kg": 33.33,
+    "modal_price_kg": 27.77
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 10.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 15.0
+  },
+  {
+    "market": "T.NARSIPUR",
+    "commodity": "Raddish",
+    "variety": "Raddish",
+    "arrival_date": "2026-11-20",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 15.0,
+    "max_price_kg": 20.0,
+    "modal_price_kg": 20.0
+  },
+  {
+    "market": "ARSIKERE",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "BAGEPALLI",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 16.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
+  },
+  {
+    "market": "BANGARPET",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 8.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 25.0,
+    "modal_price_kg": 22.0
+  },
+  {
+    "market": "BELAGAVI",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 70.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 147.0,
+    "min_price_kg": 25.0,
+    "max_price_kg": 28.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "CHIKKABALLAPURA",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-18",
+    "arrivals_qtl": 12.0,
+    "min_price_kg": 50.0,
+    "max_price_kg": 55.0,
+    "modal_price_kg": 53.0
+  },
+  {
+    "market": "CHINTAMANI",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 7.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 12.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "KALABURAGI",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 3.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 40.0,
+    "modal_price_kg": 35.0
+  },
+  {
+    "market": "KOLAR",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-22",
+    "arrivals_qtl": 50.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 46.0
+  },
+  {
+    "market": "MALUR",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-17",
+    "arrivals_qtl": 162.0,
+    "min_price_kg": 35.0,
+    "max_price_kg": 42.0,
+    "modal_price_kg": 40.0
+  },
+  {
+    "market": "RAMANAGARA",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 6.0,
+    "min_price_kg": 60.0,
+    "max_price_kg": 70.0,
+    "modal_price_kg": 65.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Capsicum",
+    "variety": "Capsicum",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 22.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 50.0,
+    "modal_price_kg": 45.0
+  },
+  {
+    "market": "BINNY MILL (F&V)",
+    "commodity": "Bunch Beans",
+    "variety": "Bunch Beans",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 71.0,
+    "min_price_kg": 40.0,
+    "max_price_kg": 45.0,
+    "modal_price_kg": 43.0
+  },
+  {
+    "market": "DAVANAGERE",
+    "commodity": "Bunch Beans",
+    "variety": "Bunch Beans",
+    "arrival_date": "2026-11-21",
+    "arrivals_qtl": 15.0,
+    "min_price_kg": 11.0,
+    "max_price_kg": 37.0,
+    "modal_price_kg": 27.0
+  },
+  {
+    "market": "HOSAPETE",
+    "commodity": "Bunch Beans",
+    "variety": "Bunch Beans",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 20.0,
+    "min_price_kg": 30.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 30.0
+  },
+  {
+    "market": "SHIVAMOGGA",
+    "commodity": "Bunch Beans",
+    "variety": "Bunch Beans",
+    "arrival_date": "2026-11-23",
+    "arrivals_qtl": 10.0,
+    "min_price_kg": 20.0,
+    "max_price_kg": 30.0,
+    "modal_price_kg": 25.0
   }
 ]

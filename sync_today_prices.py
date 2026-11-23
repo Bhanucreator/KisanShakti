@@ -197,31 +197,58 @@ def main():
             print(f"      [Local SQLite] Note: {e}")
 
     # B: Live Render Cloud API
-    print(f"      [Render Cloud] Pushing to {RENDER_API_BASE}...")
+    print(f"      [Render Cloud] Connecting to {RENDER_API_BASE}...")
     try:
-        # Push in batches of 100
-        batch_size = 100
-        total_pushed = 0
         headers = {"X-Sync-Key": SYNC_KEY, "Content-Type": "application/json"}
-        with httpx.Client(timeout=30.0) as client:
+        # Render free tier goes to sleep; wake it up with a generous 90s timeout
+        with httpx.Client(timeout=90.0) as client:
+            try:
+                print("      [Render Cloud] Pinging cloud server to wake it up...", end=" ", flush=True)
+                ping = client.get(f"{RENDER_API_BASE}/api/v1/market/prices?limit=1")
+                print(f"online (HTTP {ping.status_code})")
+            except Exception as e:
+                print(f"wait note: {e}")
+
+            # Push in batches of 100 with retries
+            batch_size = 100
+            total_pushed = 0
             for i in range(0, len(fetched_records), batch_size):
                 batch = fetched_records[i:i + batch_size]
-                resp = client.post(
-                    f"{RENDER_API_BASE}/api/v1/market/push-kmv",
-                    json={"records": batch},
-                    headers=headers
-                )
-                if resp.status_code == 200:
-                    total_pushed += len(batch)
-                elif resp.status_code == 404:
-                    print("      [Render Cloud] Cloud backend has not redeployed the push endpoint yet.")
-                    print("                     Commit & push your code to GitHub to enable cloud auto-sync.")
+                batch_num = (i // batch_size) + 1
+                total_batches = (len(fetched_records) + batch_size - 1) // batch_size
+                print(f"      [Render Cloud] Sending batch {batch_num}/{total_batches} ({len(batch)} records)...", end=" ", flush=True)
+                
+                success = False
+                for attempt in range(2):
+                    try:
+                        resp = client.post(
+                            f"{RENDER_API_BASE}/api/v1/market/push-kmv",
+                            json={"records": batch},
+                            headers=headers
+                        )
+                        if resp.status_code == 200:
+                            total_pushed += len(batch)
+                            print("OK")
+                            success = True
+                            break
+                        elif resp.status_code == 404:
+                            print("endpoint not ready")
+                            break
+                        else:
+                            print(f"error {resp.status_code}")
+                            break
+                    except Exception as err:
+                        if attempt == 0:
+                            print("retrying...", end=" ", flush=True)
+                        else:
+                            print(f"failed: {err}")
+                if not success and resp.status_code == 404:
                     break
-                else:
-                    print(f"      [Render Cloud] Push error {resp.status_code}: {resp.text[:100]}")
-                    break
+
         if total_pushed > 0:
-            print(f"      [Render Cloud] Successfully updated {total_pushed} live records on Render!")
+            print(f"      [Render Cloud] Successfully pushed {total_pushed} live records to Render!")
+        else:
+            print("      [Render Cloud] Note: Direct push did not complete. Pushing code to GitHub will sync automatically via kmv_seed.json.")
     except Exception as e:
         print(f"      [Render Cloud] Network push note: {e}")
 

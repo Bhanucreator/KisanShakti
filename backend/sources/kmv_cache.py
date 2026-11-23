@@ -118,16 +118,16 @@ def refresh_commodity(db: Session, comm_name: str, on_date: Optional[date] = Non
 
 def seed_cache_if_empty(db: Session) -> int:
     """
-    If kmv_price_cache table is empty (e.g. freshly created production database
-    on Render where scraping the live portal from cloud data centers times out),
-    seed it from the packaged baseline snapshot in backend/data/kmv_seed.json.
+    Seed or incrementally update kmv_price_cache from backend/data/kmv_seed.json.
+    If table is empty: bulk inserts all records.
+    If table already has records: automatically inserts records with arrival_date
+    newer than the latest date currently in the database.
     """
-    if db.query(models.KmvPriceCache.id).first() is not None:
-        return 0
-
     import json
     import uuid
     from pathlib import Path
+    from sqlalchemy import func
+
     seed_file = Path(__file__).resolve().parent.parent / "data" / "kmv_seed.json"
     if not seed_file.exists():
         log.warning("[kmv-cache] Seed file %s not found", seed_file)
@@ -136,9 +136,25 @@ def seed_cache_if_empty(db: Session) -> int:
     try:
         with open(seed_file, "r", encoding="utf-8") as f:
             records = json.load(f)
+        if not records:
+            return 0
+
+        max_db_date = db.query(func.max(models.KmvPriceCache.arrival_date)).scalar()
+
+        if max_db_date is None:
+            target_records = records
+        else:
+            target_records = [
+                r for r in records
+                if datetime.strptime(r["arrival_date"], "%Y-%m-%d").date() > max_db_date
+            ]
+
+        if not target_records:
+            return 0
+
         objects = []
         now = datetime.utcnow()
-        for r in records:
+        for r in target_records:
             arr_d = datetime.strptime(r["arrival_date"], "%Y-%m-%d").date()
             objects.append(models.KmvPriceCache(
                 id             = str(uuid.uuid4()),
@@ -154,7 +170,7 @@ def seed_cache_if_empty(db: Session) -> int:
             ))
         db.bulk_save_objects(objects)
         db.commit()
-        log.info("[kmv-cache] Seeded %d KMV price rows into kmv_price_cache from %s", len(objects), seed_file.name)
+        log.info("[kmv-cache] Seeded %d new KMV price rows into kmv_price_cache from %s", len(objects), seed_file.name)
         return len(objects)
     except Exception as e:
         db.rollback()
